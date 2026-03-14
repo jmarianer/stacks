@@ -1,13 +1,25 @@
 <script lang="ts">
-  let { value, color, top, left } = $props();
+  import Draggable from './Draggable.svelte';
+
+  let { value, color, top, left, onDrag } = $props<{
+    value: number;
+    color: string;
+    top: number;
+    left: number;
+    onDrag: (dx: number, dy: number) => void;
+  }>();
 </script>
 
-<div class="card" style="background-color: {color}; top: {top}vmin; left: {left}vmin">
+<Draggable
+  class="card"
+  style="background-color: {color}; top: {top}vmin; left: {left}vmin"
+  {onDrag}
+>
   <div class="circle">{value}</div>
-</div>
+</Draggable>
 
 <style>
-  .card {
+  :global .card {
     width: 20vmin;
     height: 28vmin;
     border-radius: 1vmin;

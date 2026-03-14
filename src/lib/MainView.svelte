@@ -2,23 +2,26 @@
   // import SettingsDialog from '$lib/SettingsDialog.svelte';
   // let settingsDialog: SettingsDialog;
   import Card from '$lib/Card.svelte';
+  import Draggable from './Draggable.svelte';
 
   let scale = $state(1);
   let translateX = $state(0);
   let translateY = $state(0);
+
+  let vmin = $state(0);
 
   let isDragging = false;
   let lastMouseX = 0;
   let lastMouseY = 0;
 
   $effect(() => {
-    const vmin = Math.min(window.innerWidth, window.innerHeight);
-    const boardSize = vmin * 1.4;
+    vmin = Math.min(window.innerWidth, window.innerHeight) / 100;
+    const boardSize = vmin * 140;
     translateX = (window.innerWidth - boardSize) / 2;
     translateY = (window.innerHeight - boardSize) / 2;
   });
 
-  function onwheel(e: WheelEvent) {
+  function onWheel(e: WheelEvent) {
     e.preventDefault();
 
     console.log(e.deltaY);
@@ -28,24 +31,6 @@
     translateX = e.clientX - (e.clientX - translateX) * (newScale / scale);
     translateY = e.clientY - (e.clientY - translateY) * (newScale / scale);
     scale = newScale;
-  }
-
-  function onmousedown(e: MouseEvent) {
-    isDragging = true;
-    lastMouseX = e.clientX;
-    lastMouseY = e.clientY;
-  }
-
-  function onmousemove(e: MouseEvent) {
-    if (!isDragging) return;
-    translateX += e.clientX - lastMouseX;
-    translateY += e.clientY - lastMouseY;
-    lastMouseX = e.clientX;
-    lastMouseY = e.clientY;
-  }
-
-  function onmouseup() {
-    isDragging = false;
   }
 
   function onkeydown(e: KeyboardEvent) {
@@ -71,20 +56,31 @@
 
 <div class="viewport">
   <!-- svelte-ignore a11y_no_static_element_interactions -->
-  <div
+  <Draggable
+    onDrag={(dx, dy) => {
+      translateX += dx;
+      translateY += dy;
+    }}
     class="board"
     style="transform: translate({translateX}px, {translateY}px) scale({scale})"
-    {onwheel}
-    {onmousedown}
-    {onmousemove}
+    onwheel={onWheel}
   >
     {#each cards as card}
-      <Card value={card.value} color={card.color} top={card.y} left={card.x} />
+      <Card
+        value={card.value}
+        color={card.color}
+        top={card.y}
+        left={card.x}
+        onDrag={(dx, dy) => {
+          card.x += dx / (vmin * scale);
+          card.y += dy / (vmin * scale);
+        }}
+      />
     {/each}
-  </div>
+  </Draggable>
 </div>
 
-<svelte:window {onkeydown} {onmouseup} />
+<svelte:window {onkeydown} />
 
 <style>
   .viewport {
@@ -95,7 +91,7 @@
     position: relative;
   }
 
-  .board {
+  :global .board {
     width: 140vmin;
     height: 140vmin;
     position: relative;
