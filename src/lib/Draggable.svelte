@@ -37,7 +37,6 @@
 
 <svelte:window onmouseup={onMouseUp} onmousemove={onMouseMove} />
 
-<!-- svelte-ignore a11y_no_static_element_interactions -->
 <div class={className} onmousedown={onMouseDown} {...rest}>
   {@render children()}
 </div>

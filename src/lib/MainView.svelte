@@ -10,10 +10,6 @@
 
   let vmin = $state(0);
 
-  let isDragging = false;
-  let lastMouseX = 0;
-  let lastMouseY = 0;
-
   $effect(() => {
     vmin = Math.min(window.innerWidth, window.innerHeight) / 100;
     const boardSize = vmin * 140;
@@ -33,7 +29,7 @@
     scale = newScale;
   }
 
-  function onkeydown(e: KeyboardEvent) {
+  function onKeyDown(e: KeyboardEvent) {
     const speed = 20;
     if (e.key === 'w') translateY += speed;
     if (e.key === 's') translateY -= speed;
@@ -55,7 +51,6 @@
 </script>
 
 <div class="viewport">
-  <!-- svelte-ignore a11y_no_static_element_interactions -->
   <Draggable
     onDrag={(dx, dy) => {
       translateX += dx;
@@ -65,7 +60,7 @@
     style="transform: translate({translateX}px, {translateY}px) scale({scale})"
     onwheel={onWheel}
   >
-    {#each cards as card}
+    {#each cards as card, i (i)}
       <Card
         value={card.value}
         color={card.color}
@@ -80,7 +75,7 @@
   </Draggable>
 </div>
 
-<svelte:window {onkeydown} />
+<svelte:window onkeydown={onKeyDown} />
 
 <style>
   .viewport {
