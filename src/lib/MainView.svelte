@@ -55,6 +55,18 @@
     if (e.key === 'a') translateX += speed;
     if (e.key === 'd') translateX -= speed;
   }
+
+  type Card = {
+    value: number;
+    color: string;
+    x: number;
+    y: number;
+  };
+
+  let cards = $state<Card[]>([
+    { value: 1, color: 'hotpink', x: 50, y: 50 },
+    { value: 2, color: 'hotpink', x: 20, y: 50 }
+  ]);
 </script>
 
 <div class="viewport">
@@ -66,10 +78,8 @@
     {onmousedown}
     {onmousemove}
   >
-    {#each { length: 2 } as _, row}
-      {#each { length: 3 } as _, col}
-        <Card value={row * 7 + col + 1} left={col * 40 + 20} top={row * 48 + 20} color="lightgray" />
-      {/each}
+    {#each cards as card}
+      <Card value={card.value} color={card.color} top={card.y} left={card.x} />
     {/each}
   </div>
 </div>
