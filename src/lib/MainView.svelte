@@ -1,7 +1,8 @@
 <script lang="ts">
   // import SettingsDialog from '$lib/SettingsDialog.svelte';
-
   // let settingsDialog: SettingsDialog;
+  import Card from '$lib/Card.svelte';
+
   let scale = $state(1);
   let translateX = $state(0);
   let translateY = $state(0);
@@ -12,7 +13,7 @@
 
   $effect(() => {
     const vmin = Math.min(window.innerWidth, window.innerHeight);
-    const boardSize = vmin * 1.5;
+    const boardSize = vmin * 1.4;
     translateX = (window.innerWidth - boardSize) / 2;
     translateY = (window.innerHeight - boardSize) / 2;
   });
@@ -64,7 +65,13 @@
     {onwheel}
     {onmousedown}
     {onmousemove}
-  ></div>
+  >
+    {#each { length: 2 } as _, row}
+      {#each { length: 3 } as _, col}
+        <Card value={row * 7 + col + 1} left={col * 40 + 20} top={row * 48 + 20} color="lightgray" />
+      {/each}
+    {/each}
+  </div>
 </div>
 
 <svelte:window {onkeydown} {onmouseup} />
@@ -79,11 +86,13 @@
   }
 
   .board {
-    width: 150vmin;
-    height: 150vmin;
+    width: 140vmin;
+    height: 140vmin;
+    position: relative;
     background-color: darkolivegreen;
     transform-origin: 0 0;
     border: 1vmin solid rgba(0, 0, 0, 0.8);
     border-radius: 5vmin;
+    overflow: hidden;
   }
 </style>
