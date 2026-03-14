@@ -7,10 +7,12 @@
     children,
     class: className,
     ...rest
-  } = $props<{
-    onDrag: (dx: number, dy: number) => void;
-    children: Snippet;
-  } & HTMLAttributes<HTMLDivElement>>();
+  } = $props<
+    {
+      onDrag: (dx: number, dy: number) => void;
+      children: Snippet;
+    } & HTMLAttributes<HTMLDivElement>
+  >();
 
   let isDragging = false;
   let lastX = 0;
