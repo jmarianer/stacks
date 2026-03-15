@@ -2,17 +2,20 @@
   import type { Snippet } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
 
+  export interface DragProps {
+    onDrag: (dx: number, dy: number) => void;
+    onDragStart?: () => void;
+    onDragEnd?: () => void;
+  }
+
   let {
     onDrag,
+    onDragStart,
+    onDragEnd,
     children,
     class: className,
     ...rest
-  } = $props<
-    {
-      onDrag: (dx: number, dy: number) => void;
-      children: Snippet;
-    } & HTMLAttributes<HTMLDivElement>
-  >();
+  } = $props<DragProps & { children: Snippet } & HTMLAttributes<HTMLDivElement>>();
 
   let isDragging = false;
   let lastX = 0;
@@ -23,6 +26,7 @@
     lastX = e.clientX;
     lastY = e.clientY;
     e.stopPropagation();
+    onDragStart?.();
   }
 
   function onMouseMove(e: MouseEvent) {
@@ -33,6 +37,7 @@
   }
 
   function onMouseUp() {
+    if (isDragging) onDragEnd?.();
     isDragging = false;
   }
 </script>
