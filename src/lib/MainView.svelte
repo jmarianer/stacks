@@ -20,13 +20,11 @@
   function onWheel(e: WheelEvent) {
     e.preventDefault();
 
-    console.log(e.deltaY);
     const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
-    const newScale = scale * zoomFactor;
 
-    translateX = e.clientX - (e.clientX - translateX) * (newScale / scale);
-    translateY = e.clientY - (e.clientY - translateY) * (newScale / scale);
-    scale = newScale;
+    scale = scale * zoomFactor;
+    translateX = e.clientX - (e.clientX - translateX) * zoomFactor;
+    translateY = e.clientY - (e.clientY - translateY) * zoomFactor;
   }
 
   function onKeyDown(e: KeyboardEvent) {
