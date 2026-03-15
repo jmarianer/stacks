@@ -1,3 +1,7 @@
+<script module lang="ts">
+  export const BOARD_SIZE = 140;
+</script>
+
 <script lang="ts">
   // import SettingsDialog from '$lib/SettingsDialog.svelte';
   // let settingsDialog: SettingsDialog;
@@ -12,7 +16,7 @@
 
   $effect(() => {
     vmin = Math.min(window.innerWidth, window.innerHeight) / 100;
-    const boardSize = vmin * 140;
+    const boardSize = vmin * BOARD_SIZE;
     translateX = (window.innerWidth - boardSize) / 2;
     translateY = (window.innerHeight - boardSize) / 2;
   });
@@ -74,18 +78,15 @@
           const overlapY = CARD_H - Math.abs(dy);
 
           if (!a.dragging && !b.dragging && overlapX > 0 && overlapY > 0) {
-            // Push along the axis of least overlap
-            if (overlapX < overlapY) {
-              const push = (overlapX / 2) * 0.1;
-              const dir = dx >= 0 ? 1 : -1;
-              a.vx -= dir * push;
-              b.vx += dir * push;
-            } else {
-              const push = (overlapY / 2) * 0.1;
-              const dir = dy >= 0 ? 1 : -1;
-              a.vy -= dir * push;
-              b.vy += dir * push;
-            }
+            // Push away from center-to-center vector
+            const centerDist = Math.sqrt(dx * dx + dy * dy);
+            const forceMagnitude = Math.min(Math.min(overlapX, overlapY) / 20, 0.25);
+            const separationX = centerDist === 0 ? 1 : dx / centerDist;
+            const separationY = centerDist === 0 ? 0 : dy / centerDist;
+            a.vx -= separationX * forceMagnitude;
+            a.vy -= separationY * forceMagnitude;
+            b.vx += separationX * forceMagnitude;
+            b.vy += separationY * forceMagnitude;
           }
         }
       }
@@ -96,6 +97,13 @@
           card.vy = 0;
           continue;
         }
+
+        // Bumpers: push card back if it strays outside the board
+        if (card.x < 0) card.vx += Math.min(-card.x * 0.05, 0.5);
+        if (card.x + CARD_W > BOARD_SIZE) card.vx -= Math.min((card.x + CARD_W - BOARD_SIZE) * 0.05, 0.5);
+        if (card.y < 0) card.vy += Math.min(-card.y * 0.05, 0.5);
+        if (card.y + CARD_H > BOARD_SIZE) card.vy -= Math.min((card.y + CARD_H - BOARD_SIZE) * 0.05, 0.5);
+
         card.x += card.vx;
         card.y += card.vy;
         card.vx *= 0.9;
@@ -117,7 +125,11 @@
       translateY += dy;
     }}
     class="board"
-    style="transform: translate({translateX}px, {translateY}px) scale({scale})"
+    style="
+      width: {BOARD_SIZE}vmin;
+      height: {BOARD_SIZE}vmin;
+      transform: translate({translateX}px, {translateY}px) scale({scale});
+    "
     onwheel={onWheel}
   >
     {#each cards as card (card.id)}
@@ -152,8 +164,6 @@
   }
 
   :global .board {
-    width: 140vmin;
-    height: 140vmin;
     position: relative;
     background-color: darkolivegreen;
     transform-origin: 0 0;
