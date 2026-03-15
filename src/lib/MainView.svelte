@@ -9,31 +9,30 @@
   import { tick } from '$lib/physics';
 
   let scale = $state(1);
-  let translateX = $state(0);
-  let translateY = $state(0);
+  let translate = $state({ x: 0, y: 0 });
   let vmin = $state(0);
 
   $effect(() => {
     vmin = Math.min(window.innerWidth, window.innerHeight) / 100;
     const boardSize = vmin * BOARD_SIZE;
-    translateX = (window.innerWidth - boardSize) / 2;
-    translateY = (window.innerHeight - boardSize) / 2;
+    translate.x = (window.innerWidth - boardSize) / 2;
+    translate.y = (window.innerHeight - boardSize) / 2;
   });
 
   function onWheel(e: WheelEvent) {
     e.preventDefault();
     const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
     scale = scale * zoomFactor;
-    translateX = e.clientX - (e.clientX - translateX) * zoomFactor;
-    translateY = e.clientY - (e.clientY - translateY) * zoomFactor;
+    translate.x = e.clientX - (e.clientX - translate.x) * zoomFactor;
+    translate.y = e.clientY - (e.clientY - translate.y) * zoomFactor;
   }
 
   function onKeyDown(e: KeyboardEvent) {
     const speed = 20;
-    if (e.key === 'w') translateY += speed;
-    if (e.key === 's') translateY -= speed;
-    if (e.key === 'a') translateX += speed;
-    if (e.key === 'd') translateX -= speed;
+    if (e.key === 'w') translate.y += speed;
+    if (e.key === 's') translate.y -= speed;
+    if (e.key === 'a') translate.x += speed;
+    if (e.key === 'd') translate.x -= speed;
   }
 
   let stacks = $state<Stack[]>(initialStacks);
@@ -47,8 +46,7 @@
     )
   );
 
-  let mouseX = 0;
-  let mouseY = 0;
+  let mousePosition = { x: 0, y: 0 };
 
   function handleDragStart(stack: Stack, cardIndex: number, e: MouseEvent) {
     if (e.ctrlKey || cardIndex === 0) {
@@ -91,11 +89,11 @@
 
     // Convert mouse to board coordinate space
     const boardMouse = {
-      x: (mouseX - translateX) / (vmin * scale),
-      y: (mouseY - translateY) / (vmin * scale),
+      x: (mousePosition.x - translate.x) / (vmin * scale),
+      y: (mousePosition.y - translate.y) / (vmin * scale),
     };
 
-    // Mark the first stack whose circle contains the mouse as the drop target
+    // Mark the first stack whose drop target rectangle contains the mouse
     let foundTarget = false;
     for (const stack of stacks) {
       if (stack.dragging) {
@@ -136,14 +134,14 @@
 <div class="viewport">
   <Draggable
     onDrag={(dx, dy) => {
-      translateX += dx;
-      translateY += dy;
+      translate.x += dx;
+      translate.y += dy;
     }}
     class="board"
     style="
       width: {BOARD_SIZE}vmin;
       height: {BOARD_SIZE}vmin;
-      transform: translate({translateX}px, {translateY}px) scale({scale});
+      transform: translate({translate.x}px, {translate.y}px) scale({scale});
     "
     onwheel={onWheel}
   >
@@ -167,8 +165,8 @@
 <svelte:window
   onkeydown={onKeyDown}
   onmousemove={(e) => {
-    mouseX = e.clientX;
-    mouseY = e.clientY;
+    mousePosition.x = e.clientX;
+    mousePosition.y = e.clientY;
   }}
 />
 
