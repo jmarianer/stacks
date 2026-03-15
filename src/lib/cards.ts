@@ -81,28 +81,48 @@ export function computeResult(stack: Stack): number | null {
   }
 }
 
+export type ShopItem = {
+  id: number;
+  cardType: CardType;
+  price: number;
+  symbol: string;
+  label: string;
+  color: string;
+};
+
 export type Board = {
   id: number;
   name: string;
   stacks: Stack[];
   width: number; // vmin
   height: number; // vmin
+  currency: number;
+  shop: ShopItem[];
 };
 
-export function makeBoard(name: string, stacks: Stack[], width: number, height: number): Board {
-  return { id: nextId++, name, stacks, width, height };
+export function makeBoard(
+  name: string,
+  stacks: Stack[],
+  width: number,
+  height: number,
+  currency: number = 0,
+  shop: Omit<ShopItem, 'id'>[] = [],
+): Board {
+  return {
+    id: nextId++,
+    name,
+    stacks,
+    width,
+    height,
+    currency,
+    shop: shop.map((item) => ({ ...item, id: nextId++ })),
+  };
 }
 
 export const initialBoards: Board[] = [
   makeBoard(
     'Board 1',
     [
-      makeStack({ x: 50, y: 50 }, [
-        { type: 'add', value: 0, title: 'Add', symbol: '+', color: 'hotpink' },
-      ]),
-      makeStack({ x: 20, y: 50 }, [
-        { type: 'multiply', value: 0, title: 'Multiply', symbol: '×', color: 'hotpink' },
-      ]),
       makeStack({ x: 80, y: 30 }, [
         { type: 'number', value: 3, title: 'Number', symbol: '3', color: 'cornflowerblue' },
         { type: 'number', value: 4, title: 'Number', symbol: '4', color: 'cornflowerblue' },
@@ -115,5 +135,10 @@ export const initialBoards: Board[] = [
     ],
     176,
     112,
+    0,
+    [
+      { cardType: 'add', price: 3, symbol: '+', label: 'Add', color: 'hotpink' },
+      { cardType: 'multiply', price: 8, symbol: '×', label: 'Multiply', color: 'hotpink' },
+    ],
   ),
 ];
