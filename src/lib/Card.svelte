@@ -2,16 +2,17 @@
   import Draggable, { type DragProps } from './Draggable.svelte';
   import { CARD_W, CARD_H } from '$lib/constants';
 
-  let { value, color, top, left, onDrag, onDragStart, onDragEnd } = $props<{
+  let { value, color, top, left, isDropTarget = false, onDrag, onDragStart, onDragEnd } = $props<{
     value: number;
     color: string;
     top: number;
     left: number;
+    isDropTarget?: boolean;
   } & DragProps>();
 </script>
 
 <Draggable
-  class="card"
+  class="card {isDropTarget ? 'drop-target' : ''}"
   style="
     top: {top}vmin;
     left: {left}vmin;
@@ -31,6 +32,9 @@
     border-radius: 1vmin;
     position: absolute;
     border: 0.5vmin solid #000;
+    &.drop-target {
+      outline: 3px solid white;
+    }
   }
 
   .circle {

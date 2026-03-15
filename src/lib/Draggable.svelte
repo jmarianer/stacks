@@ -4,7 +4,7 @@
 
   export interface DragProps {
     onDrag: (dx: number, dy: number) => void;
-    onDragStart?: () => void;
+    onDragStart?: (e: MouseEvent) => void;
     onDragEnd?: () => void;
   }
 
@@ -26,7 +26,7 @@
     lastX = e.clientX;
     lastY = e.clientY;
     e.stopPropagation();
-    onDragStart?.();
+    onDragStart?.(e);
   }
 
   function onMouseMove(e: MouseEvent) {
