@@ -1,5 +1,5 @@
-import { CARD_W, CARD_H, BOARD_SIZE, STACK_CARD_OFFSET_Y, STACK_CARD_OFFSET_X } from '$lib/constants';
-import type { Stack } from '$lib/cards';
+import { CARD_W, CARD_H, STACK_CARD_OFFSET_Y, STACK_CARD_OFFSET_X } from '$lib/constants';
+import type { Stack, Board } from '$lib/cards';
 import { type Vec2, sub, len, norm, addScaled } from '$lib/utils/vec2';
 import { rectCenter, rectExtend, type Rect } from './utils/rect';
 
@@ -16,7 +16,8 @@ function stackCenter(stack: Stack): Vec2 {
   return rectCenter(stackDimensions(stack));
 }
 
-export function tick(stacks: Stack[]): void {
+export function tick(board: Board): void {
+  const stacks = board.stacks;
   // Accumulate velocities, then apply them all at once
   const velocities: Record<number, Vec2> = {};
   for (const stack of stacks) {
@@ -54,14 +55,14 @@ export function tick(stacks: Stack[]): void {
     if (x < BOARD_PADDING) {
       velocities[stack.id].x += (BOARD_PADDING - x) * 0.05;
     }
-    if (x + width > BOARD_SIZE - BOARD_PADDING) {
-      velocities[stack.id].x -= (x + width - (BOARD_SIZE - BOARD_PADDING)) * 0.05;
+    if (x + width > board.width - BOARD_PADDING) {
+      velocities[stack.id].x -= (x + width - (board.width - BOARD_PADDING)) * 0.05;
     }
     if (y < BOARD_PADDING) {
       velocities[stack.id].y += (BOARD_PADDING - y) * 0.05;
     }
-    if (y + height > BOARD_SIZE - BOARD_PADDING) {
-      velocities[stack.id].y -= (y + height - (BOARD_SIZE - BOARD_PADDING)) * 0.05;
+    if (y + height > board.height - BOARD_PADDING) {
+      velocities[stack.id].y -= (y + height - (board.height - BOARD_PADDING)) * 0.05;
     }
 
     // Speed limit
