@@ -61,9 +61,13 @@
 
     function tick() {
       for (let i = 0; i < cards.length; i++) {
+        const a = cards[i];
+        if (a.dragging) continue;
+
         for (let j = i + 1; j < cards.length; j++) {
-          const a = cards[i];
           const b = cards[j];
+          if (b.dragging) continue;
+
           const dx = b.x - a.x;
           const dy = b.y - a.y;
           const overlapX = CARD_W - Math.abs(dx);
@@ -123,9 +127,9 @@
         top={card.y}
         left={card.x}
         onDragStart={() => {
-            card.dragging = true;
-            cards = [...cards.filter(c => c.id !== card.id), card];
-          }}
+          card.dragging = true;
+          cards = [...cards.filter((c) => c.id !== card.id), card];
+        }}
         onDragEnd={() => (card.dragging = false)}
         onDrag={(dx, dy) => {
           card.x += dx / (vmin * scale);
