@@ -12,8 +12,12 @@
   let translate = $state({ x: 0, y: 0 });
   let vmin = $state(0);
 
-  $effect(() => {
+  function updateVmin() {
     vmin = Math.min(window.innerWidth, window.innerHeight) / 100;
+  }
+
+  $effect(() => {
+    updateVmin();
     const boardSize = vmin * BOARD_SIZE;
     translate.x = (window.innerWidth - boardSize) / 2;
     translate.y = (window.innerHeight - boardSize) / 2;
@@ -211,6 +215,7 @@
 </div>
 
 <svelte:window
+  onresize={updateVmin}
   onkeydown={onKeyDown}
   onmousemove={(e) => {
     mousePosition.x = e.clientX;
