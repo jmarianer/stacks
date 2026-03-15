@@ -2,10 +2,23 @@
   // import SettingsDialog from '$lib/SettingsDialog.svelte';
   // let settingsDialog: SettingsDialog;
   import Card from '$lib/Card.svelte';
-  import { BOARD_SIZE, STACK_CARD_OFFSET_Y, STACK_CARD_OFFSET_X, CARD_W, CARD_H, DROP_TARGET_INSET } from '$lib/constants';
+  import {
+    BOARD_SIZE,
+    STACK_CARD_OFFSET_Y,
+    STACK_CARD_OFFSET_X,
+    CARD_W,
+    CARD_H,
+    DROP_TARGET_INSET,
+  } from '$lib/constants';
   import Draggable from './Draggable.svelte';
   import { addScaled } from '$lib/utils/vec2';
-  import { type Stack, initialStacks, makeStackFromCards, makeNumberCard, computeResult } from '$lib/cards';
+  import {
+    type Stack,
+    initialStacks,
+    makeStackFromCards,
+    makeNumberCard,
+    computeResult,
+  } from '$lib/cards';
   import { tick } from '$lib/physics';
 
   let scale = $state(1);
@@ -46,8 +59,8 @@
   // move between stacks (e.g. during peel), keeping isDragging state intact.
   const renderedCards = $derived(
     stacks.flatMap((stack) =>
-      stack.cards.map((cardData, i) => ({ cardData, stack, cardIndex: i }))
-    )
+      stack.cards.map((cardData, i) => ({ cardData, stack, cardIndex: i })),
+    ),
   );
 
   let mousePosition = { x: 0, y: 0 };
@@ -62,8 +75,11 @@
       const peeledCards = stack.cards.slice(cardIndex);
       stack.cards = stack.cards.slice(0, cardIndex);
       const newStack = makeStackFromCards(
-        { x: stack.pos.x + cardIndex * STACK_CARD_OFFSET_X, y: stack.pos.y + cardIndex * STACK_CARD_OFFSET_Y },
-        peeledCards
+        {
+          x: stack.pos.x + cardIndex * STACK_CARD_OFFSET_X,
+          y: stack.pos.y + cardIndex * STACK_CARD_OFFSET_Y,
+        },
+        peeledCards,
       );
       newStack.dragging = true;
       stacks = [...stacks, newStack];
@@ -204,10 +220,13 @@
     {/each}
     {#each stacks as stack (stack.id)}
       {#if stack.progressResult !== null}
-        {@const hatLeft = stack.pos.x}
-        {@const hatTop = stack.pos.y - 2.5}
-        <div class="hat" style="left: {hatLeft}vmin; top: {hatTop}vmin; width: {CARD_W}vmin;">
-          <div class="hat-fill" style="width: {stack.progress * 100}%;"></div>
+        {@const progressBarLeft = stack.pos.x}
+        {@const progressBarTop = stack.pos.y - 2.5}
+        <div
+          class="progress-bar"
+          style="left: {progressBarLeft}vmin; top: {progressBarTop}vmin; width: {CARD_W}vmin;"
+        >
+          <div class="progress-bar-fill" style="width: {stack.progress * 100}%;"></div>
         </div>
       {/if}
     {/each}
@@ -239,19 +258,19 @@
     border: 1vmin solid #8b6914;
     border-radius: 5vmin;
     overflow: hidden;
-  }
 
-  :global .hat {
-    position: absolute;
-    height: 2vmin;
-    background: rgba(0, 0, 0, 0.25);
-    border-radius: 0.5vmin 0.5vmin 0 0;
-    overflow: hidden;
-    pointer-events: none;
-  }
+    .progress-bar {
+      position: absolute;
+      height: 2vmin;
+      background: rgba(0, 0, 0, 0.25);
+      border-radius: 0.5vmin 0.5vmin 0 0;
+      overflow: hidden;
+      pointer-events: none;
 
-  :global .hat-fill {
-    height: 100%;
-    background: limegreen;
+      .progress-bar-fill {
+        height: 100%;
+        background: limegreen;
+      }
+    }
   }
 </style>
