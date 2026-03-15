@@ -1,23 +1,35 @@
-import { CARD_W, CARD_H, BOARD_SIZE } from '$lib/constants';
-import type { Card } from '$lib/cards';
-import { sub, len, norm, addScaled } from '$lib/utils/vec2';
+import { CARD_W, CARD_H, BOARD_SIZE, STACK_CARD_OFFSET_Y } from '$lib/constants';
+import type { Stack } from '$lib/cards';
+import { type Vec2, sub, len, norm, addScaled } from '$lib/utils/vec2';
 
-export function tick(cards: Card[]): void {
-  // Card-card repulsion
-  for (let i = 0; i < cards.length; i++) {
-    const a = cards[i];
+function stackHeight(stack: Stack): number {
+  return CARD_H + (stack.cards.length - 1) * STACK_CARD_OFFSET_Y;
+}
+
+function stackCenter(stack: Stack): Vec2 {
+  const h = stackHeight(stack);
+  return { x: stack.pos.x + CARD_W / 2, y: stack.pos.y + h / 2 };
+}
+
+export function tick(stacks: Stack[]): void {
+  // Stack-stack repulsion
+  for (let i = 0; i < stacks.length; i++) {
+    const a = stacks[i];
     if (a.dragging) continue;
 
-    for (let j = i + 1; j < cards.length; j++) {
-      const b = cards[j];
+    const hA = stackHeight(a);
+
+    for (let j = i + 1; j < stacks.length; j++) {
+      const b = stacks[j];
       if (b.dragging) continue;
 
-      const d = sub(b.pos, a.pos);
-      const overlapX = CARD_W - Math.abs(d.x);
-      const overlapY = CARD_H - Math.abs(d.y);
+      const hB = stackHeight(b);
+
+      const overlapX = Math.min(a.pos.x + CARD_W, b.pos.x + CARD_W) - Math.max(a.pos.x, b.pos.x);
+      const overlapY = Math.min(a.pos.y + hA, b.pos.y + hB) - Math.max(a.pos.y, b.pos.y);
 
       if (overlapX > 0 && overlapY > 0) {
-        const sep = norm(d);
+        const sep = norm(sub(stackCenter(b), stackCenter(a)));
         const forceMagnitude = Math.min(overlapX, overlapY) / 20;
         addScaled(a.vel, sep, -forceMagnitude);
         addScaled(b.vel, sep, forceMagnitude);
@@ -25,38 +37,39 @@ export function tick(cards: Card[]): void {
     }
   }
 
-  for (const card of cards) {
-    // Dragging: if the card is being dragged, don't move it with physics
-    if (card.dragging) {
-      card.vel = { x: 0, y: 0 };
+  // Integration and bumpers
+  for (const stack of stacks) {
+    if (stack.dragging) {
+      stack.vel = { x: 0, y: 0 };
       continue;
     }
 
-    // Bumpers: push card back if it strays outside the board
-    if (card.pos.x < 0) {
-      card.vel.x -= card.pos.x * 0.05;
+    const h = stackHeight(stack);
+
+    // Bumpers: push stack back if it strays outside the board
+    if (stack.pos.x < 0) {
+      stack.vel.x -= stack.pos.x * 0.05;
     }
-    if (card.pos.x + CARD_W > BOARD_SIZE) {
-      card.vel.x -= (card.pos.x + CARD_W - BOARD_SIZE) * 0.05;
+    if (stack.pos.x + CARD_W > BOARD_SIZE) {
+      stack.vel.x -= (stack.pos.x + CARD_W - BOARD_SIZE) * 0.05;
     }
-    if (card.pos.y < 0) {
-      card.vel.y -= card.pos.y * 0.05;
+    if (stack.pos.y < 0) {
+      stack.vel.y -= stack.pos.y * 0.05;
     }
-    if (card.pos.y + CARD_H > BOARD_SIZE) {
-      card.vel.y -= (card.pos.y + CARD_H - BOARD_SIZE) * 0.05;
+    if (stack.pos.y + h > BOARD_SIZE) {
+      stack.vel.y -= (stack.pos.y + h - BOARD_SIZE) * 0.05;
     }
 
-    // Speed limit: if the card is moving too fast, slow it down
-    const speed = len(card.vel);
+    // Speed limit
+    const speed = len(stack.vel);
     if (speed > 0.25) {
-      const { x, y } = norm(card.vel);
-      card.vel.x = x * 0.25;
-      card.vel.y = y * 0.25;
+      const { x, y } = norm(stack.vel);
+      stack.vel.x = x * 0.25;
+      stack.vel.y = y * 0.25;
     }
 
-    // Move the card according to its velocity, then reset the velocity for the next tick
-    addScaled(card.pos, card.vel, 1);
-    card.vel.x = 0;
-    card.vel.y = 0;
+    addScaled(stack.pos, stack.vel, 1);
+    stack.vel.x = 0;
+    stack.vel.y = 0;
   }
 }

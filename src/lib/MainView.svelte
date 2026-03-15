@@ -4,8 +4,9 @@
   import Card from '$lib/Card.svelte';
   import { BOARD_SIZE } from '$lib/constants';
   import Draggable from './Draggable.svelte';
+  import { STACK_CARD_OFFSET_Y } from '$lib/constants';
   import { addScaled } from '$lib/utils/vec2';
-  import { type Card as CardType, initialCards } from '$lib/cards';
+  import { type Stack, initialStacks } from '$lib/cards';
   import { tick } from '$lib/physics';
 
   let scale = $state(1);
@@ -39,13 +40,13 @@
     if (e.key === 'd') translateX -= speed;
   }
 
-  let cards = $state<CardType[]>(initialCards);
+  let stacks = $state<Stack[]>(initialStacks);
 
   $effect(() => {
     let rafId: number;
 
     function loop() {
-      tick(cards);
+      tick(stacks);
       rafId = requestAnimationFrame(loop);
     }
 
@@ -68,21 +69,23 @@
     "
     onwheel={onWheel}
   >
-    {#each cards as card (card.id)}
-      <Card
-        value={card.value}
-        color={card.color}
-        top={card.pos.y}
-        left={card.pos.x}
-        onDragStart={() => {
-          card.dragging = true;
-          cards = [...cards.filter((c) => c.id !== card.id), card];
-        }}
-        onDragEnd={() => (card.dragging = false)}
-        onDrag={(dx, dy) => {
-          addScaled(card.pos, { x: dx, y: dy }, 1 / (vmin * scale));
-        }}
-      />
+    {#each stacks as stack (stack.id)}
+      {#each stack.cards as cardData, i (cardData.id)}
+        <Card
+          value={cardData.value}
+          color={cardData.color}
+          top={stack.pos.y + i * STACK_CARD_OFFSET_Y}
+          left={stack.pos.x}
+          onDragStart={() => {
+            stack.dragging = true;
+            stacks = [...stacks.filter((s) => s.id !== stack.id), stack];
+          }}
+          onDragEnd={() => (stack.dragging = false)}
+          onDrag={(dx, dy) => {
+            addScaled(stack.pos, { x: dx, y: dy }, 1 / (vmin * scale));
+          }}
+        />
+      {/each}
     {/each}
   </Draggable>
 </div>
