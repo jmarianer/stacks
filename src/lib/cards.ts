@@ -2,7 +2,8 @@ import type { Vec2 } from '$lib/utils/vec2';
 
 export type CardData = {
   id: number;
-  value: number;
+  title: string;
+  symbol: string;
   color: string;
 };
 
@@ -32,15 +33,15 @@ export function makeStackFromCards(pos: Vec2, cards: CardData[]): Stack {
 }
 
 export const initialStacks: Stack[] = [
-  makeStack({ x: 50, y: 50 }, [{ value: 1, color: 'hotpink' }]),
-  makeStack({ x: 20, y: 50 }, [{ value: 2, color: 'hotpink' }]),
+  makeStack({ x: 50, y: 50 }, [{ title: 'Add', symbol: '+', color: 'hotpink' }]),
+  makeStack({ x: 20, y: 50 }, [{ title: 'Multiply', symbol: '×', color: 'hotpink' }]),
   makeStack({ x: 80, y: 30 }, [
-    { value: 3, color: 'cornflowerblue' },
-    { value: 4, color: 'cornflowerblue' },
-    { value: 5, color: 'cornflowerblue' },
+    { title: 'Number', symbol: '3', color: 'cornflowerblue' },
+    { title: 'Number', symbol: '4', color: 'cornflowerblue' },
+    { title: 'Number', symbol: '5', color: 'cornflowerblue' },
   ]),
   makeStack({ x: 40, y: 80 }, [
-    { value: 6, color: 'goldenrod' },
-    { value: 7, color: 'goldenrod' },
+    { title: 'Number', symbol: '6', color: 'goldenrod' },
+    { title: 'Number', symbol: '7', color: 'goldenrod' },
   ]),
 ];

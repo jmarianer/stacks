@@ -2,7 +2,7 @@
   // import SettingsDialog from '$lib/SettingsDialog.svelte';
   // let settingsDialog: SettingsDialog;
   import Card from '$lib/Card.svelte';
-  import { BOARD_SIZE, STACK_CARD_OFFSET_Y, CARD_W, CARD_H, DROP_TARGET_INSET } from '$lib/constants';
+  import { BOARD_SIZE, STACK_CARD_OFFSET_Y, STACK_CARD_OFFSET_X, CARD_W, CARD_H, DROP_TARGET_INSET } from '$lib/constants';
   import Draggable from './Draggable.svelte';
   import { addScaled } from '$lib/utils/vec2';
   import { type Stack, initialStacks, makeStackFromCards } from '$lib/cards';
@@ -49,7 +49,7 @@
   let mousePosition = { x: 0, y: 0 };
 
   function handleDragStart(stack: Stack, cardIndex: number, e: MouseEvent) {
-    if (e.ctrlKey || cardIndex === 0) {
+    if (e.altKey || cardIndex === 0) {
       // Drag the whole stack
       stack.dragging = true;
       stacks = [...stacks.filter((s) => s.id !== stack.id), stack];
@@ -58,7 +58,7 @@
       const peeledCards = stack.cards.slice(cardIndex);
       stack.cards = stack.cards.slice(0, cardIndex);
       const newStack = makeStackFromCards(
-        { x: stack.pos.x, y: stack.pos.y + cardIndex * STACK_CARD_OFFSET_Y },
+        { x: stack.pos.x + cardIndex * STACK_CARD_OFFSET_X, y: stack.pos.y + cardIndex * STACK_CARD_OFFSET_Y },
         peeledCards
       );
       newStack.dragging = true;
@@ -106,7 +106,7 @@
       }
       // Target rectangle: DROP_TARGET_INSET from each edge of the card
       stack.isDropTarget = stack.cards.some((_, i) => {
-        const cx = stack.pos.x + CARD_W / 2;
+        const cx = stack.pos.x + i * STACK_CARD_OFFSET_X + CARD_W / 2;
         const cy = stack.pos.y + i * STACK_CARD_OFFSET_Y + CARD_H / 2;
         return (
           Math.abs(boardMouse.x - cx) <= CARD_W / 2 - DROP_TARGET_INSET &&
@@ -147,11 +147,12 @@
   >
     {#each renderedCards as { cardData, stack, cardIndex } (cardData.id)}
       <Card
-        value={cardData.value}
+        title={cardData.title}
+        symbol={cardData.symbol}
         color={cardData.color}
         top={stack.pos.y + cardIndex * STACK_CARD_OFFSET_Y}
-        left={stack.pos.x}
-        isDropTarget={stack.isDropTarget}
+        left={stack.pos.x + cardIndex * STACK_CARD_OFFSET_X}
+        isDropTarget={stack.isDropTarget && cardIndex === stack.cards.length - 1}
         onDragStart={(e) => handleDragStart(stack, cardIndex, e)}
         onDragEnd={handleDragEnd}
         onDrag={(dx, dy) => {

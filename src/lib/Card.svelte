@@ -2,8 +2,9 @@
   import Draggable, { type DragProps } from './Draggable.svelte';
   import { CARD_W, CARD_H } from '$lib/constants';
 
-  let { value, color, top, left, isDropTarget = false, onDrag, onDragStart, onDragEnd } = $props<{
-    value: number;
+  let { title, symbol, color, top, left, isDropTarget = false, onDrag, onDragStart, onDragEnd } = $props<{
+    title: string;
+    symbol: string;
     color: string;
     top: number;
     left: number;
@@ -24,24 +25,56 @@
   {onDragStart}
   {onDragEnd}
 >
-  <div class="circle">{value}</div>
+  <div class="card-inner">
+    <div class="title">{title}</div>
+    <div class="circle-area">
+      <div class="circle">{symbol}</div>
+    </div>
+    <div class="title inverted">{title}</div>
+  </div>
 </Draggable>
 
 <style>
   :global .card {
     border-radius: 1vmin;
     position: absolute;
-    border: 0.5vmin solid #000;
+    border: 0.5vmin solid white;
+    box-shadow: -0.3vmin -0.5vmin 1vmin rgba(0, 0, 0, 0.5);
     &.drop-target {
-      outline: 3px solid white;
+      filter: brightness(0.75);
     }
   }
 
+  .card-inner {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+  }
+
+  .title {
+    height: 4vmin;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'BigNoodleTitling';
+    font-size: 3vmin;
+    color: white;
+    border-bottom: 0.5vmin solid #000;
+
+    &.inverted {
+      transform: rotate(180deg);
+    }
+  }
+
+  .circle-area {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
   .circle {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
     width: 14vmin;
     height: 14vmin;
     border-radius: 50%;
@@ -51,6 +84,6 @@
     justify-content: center;
     color: white;
     font-family: 'BigNoodleTitling';
-    font-size: 4vmin;
+    font-size: 10vmin;
   }
 </style>

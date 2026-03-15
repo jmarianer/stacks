@@ -1,4 +1,4 @@
-import { CARD_W, CARD_H, BOARD_SIZE, STACK_CARD_OFFSET_Y } from '$lib/constants';
+import { CARD_W, CARD_H, BOARD_SIZE, STACK_CARD_OFFSET_Y, STACK_CARD_OFFSET_X } from '$lib/constants';
 import type { Stack } from '$lib/cards';
 import { type Vec2, sub, len, norm, addScaled } from '$lib/utils/vec2';
 import { rectCenter, rectExtend, type Rect } from './utils/rect';
@@ -8,7 +8,8 @@ const BOARD_PADDING = 5;
 
 function stackDimensions(stack: Stack): Rect {
   const { x, y } = stack.pos;
-  return { x, y, width: CARD_W, height: CARD_H + (stack.cards.length - 1) * STACK_CARD_OFFSET_Y };
+  const n = stack.cards.length - 1;
+  return { x, y, width: CARD_W + n * STACK_CARD_OFFSET_X, height: CARD_H + n * STACK_CARD_OFFSET_Y };
 }
 
 function stackCenter(stack: Stack): Vec2 {
