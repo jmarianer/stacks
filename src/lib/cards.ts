@@ -9,7 +9,6 @@ export type CardData = {
 export type Stack = {
   id: number;
   pos: Vec2;
-  vel: Vec2;
   dragging: boolean;
   isDropTarget: boolean;
   cards: CardData[]; // index 0 = bottom
@@ -21,7 +20,6 @@ export function makeStack(pos: Vec2, cards: Omit<CardData, 'id'>[]): Stack {
   return {
     id: nextId++,
     pos,
-    vel: { x: 0, y: 0 },
     dragging: false,
     isDropTarget: false,
     cards: cards.map((c) => ({ ...c, id: nextId++ })),
@@ -30,7 +28,7 @@ export function makeStack(pos: Vec2, cards: Omit<CardData, 'id'>[]): Stack {
 
 /** Create a stack from CardData objects that already have IDs (e.g. when peeling). */
 export function makeStackFromCards(pos: Vec2, cards: CardData[]): Stack {
-  return { id: nextId++, pos, vel: { x: 0, y: 0 }, dragging: false, isDropTarget: false, cards };
+  return { id: nextId++, pos, dragging: false, isDropTarget: false, cards };
 }
 
 export const initialStacks: Stack[] = [
