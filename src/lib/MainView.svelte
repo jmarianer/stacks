@@ -114,8 +114,8 @@
         }
 
         addScaled(card.pos, card.vel, 1);
-        card.vel.x *= 0.9;
-        card.vel.y *= 0.9;
+        card.vel.x = 0;
+        card.vel.y = 0;
       }
 
       rafId = requestAnimationFrame(tick);
