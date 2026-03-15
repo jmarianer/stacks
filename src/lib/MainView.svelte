@@ -5,7 +5,7 @@
   import { BOARD_SIZE, STACK_CARD_OFFSET_Y, STACK_CARD_OFFSET_X, CARD_W, CARD_H, DROP_TARGET_INSET } from '$lib/constants';
   import Draggable from './Draggable.svelte';
   import { addScaled } from '$lib/utils/vec2';
-  import { type Stack, initialStacks, makeStackFromCards } from '$lib/cards';
+  import { type Stack, initialStacks, makeStackFromCards, makeNumberCard, computeResult } from '$lib/cards';
   import { tick } from '$lib/physics';
 
   let scale = $state(1);
@@ -117,12 +117,50 @@
     }
   }
 
+  function splitStack(stack: Stack) {
+    const operatorCard = stack.cards.find((c) => c.type === 'add' || c.type === 'multiply')!;
+    const resultCard = makeNumberCard(stack.progressResult!);
+    const opStack = makeStackFromCards({ x: stack.pos.x, y: stack.pos.y }, [operatorCard]);
+    const resultStack = makeStackFromCards({ x: stack.pos.x + 1, y: stack.pos.y }, [resultCard]);
+    stacks = [...stacks.filter((s) => s.id !== stack.id), opStack, resultStack];
+  }
+
+  function tickProgress(now: number) {
+    const toSplit: Stack[] = [];
+    for (const stack of stacks) {
+      if (stack.dragging) {
+        stack.progress = 0;
+        stack.progressStartTime = null;
+        stack.progressResult = null;
+        continue;
+      }
+      const result = computeResult(stack);
+      if (result === null) {
+        stack.progress = 0;
+        stack.progressStartTime = null;
+        stack.progressResult = null;
+        continue;
+      }
+      if (result !== stack.progressResult) {
+        stack.progressResult = result;
+        stack.progressStartTime = now;
+        stack.progress = 0;
+      } else {
+        stack.progress = Math.min((now - stack.progressStartTime!) / (result * 100), 1);
+        if (stack.progress >= 1) toSplit.push(stack);
+      }
+    }
+    for (const stack of toSplit) splitStack(stack);
+  }
+
   $effect(() => {
     let rafId: number;
 
     function loop() {
+      const now = performance.now();
       updateDropTargets();
       tick(stacks);
+      tickProgress(now);
       rafId = requestAnimationFrame(loop);
     }
 
@@ -160,6 +198,15 @@
         }}
       />
     {/each}
+    {#each stacks as stack (stack.id)}
+      {#if stack.progressResult !== null}
+        {@const hatLeft = stack.pos.x}
+        {@const hatTop = stack.pos.y - 2.5}
+        <div class="hat" style="left: {hatLeft}vmin; top: {hatTop}vmin; width: {CARD_W}vmin;">
+          <div class="hat-fill" style="width: {stack.progress * 100}%;"></div>
+        </div>
+      {/if}
+    {/each}
   </Draggable>
 </div>
 
@@ -187,5 +234,19 @@
     border: 1vmin solid #8b6914;
     border-radius: 5vmin;
     overflow: hidden;
+  }
+
+  :global .hat {
+    position: absolute;
+    height: 2vmin;
+    background: rgba(0, 0, 0, 0.25);
+    border-radius: 0.5vmin 0.5vmin 0 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  :global .hat-fill {
+    height: 100%;
+    background: limegreen;
   }
 </style>
