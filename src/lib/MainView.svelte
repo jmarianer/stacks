@@ -1,13 +1,12 @@
-<script module lang="ts">
-  export const BOARD_SIZE = 140;
-</script>
-
 <script lang="ts">
   // import SettingsDialog from '$lib/SettingsDialog.svelte';
   // let settingsDialog: SettingsDialog;
-  import Card, { CARD_W, CARD_H } from '$lib/Card.svelte';
+  import Card from '$lib/Card.svelte';
+  import { BOARD_SIZE } from '$lib/constants';
   import Draggable from './Draggable.svelte';
-  import { type Vec2, sub, len, norm, addScaled } from '$lib/utils/vec2';
+  import { addScaled } from '$lib/utils/vec2';
+  import { type Card as CardType, makeCard } from '$lib/cards';
+  import { tick } from '$lib/physics';
 
   let scale = $state(1);
   let translateX = $state(0);
@@ -40,21 +39,7 @@
     if (e.key === 'd') translateX -= speed;
   }
 
-  type Card = {
-    id: number;
-    value: number;
-    color: string;
-    pos: Vec2;
-    vel: Vec2;
-    dragging: boolean;
-  };
-
-  let nextId = 1;
-  function makeCard(fields: Omit<Card, 'id' | 'vel' | 'dragging'>): Card {
-    return { ...fields, id: nextId++, vel: { x: 0, y: 0 }, dragging: false };
-  }
-
-  let cards = $state<Card[]>([
+  let cards = $state<CardType[]>([
     makeCard({ value: 1, color: 'hotpink', pos: { x: 50, y: 50 } }),
     makeCard({ value: 2, color: 'hotpink', pos: { x: 20, y: 50 } }),
   ]);
@@ -62,66 +47,12 @@
   $effect(() => {
     let rafId: number;
 
-    function tick() {
-      for (let i = 0; i < cards.length; i++) {
-        const a = cards[i];
-        if (a.dragging) continue;
-
-        for (let j = i + 1; j < cards.length; j++) {
-          const b = cards[j];
-          if (b.dragging) continue;
-
-          const d = sub(b.pos, a.pos);
-          const overlapX = CARD_W - Math.abs(d.x);
-          const overlapY = CARD_H - Math.abs(d.y);
-
-          if (!a.dragging && !b.dragging && overlapX > 0 && overlapY > 0) {
-            // Push away from center-to-center vector
-            const sep = norm(d);
-            const forceMagnitude = Math.min(overlapX, overlapY) / 20;
-            addScaled(a.vel, sep, -forceMagnitude);
-            addScaled(b.vel, sep, forceMagnitude);
-          }
-        }
-      }
-
-      for (const card of cards) {
-        if (card.dragging) {
-          card.vel = { x: 0, y: 0 };
-          continue;
-        }
-
-        // Bumpers: push card back if it strays outside the board
-        if (card.pos.x < 0) {
-          card.vel.x -= card.pos.x * 0.05;
-        }
-        if (card.pos.x + CARD_W > BOARD_SIZE) {
-          card.vel.x -= (card.pos.x + CARD_W - BOARD_SIZE) * 0.05;
-        }
-        if (card.pos.y < 0) {
-          card.vel.y -= card.pos.y * 0.05;
-        }
-        if (card.pos.y + CARD_H > BOARD_SIZE) {
-          card.vel.y -= (card.pos.y + CARD_H - BOARD_SIZE) * 0.05;
-        }
-
-        const speed = len(card.vel);
-        if (speed > 0.25) {
-          // Too fast, make it slower
-          const {x, y} = norm(card.vel);
-          card.vel.x = x * 0.25;
-          card.vel.y = y * 0.25;
-        }
-
-        addScaled(card.pos, card.vel, 1);
-        card.vel.x = 0;
-        card.vel.y = 0;
-      }
-
-      rafId = requestAnimationFrame(tick);
+    function loop() {
+      tick(cards);
+      rafId = requestAnimationFrame(loop);
     }
 
-    rafId = requestAnimationFrame(tick);
+    rafId = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(rafId);
   });
 </script>

@@ -1,10 +1,6 @@
-<script module lang="ts">
-  export const CARD_W = 20;
-  export const CARD_H = 28;
-</script>
-
 <script lang="ts">
   import Draggable, { type DragProps } from './Draggable.svelte';
+  import { CARD_W, CARD_H } from '$lib/constants';
 
   let { value, color, top, left, onDrag, onDragStart, onDragEnd } = $props<{
     value: number;
