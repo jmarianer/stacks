@@ -5,7 +5,7 @@
   import { BOARD_SIZE } from '$lib/constants';
   import Draggable from './Draggable.svelte';
   import { addScaled } from '$lib/utils/vec2';
-  import { type Card as CardType, makeCard } from '$lib/cards';
+  import { type Card as CardType, initialCards } from '$lib/cards';
   import { tick } from '$lib/physics';
 
   let scale = $state(1);
@@ -39,10 +39,7 @@
     if (e.key === 'd') translateX -= speed;
   }
 
-  let cards = $state<CardType[]>([
-    makeCard({ value: 1, color: 'hotpink', pos: { x: 50, y: 50 } }),
-    makeCard({ value: 2, color: 'hotpink', pos: { x: 20, y: 50 } }),
-  ]);
+  let cards = $state<CardType[]>(initialCards);
 
   $effect(() => {
     let rafId: number;
