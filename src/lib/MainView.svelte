@@ -174,16 +174,16 @@
   .viewport {
     width: 100vw;
     height: 100vh;
-    background-color: deeppink;
+    background-color: #3d2b1f;
     overflow: hidden;
     position: relative;
   }
 
   :global .board {
     position: relative;
-    background-color: darkolivegreen;
+    background-color: #c9a96e;
     transform-origin: 0 0;
-    border: 1vmin solid rgba(0, 0, 0, 0.8);
+    border: 1vmin solid #8b6914;
     border-radius: 5vmin;
     overflow: hidden;
   }
