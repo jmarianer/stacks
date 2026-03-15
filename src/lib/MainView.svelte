@@ -3,7 +3,6 @@
   // let settingsDialog: SettingsDialog;
   import Card from '$lib/Card.svelte';
   import {
-    BOARD_SIZE,
     STACK_CARD_OFFSET_Y,
     STACK_CARD_OFFSET_X,
     CARD_W,
@@ -12,7 +11,7 @@
   } from '$lib/constants';
   import Draggable from './Draggable.svelte';
   import { addScaled } from '$lib/utils/vec2';
-  import { type Stack, initialStacks, makeStackFromCards } from '$lib/cards';
+  import { type Stack, type Board, initialBoards, makeStackFromCards } from '$lib/cards';
   import { tick as tickPhysics } from '$lib/physics';
   import { tick as tickProgress } from '$lib/progress';
 
@@ -26,9 +25,8 @@
 
   $effect(() => {
     updateVmin();
-    const boardSize = vmin * BOARD_SIZE;
-    translate.x = (window.innerWidth - boardSize) / 2;
-    translate.y = (window.innerHeight - boardSize) / 2;
+    translate.x = (window.innerWidth - currentBoard.width * vmin) / 2;
+    translate.y = (window.innerHeight - currentBoard.height * vmin) / 2;
   });
 
   function onWheel(e: WheelEvent) {
@@ -47,13 +45,15 @@
     if (e.key === 'd') translate.x -= speed;
   }
 
-  let stacks = $state<Stack[]>(initialStacks);
+  let boards = $state<Board[]>(initialBoards);
+  let currentBoardIndex = $state(0);
+  const currentBoard = $derived(boards[currentBoardIndex]);
 
   // Flat list of all cards with their stack and index, keyed by cardData.id.
   // Using a flat {#each} preserves Draggable component instances when cards
   // move between stacks (e.g. during peel), keeping isDragging state intact.
   const renderedCards = $derived(
-    stacks.flatMap((stack) =>
+    currentBoard.stacks.flatMap((stack) =>
       stack.cards.map((cardData, i) => ({ cardData, stack, cardIndex: i })),
     ),
   );
@@ -61,10 +61,11 @@
   let mousePosition = { x: 0, y: 0 };
 
   function handleDragStart(stack: Stack, cardIndex: number, e: MouseEvent) {
+    const stacks = currentBoard.stacks;
     if (e.altKey || cardIndex === 0) {
       // Drag the whole stack
       stack.dragging = true;
-      stacks = [...stacks.filter((s) => s.id !== stack.id), stack];
+      currentBoard.stacks = [...stacks.filter((s) => s.id !== stack.id), stack];
     } else {
       // Peel this card and everything above it into a new stack
       const peeledCards = stack.cards.slice(cardIndex);
@@ -77,11 +78,12 @@
         peeledCards,
       );
       newStack.dragging = true;
-      stacks = [...stacks, newStack];
+      currentBoard.stacks = [...stacks, newStack];
     }
   }
 
   function handleDragEnd() {
+    const stacks = currentBoard.stacks;
     const dragging = stacks.find((s) => s.dragging);
     if (!dragging) return;
 
@@ -89,13 +91,14 @@
     if (target) {
       target.cards = [...target.cards, ...dragging.cards];
       target.isDropTarget = false;
-      stacks = stacks.filter((s) => s.id !== dragging.id);
+      currentBoard.stacks = stacks.filter((s) => s.id !== dragging.id);
     } else {
       dragging.dragging = false;
     }
   }
 
   function updateDropTargets() {
+    const stacks = currentBoard.stacks;
     const anyDragging = stacks.some((s) => s.dragging);
     if (!anyDragging) {
       for (const s of stacks) s.isDropTarget = false;
@@ -138,8 +141,8 @@
     function loop() {
       const now = performance.now();
       updateDropTargets();
-      tickPhysics(stacks);
-      tickProgress(stacks, now);
+      tickPhysics(currentBoard.stacks);
+      tickProgress(currentBoard.stacks, now);
       rafId = requestAnimationFrame(loop);
     }
 
@@ -156,8 +159,8 @@
     }}
     class="board"
     style="
-      width: {BOARD_SIZE}vmin;
-      height: {BOARD_SIZE}vmin;
+      width: {currentBoard.width}vmin;
+      height: {currentBoard.height}vmin;
       transform: translate({translate.x}px, {translate.y}px) scale({scale});
     "
     onwheel={onWheel}
@@ -177,7 +180,7 @@
         }}
       />
     {/each}
-    {#each stacks as stack (stack.id)}
+    {#each currentBoard.stacks as stack (stack.id)}
       {#if stack.progressResult !== null}
         {@const progressBarLeft = stack.pos.x}
         {@const progressBarTop = stack.pos.y - 2.5}

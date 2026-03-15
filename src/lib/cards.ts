@@ -53,7 +53,14 @@ export function makeStackFromCards(pos: Vec2, cards: CardData[]): Stack {
 
 /** Create a new number card with a fresh ID. */
 export function makeNumberCard(value: number): CardData {
-  return { id: nextId++, type: 'number', value, title: 'Number', symbol: String(value), color: 'cornflowerblue' };
+  return {
+    id: nextId++,
+    type: 'number',
+    value,
+    title: 'Number',
+    symbol: String(value),
+    color: 'cornflowerblue',
+  };
 }
 
 /**
@@ -74,16 +81,39 @@ export function computeResult(stack: Stack): number | null {
   }
 }
 
-export const initialStacks: Stack[] = [
-  makeStack({ x: 50, y: 50 }, [{ type: 'add', value: 0, title: 'Add', symbol: '+', color: 'hotpink' }]),
-  makeStack({ x: 20, y: 50 }, [{ type: 'multiply', value: 0, title: 'Multiply', symbol: '×', color: 'hotpink' }]),
-  makeStack({ x: 80, y: 30 }, [
-    { type: 'number', value: 3, title: 'Number', symbol: '3', color: 'cornflowerblue' },
-    { type: 'number', value: 4, title: 'Number', symbol: '4', color: 'cornflowerblue' },
-    { type: 'number', value: 5, title: 'Number', symbol: '5', color: 'cornflowerblue' },
-  ]),
-  makeStack({ x: 40, y: 80 }, [
-    { type: 'number', value: 6, title: 'Number', symbol: '6', color: 'goldenrod' },
-    { type: 'number', value: 7, title: 'Number', symbol: '7', color: 'goldenrod' },
-  ]),
+export type Board = {
+  id: number;
+  name: string;
+  stacks: Stack[];
+  width: number; // vmin
+  height: number; // vmin
+};
+
+export function makeBoard(name: string, stacks: Stack[], width: number, height: number): Board {
+  return { id: nextId++, name, stacks, width, height };
+}
+
+export const initialBoards: Board[] = [
+  makeBoard(
+    'Board 1',
+    [
+      makeStack({ x: 50, y: 50 }, [
+        { type: 'add', value: 0, title: 'Add', symbol: '+', color: 'hotpink' },
+      ]),
+      makeStack({ x: 20, y: 50 }, [
+        { type: 'multiply', value: 0, title: 'Multiply', symbol: '×', color: 'hotpink' },
+      ]),
+      makeStack({ x: 80, y: 30 }, [
+        { type: 'number', value: 3, title: 'Number', symbol: '3', color: 'cornflowerblue' },
+        { type: 'number', value: 4, title: 'Number', symbol: '4', color: 'cornflowerblue' },
+        { type: 'number', value: 5, title: 'Number', symbol: '5', color: 'cornflowerblue' },
+      ]),
+      makeStack({ x: 40, y: 80 }, [
+        { type: 'number', value: 6, title: 'Number', symbol: '6', color: 'goldenrod' },
+        { type: 'number', value: 7, title: 'Number', symbol: '7', color: 'goldenrod' },
+      ]),
+    ],
+    176,
+    112,
+  ),
 ];
