@@ -7,6 +7,7 @@
   // let settingsDialog: SettingsDialog;
   import Card, { CARD_W, CARD_H } from '$lib/Card.svelte';
   import Draggable from './Draggable.svelte';
+  import { type Vec2, sub, norm, addScaled } from '$lib/utils/vec2';
 
   let scale = $state(1);
   let translateX = $state(0);
@@ -43,21 +44,19 @@
     id: number;
     value: number;
     color: string;
-    x: number;
-    y: number;
-    vx: number;
-    vy: number;
+    pos: Vec2;
+    vel: Vec2;
     dragging: boolean;
   };
 
   let nextId = 1;
-  function makeCard(fields: Omit<Card, 'id' | 'vx' | 'vy' | 'dragging'>): Card {
-    return { ...fields, id: nextId++, vx: 0, vy: 0, dragging: false };
+  function makeCard(fields: Omit<Card, 'id' | 'vel' | 'dragging'>): Card {
+    return { ...fields, id: nextId++, vel: { x: 0, y: 0 }, dragging: false };
   }
 
   let cards = $state<Card[]>([
-    makeCard({ value: 1, color: 'hotpink', x: 50, y: 50 }),
-    makeCard({ value: 2, color: 'hotpink', x: 20, y: 50 }),
+    makeCard({ value: 1, color: 'hotpink', pos: { x: 50, y: 50 } }),
+    makeCard({ value: 2, color: 'hotpink', pos: { x: 20, y: 50 } }),
   ]);
 
   $effect(() => {
@@ -72,42 +71,43 @@
           const b = cards[j];
           if (b.dragging) continue;
 
-          const dx = b.x - a.x;
-          const dy = b.y - a.y;
-          const overlapX = CARD_W - Math.abs(dx);
-          const overlapY = CARD_H - Math.abs(dy);
+          const d = sub(b.pos, a.pos);
+          const overlapX = CARD_W - Math.abs(d.x);
+          const overlapY = CARD_H - Math.abs(d.y);
 
           if (!a.dragging && !b.dragging && overlapX > 0 && overlapY > 0) {
             // Push away from center-to-center vector
-            const centerDist = Math.sqrt(dx * dx + dy * dy);
+            const sep = norm(d);
             const forceMagnitude = Math.min(Math.min(overlapX, overlapY) / 20, 0.25);
-            const separationX = centerDist === 0 ? 1 : dx / centerDist;
-            const separationY = centerDist === 0 ? 0 : dy / centerDist;
-            a.vx -= separationX * forceMagnitude;
-            a.vy -= separationY * forceMagnitude;
-            b.vx += separationX * forceMagnitude;
-            b.vy += separationY * forceMagnitude;
+            addScaled(a.vel, sep, -forceMagnitude);
+            addScaled(b.vel, sep, forceMagnitude);
           }
         }
       }
 
       for (const card of cards) {
         if (card.dragging) {
-          card.vx = 0;
-          card.vy = 0;
+          card.vel = { x: 0, y: 0 };
           continue;
         }
 
         // Bumpers: push card back if it strays outside the board
-        if (card.x < 0) card.vx += Math.min(-card.x * 0.05, 0.5);
-        if (card.x + CARD_W > BOARD_SIZE) card.vx -= Math.min((card.x + CARD_W - BOARD_SIZE) * 0.05, 0.5);
-        if (card.y < 0) card.vy += Math.min(-card.y * 0.05, 0.5);
-        if (card.y + CARD_H > BOARD_SIZE) card.vy -= Math.min((card.y + CARD_H - BOARD_SIZE) * 0.05, 0.5);
+        if (card.pos.x < 0) {
+          card.vel.x += Math.min(-card.pos.x * 0.05, 0.5);
+        }
+        if (card.pos.x + CARD_W > BOARD_SIZE) {
+          card.vel.x -= Math.min((card.pos.x + CARD_W - BOARD_SIZE) * 0.05, 0.5);
+        }
+        if (card.pos.y < 0) {
+          card.vel.y += Math.min(-card.pos.y * 0.05, 0.5);
+        }
+        if (card.pos.y + CARD_H > BOARD_SIZE) {
+          card.vel.y -= Math.min((card.pos.y + CARD_H - BOARD_SIZE) * 0.05, 0.5);
+        }
 
-        card.x += card.vx;
-        card.y += card.vy;
-        card.vx *= 0.9;
-        card.vy *= 0.9;
+        addScaled(card.pos, card.vel, 1);
+        card.vel.x *= 0.9;
+        card.vel.y *= 0.9;
       }
 
       rafId = requestAnimationFrame(tick);
@@ -136,16 +136,15 @@
       <Card
         value={card.value}
         color={card.color}
-        top={card.y}
-        left={card.x}
+        top={card.pos.y}
+        left={card.pos.x}
         onDragStart={() => {
           card.dragging = true;
           cards = [...cards.filter((c) => c.id !== card.id), card];
         }}
         onDragEnd={() => (card.dragging = false)}
         onDrag={(dx, dy) => {
-          card.x += dx / (vmin * scale);
-          card.y += dy / (vmin * scale);
+          addScaled(card.pos, { x: dx, y: dy }, 1 / (vmin * scale));
         }}
       />
     {/each}
