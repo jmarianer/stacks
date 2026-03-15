@@ -7,7 +7,7 @@
   // let settingsDialog: SettingsDialog;
   import Card, { CARD_W, CARD_H } from '$lib/Card.svelte';
   import Draggable from './Draggable.svelte';
-  import { type Vec2, sub, norm, addScaled } from '$lib/utils/vec2';
+  import { type Vec2, sub, len, norm, addScaled } from '$lib/utils/vec2';
 
   let scale = $state(1);
   let translateX = $state(0);
@@ -78,7 +78,7 @@
           if (!a.dragging && !b.dragging && overlapX > 0 && overlapY > 0) {
             // Push away from center-to-center vector
             const sep = norm(d);
-            const forceMagnitude = Math.min(Math.min(overlapX, overlapY) / 20, 0.25);
+            const forceMagnitude = Math.min(overlapX, overlapY) / 20;
             addScaled(a.vel, sep, -forceMagnitude);
             addScaled(b.vel, sep, forceMagnitude);
           }
@@ -93,16 +93,24 @@
 
         // Bumpers: push card back if it strays outside the board
         if (card.pos.x < 0) {
-          card.vel.x += Math.min(-card.pos.x * 0.05, 0.5);
+          card.vel.x -= card.pos.x * 0.05;
         }
         if (card.pos.x + CARD_W > BOARD_SIZE) {
-          card.vel.x -= Math.min((card.pos.x + CARD_W - BOARD_SIZE) * 0.05, 0.5);
+          card.vel.x -= (card.pos.x + CARD_W - BOARD_SIZE) * 0.05;
         }
         if (card.pos.y < 0) {
-          card.vel.y += Math.min(-card.pos.y * 0.05, 0.5);
+          card.vel.y -= card.pos.y * 0.05;
         }
         if (card.pos.y + CARD_H > BOARD_SIZE) {
-          card.vel.y -= Math.min((card.pos.y + CARD_H - BOARD_SIZE) * 0.05, 0.5);
+          card.vel.y -= (card.pos.y + CARD_H - BOARD_SIZE) * 0.05;
+        }
+
+        const speed = len(card.vel);
+        if (speed > 0.25) {
+          // Too fast, make it slower
+          const {x, y} = norm(card.vel);
+          card.vel.x = x * 0.25;
+          card.vel.y = y * 0.25;
         }
 
         addScaled(card.pos, card.vel, 1);
