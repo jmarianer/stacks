@@ -12,14 +12,9 @@
   } from '$lib/constants';
   import Draggable from './Draggable.svelte';
   import { addScaled } from '$lib/utils/vec2';
-  import {
-    type Stack,
-    initialStacks,
-    makeStackFromCards,
-    makeNumberCard,
-    computeResult,
-  } from '$lib/cards';
-  import { tick } from '$lib/physics';
+  import { type Stack, initialStacks, makeStackFromCards } from '$lib/cards';
+  import { tick as tickPhysics } from '$lib/physics';
+  import { tick as tickProgress } from '$lib/progress';
 
   let scale = $state(1);
   let translate = $state({ x: 0, y: 0 });
@@ -137,50 +132,14 @@
     }
   }
 
-  function splitStack(stack: Stack) {
-    const operatorCard = stack.cards.find((c) => c.type === 'add' || c.type === 'multiply')!;
-    const resultCard = makeNumberCard(stack.progressResult!);
-    const opStack = makeStackFromCards({ x: stack.pos.x, y: stack.pos.y }, [operatorCard]);
-    const resultStack = makeStackFromCards({ x: stack.pos.x + 1, y: stack.pos.y }, [resultCard]);
-    stacks = [...stacks.filter((s) => s.id !== stack.id), opStack, resultStack];
-  }
-
-  function tickProgress(now: number) {
-    const toSplit: Stack[] = [];
-    for (const stack of stacks) {
-      if (stack.dragging) {
-        stack.progress = 0;
-        stack.progressStartTime = null;
-        stack.progressResult = null;
-        continue;
-      }
-      const result = computeResult(stack);
-      if (result === null) {
-        stack.progress = 0;
-        stack.progressStartTime = null;
-        stack.progressResult = null;
-        continue;
-      }
-      if (result !== stack.progressResult) {
-        stack.progressResult = result;
-        stack.progressStartTime = now;
-        stack.progress = 0;
-      } else {
-        stack.progress = Math.min((now - stack.progressStartTime!) / (result * 100), 1);
-        if (stack.progress >= 1) toSplit.push(stack);
-      }
-    }
-    for (const stack of toSplit) splitStack(stack);
-  }
-
   $effect(() => {
     let rafId: number;
 
     function loop() {
       const now = performance.now();
       updateDropTargets();
-      tick(stacks);
-      tickProgress(now);
+      tickPhysics(stacks);
+      tickProgress(stacks, now);
       rafId = requestAnimationFrame(loop);
     }
 
