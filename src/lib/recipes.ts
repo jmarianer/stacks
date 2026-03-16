@@ -176,14 +176,13 @@ export const recipes: Recipe[] = [
     results: [{ action: 'card', card: 'adv-workbench' }],
   },
   {
-    id: 'use-adv-workbench',
+    id: 'make-computronium',
     label: 'Adv. Workbench: Make Computronium',
     time: 10000,
     alwaysKnown: true,
     ingredients: [
       { match: 'adv-workbench', consumed: false },
-      { match: 'nanocarbon', consumed: true },
-      { match: 'electronics', consumed: true },
+      { match: 'electronics', count: 3, consumed: true },
       { match: 'people', consumed: false },
     ],
     results: [{ action: 'card', card: 'computronium' }],
