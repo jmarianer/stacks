@@ -97,6 +97,7 @@ function executeRecipe(board: Board, stack: Stack, recipe: Recipe): void {
 }
 
 export function tick(board: Board, now: number): void {
+  if (board.paused) return;
   const stacks = board.stacks;
   const toExecute: { stack: Stack; recipe: Recipe }[] = [];
 

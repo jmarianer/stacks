@@ -121,6 +121,8 @@ export function makeBoard(
     currency,
     shop: shop.map((item) => ({ ...item, id: nextId++ })),
     knownRecipeIds,
+    paused: false,
+    pausedAt: null,
   };
 }
 

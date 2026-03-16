@@ -72,4 +72,6 @@ export type Board = {
   currency: number;
   shop: ShopItem[];
   knownRecipeIds: string[];
+  paused: boolean;
+  pausedAt: number | null; // performance.now() timestamp when paused
 };

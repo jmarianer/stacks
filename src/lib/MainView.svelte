@@ -62,6 +62,23 @@
     if (e.key === 's') translate.y -= speed;
     if (e.key === 'a') translate.x += speed;
     if (e.key === 'd') translate.x -= speed;
+    if (e.key === ' ') {
+      e.preventDefault();
+      const now = performance.now();
+      if (currentBoard.paused) {
+        const pauseDuration = now - currentBoard.pausedAt!;
+        for (const stack of currentBoard.stacks) {
+          if (stack.progressStartTime !== null) {
+            stack.progressStartTime += pauseDuration;
+          }
+        }
+        currentBoard.paused = false;
+        currentBoard.pausedAt = null;
+      } else {
+        currentBoard.paused = true;
+        currentBoard.pausedAt = now;
+      }
+    }
     if (e.key === 'Backspace') {
       const stack = stackAtMouse();
       if (!stack) return;
@@ -225,6 +242,7 @@
     {/each}
   </Draggable>
   <div class="hud">
+    {#if currentBoard.paused}<span class="paused">⏸ PAUSED</span>{/if}
     <span class="currency">${currentBoard.currency}</span>
     <div class="shop">
       {#each currentBoard.shop as item (item.id)}
@@ -273,6 +291,11 @@
     color: white;
     font-size: 1.5rem;
     pointer-events: none;
+
+    .paused {
+      opacity: 0.7;
+      letter-spacing: 0.05em;
+    }
 
     .currency {
       min-width: 4rem;
