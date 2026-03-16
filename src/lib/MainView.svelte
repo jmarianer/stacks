@@ -64,7 +64,13 @@
     if (e.key === 'Backspace') {
       const stack = stackAtMouse();
       if (!stack) return;
-      // TODO: sell the cards
+      const sellable = stack.cards.filter((c) => c.value !== undefined);
+      if (sellable.length === 0) return;
+      currentBoard.currency += sellable.reduce((sum, c) => sum + c.value!, 0);
+      stack.cards = stack.cards.filter((c) => c.value === undefined);
+      if (stack.cards.length === 0) {
+        currentBoard.stacks = currentBoard.stacks.filter((s) => s.id !== stack.id);
+      }
     }
   }
 

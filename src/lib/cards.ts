@@ -28,7 +28,7 @@ export type CardType =
 export type CardData = {
   id: number;
   type: CardType;
-  value: number; // numeric value for numbers; 0 for operators
+  value?: number; // coin value; undefined = not sellable
   title: string;
   symbol: string;
   color: string;
@@ -48,28 +48,28 @@ export type Stack = {
 /** Canonical display data for every card type. Used by recipe outputs and buyCard. */
 export const CARD_CATALOG: Record<CardType, Omit<CardData, 'id'>> = {
   // Resources
-  'alien-parts':       { type: 'alien-parts',        value: 0, title: 'Alien Parts',        symbol: '👾', color: '#69F0AE' },
-  'biomass':           { type: 'biomass',            value: 0, title: 'Biomass',            symbol: '🌿', color: '#4A7C3F' },
-  'energy-cell':       { type: 'energy-cell',        value: 0, title: 'Energy Cell',        symbol: '⚡', color: '#F4C430' },
-  'computronium':      { type: 'computronium',       value: 0, title: 'Computronium',       symbol: '🧠', color: '#3F51B5' },
-  'crust-chunk':       { type: 'crust-chunk',        value: 0, title: 'Crust Chunk',        symbol: '🪨', color: '#8B7355' },
-  'dark-matter':       { type: 'dark-matter',        value: 0, title: 'Dark Matter',        symbol: '🌑', color: '#4A148C' },
-  'dark-matter-chunk': { type: 'dark-matter-chunk',  value: 0, title: 'Dark Matter Chunk',  symbol: '🌑', color: '#6A1B9A' },
-  'electronics':       { type: 'electronics',        value: 0, title: 'Electronics',        symbol: '💡', color: '#00ACC1' },
-  'fossil-regolith':   { type: 'fossil-regolith',    value: 0, title: 'Fossil Regolith',    symbol: '🦴', color: '#A1887F' },
-  'helium3':           { type: 'helium3',            value: 0, title: 'Helium-3',           symbol: '☁',  color: '#87CEEB' },
-  'higgs-boson':       { type: 'higgs-boson',        value: 0, title: 'Higgs Boson',        symbol: '⚛',  color: '#9E9E9E' },
-  'nanocarbon':        { type: 'nanocarbon',         value: 0, title: 'Nanocarbon',         symbol: '◼',  color: '#212121' },
-  'plasteel':          { type: 'plasteel',           value: 0, title: 'Plasteel',           symbol: '🔩', color: '#607D8B' },
-  'plasteel-deposit':  { type: 'plasteel-deposit',   value: 0, title: 'Plasteel Deposit',   symbol: '⛏',  color: '#455A64' },
-  'snow-block':        { type: 'snow-block',         value: 0, title: 'Snow Block',         symbol: '🧊', color: '#B3E5FC' },
-  'snow-pile':         { type: 'snow-pile',          value: 0, title: 'Snow Pile',          symbol: '❄',  color: '#90CAF9' },
-  'snow-sphere':       { type: 'snow-sphere',        value: 0, title: 'Snow Sphere',        symbol: '🔵', color: '#64B5F6' },
-  'snowballs':         { type: 'snowballs',          value: 0, title: 'Snowballs',          symbol: '⛄',  color: '#4FC3F7' },
-  'unobtainium':       { type: 'unobtainium',        value: 0, title: 'Unobtainium',        symbol: '💎', color: '#E91E63' },
-  'wishalloy':         { type: 'wishalloy',          value: 0, title: 'Wishalloy',          symbol: '✨', color: '#B8860B' },
+  'alien-parts':       { type: 'alien-parts',        value: 15, title: 'Alien Parts',        symbol: '👾', color: '#69F0AE' },
+  'biomass':           { type: 'biomass',            value:  1, title: 'Biomass',            symbol: '🌿', color: '#4A7C3F' },
+  'energy-cell':       { type: 'energy-cell',        value:  1, title: 'Energy Cell',        symbol: '⚡', color: '#F4C430' },
+  'computronium':      { type: 'computronium',       value: 10, title: 'Computronium',       symbol: '🧠', color: '#3F51B5' },
+  'crust-chunk':       { type: 'crust-chunk',        value:  1, title: 'Crust Chunk',        symbol: '🪨', color: '#8B7355' },
+  'dark-matter':       { type: 'dark-matter',        value: 15, title: 'Dark Matter',        symbol: '🌑', color: '#4A148C' },
+  'dark-matter-chunk': { type: 'dark-matter-chunk',  value:  5, title: 'Dark Matter Chunk',  symbol: '🌑', color: '#6A1B9A' },
+  'electronics':       { type: 'electronics',        value:  3, title: 'Electronics',        symbol: '💡', color: '#00ACC1' },
+  'fossil-regolith':   { type: 'fossil-regolith',    value:  1, title: 'Fossil Regolith',    symbol: '🦴', color: '#A1887F' },
+  'helium3':           { type: 'helium3',            value:  1, title: 'Helium-3',           symbol: '☁',  color: '#87CEEB' },
+  'higgs-boson':       { type: 'higgs-boson',        value:  1, title: 'Higgs Boson',        symbol: '⚛',  color: '#9E9E9E' },
+  'nanocarbon':        { type: 'nanocarbon',         value:  2, title: 'Nanocarbon',         symbol: '◼',  color: '#212121' },
+  'plasteel':          { type: 'plasteel',           value:  2, title: 'Plasteel',           symbol: '🔩', color: '#607D8B' },
+  'plasteel-deposit':  { type: 'plasteel-deposit',   value:  1, title: 'Plasteel Deposit',   symbol: '⛏',  color: '#455A64' },
+  'snow-block':        { type: 'snow-block',         value:  1, title: 'Snow Block',         symbol: '🧊', color: '#B3E5FC' },
+  'snow-pile':         { type: 'snow-pile',          value:  1, title: 'Snow Pile',          symbol: '❄',  color: '#90CAF9' },
+  'snow-sphere':       { type: 'snow-sphere',        value:  1, title: 'Snow Sphere',        symbol: '🔵', color: '#64B5F6' },
+  'snowballs':         { type: 'snowballs',          value:  1, title: 'Snowballs',          symbol: '⛄',  color: '#4FC3F7' },
+  'unobtainium':       { type: 'unobtainium',        value: 10, title: 'Unobtainium',        symbol: '💎', color: '#E91E63' },
+  'wishalloy':         { type: 'wishalloy',          value: 15, title: 'Wishalloy',          symbol: '✨', color: '#B8860B' },
   // Units
-  'astronaut': { type: 'astronaut', value: 0, title: 'Astronaut', symbol: '🧑‍🚀', color: '#5C85B4' },
+  'astronaut': { type: 'astronaut', title: 'Astronaut', symbol: '🧑‍🚀', color: '#5C85B4' },
 };
 
 /** Groups a card type belongs to, used for recipe ingredient matching. */
