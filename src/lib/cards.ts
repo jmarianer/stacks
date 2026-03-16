@@ -66,6 +66,7 @@ export type ShopItem = {
 export type SolFeedResult = {
   needed: number;
   provided: number;
+  deaths: { type: CardType; count: number }[];
 };
 
 export type Board = {

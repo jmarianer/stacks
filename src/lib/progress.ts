@@ -77,7 +77,13 @@ function feedUnits(board: Board): void {
   }
   board.stacks = board.stacks.filter((s) => s.cards.length > 0);
 
-  board.lastSolFeed = { needed, provided: consumed };
+  const deathTally = new Map<CardType, number>();
+  for (const { card } of units) {
+    if (dead.has(card.id)) deathTally.set(card.type, (deathTally.get(card.type) ?? 0) + 1);
+  }
+  const deaths = [...deathTally.entries()].map(([type, count]) => ({ type, count }));
+
+  board.lastSolFeed = { needed, provided: consumed, deaths };
 }
 
 function isCardType(s: string): s is CardType {

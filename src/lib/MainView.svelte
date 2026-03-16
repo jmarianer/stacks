@@ -269,9 +269,18 @@
             {:else if feed.provided >= feed.needed}
               Fed all units: {feed.needed} energy consumed.
             {:else}
-              ⚠ Only {feed.provided} / {feed.needed} energy available — some units went hungry.
+              ⚠ Only {feed.provided} / {feed.needed} energy available.
             {/if}
           </div>
+          {#if feed.deaths.length > 0}
+            <div class="sol-deaths">
+              {#each feed.deaths as { type, count }}
+                <span class="sol-death-entry">
+                  💀 {count}× {CARD_CATALOG[type].title} died
+                </span>
+              {/each}
+            </div>
+          {/if}
         {/if}
         <button class="sol-continue" onclick={continueSol}>Continue to Sol {currentBoard.sol + 1}</button>
       </div>
@@ -346,6 +355,17 @@
     .sol-feed {
       font-size: 1.4rem;
       color: #ccc;
+    }
+
+    .sol-deaths {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      font-size: 1.2rem;
+
+      .sol-death-entry {
+        color: #ff6b6b;
+      }
     }
 
     .sol-continue {
