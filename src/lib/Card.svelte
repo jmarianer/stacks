@@ -37,8 +37,12 @@
 >
   <div class="card-inner">
     <div class="title">{def.title}</div>
-    <div class="circle-area">
-      <div class="circle">{def.symbol}</div>
+    <div class="image">
+      {#if def.image}
+        <img class="card-image" src="/cards/{def.image}" alt={def.title} draggable="false" />
+      {:else}
+        {def.symbol}
+      {/if}
     </div>
     <div class="footer">
       {#if def.value !== undefined}
@@ -108,23 +112,17 @@
     border-radius: 0.4vmin;
   }
 
-  .circle-area {
+  .image {
+    font-size: 10vmin; /* for symbol fallback */
     flex: 1;
     display: flex;
     align-items: center;
     justify-content: center;
   }
 
-  .circle {
+  .card-image {
     width: 14vmin;
     height: 14vmin;
-    border-radius: 50%;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-family: 'BigNoodleTitling';
-    font-size: 10vmin;
+    object-fit: contain;
   }
 </style>
