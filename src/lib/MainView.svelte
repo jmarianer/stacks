@@ -338,7 +338,7 @@
               <span class="recipe-time">{recipe.time / 1000}s</span>
             </div>
             <div class="recipe-ingredients">
-              {#each recipe.ingredients as ing, i}
+              {#each recipe.ingredients as ing, i (ing)}
                 {#if i > 0}<span class="sep">+</span>{/if}
                 <span class="ingredient" class:reusable={!ing.consumed}>
                   {#if ing.count && ing.count > 1}{ing.count}×{/if}{ingredientLabel(
@@ -349,7 +349,7 @@
               {/each}
             </div>
             <div class="recipe-results">
-              {#each recipe.results as result, i}
+              {#each recipe.results as result, i (result)}
                 {#if i > 0}<span class="sep">·</span>{/if}
                 <span class="result">{resultLabel(result)}</span>
               {/each}
