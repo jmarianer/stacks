@@ -303,7 +303,7 @@
           </div>
           {#if feed.deaths.length > 0}
             <div class="sol-deaths">
-              {#each feed.deaths as { type, count }}
+              {#each feed.deaths as { type, count } (type)}
                 <span class="sol-death-entry">
                   💀 {count}× {CARD_CATALOG[type].title} died
                 </span>
