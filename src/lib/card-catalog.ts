@@ -13,7 +13,9 @@ export const CARD_CATALOG: Record<CardType, CardDef> = {
   // Resources
   'alien-parts':       { title: 'Alien Parts',        symbol: '👾', color: '#69F0AE', value: 15 },
   'biomass':           { title: 'Biomass',            symbol: '🌿', color: '#4A7C3F', value:  1 },
-  'energy-cell':       { title: 'Energy Cell',        symbol: '⚡', color: '#F4C430', value:  1 },
+  'energy-cell':       { title: 'Energy Cell',        symbol: '⚡', color: '#F4C430', value:  1, usesInitial: 1 },
+  'multi-cell':        { title: 'Multi-Cell',         symbol: '⚡', color: '#FFB300', value:  4, usesInitial: 4 },
+  'mega-cell':         { title: 'Mega-Cell',          symbol: '⚡', color: '#FF6F00', value: 16, usesInitial: 16 },
   'computronium':      { title: 'Computronium',       symbol: '🧠', color: '#3F51B5', value: 10 },
   'crust-chunk':       { title: 'Crust Chunk',        symbol: '🪨', color: '#8B7355', value:  1 },
   'dark-matter':       { title: 'Dark Matter',        symbol: '🌑', color: '#4A148C', value: 15 },

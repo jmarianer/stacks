@@ -5,6 +5,8 @@ export type CardType =
   | 'alien-parts'
   | 'biomass'
   | 'energy-cell'
+  | 'multi-cell'
+  | 'mega-cell'
   | 'computronium'
   | 'crust-chunk'
   | 'dark-matter'

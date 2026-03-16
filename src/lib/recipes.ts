@@ -55,6 +55,18 @@ export const recipes: Recipe[] = [
     results: [{ action: 'card', card: 'energy-cell' }],
   },
   {
+    id: 'make-multi-cell',
+    time: 2000,
+    ingredients: [{ match: 'energy-cell', count: 4, consumed: true }],
+    results: [{ action: 'card', card: 'multi-cell' }],
+  },
+  {
+    id: 'make-mega-cell',
+    time: 2000,
+    ingredients: [{ match: 'multi-cell', count: 4, consumed: true }],
+    results: [{ action: 'card', card: 'mega-cell' }],
+  },
+  {
     id: 'make-snow-sphere',
     time: 3000,
     ingredients: [
