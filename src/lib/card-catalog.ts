@@ -142,7 +142,7 @@ export const initialBoards: Board[] = [
     ],
     176,
     112,
-    3,
+    0,
     [{ cardType: 'crust-chunk', price: 3, symbol: '🪨', label: 'Crust Chunk', color: '#8B7355' }],
     [
       'punch-crust-chunk',
