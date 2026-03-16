@@ -1,6 +1,29 @@
 import type { Vec2 } from '$lib/utils/vec2';
 
-export type CardType = 'number' | 'add' | 'multiply';
+export type CardType =
+  // Resources
+  | 'alien-parts'
+  | 'biomass'
+  | 'energy-cell'
+  | 'computronium'
+  | 'crust-chunk'
+  | 'dark-matter'
+  | 'dark-matter-chunk'
+  | 'electronics'
+  | 'fossil-regolith'
+  | 'helium3'
+  | 'higgs-boson'
+  | 'nanocarbon'
+  | 'plasteel'
+  | 'plasteel-deposit'
+  | 'snow-block'
+  | 'snow-pile'
+  | 'snow-sphere'
+  | 'snowballs'
+  | 'unobtainium'
+  | 'wishalloy'
+  // Units
+  | 'astronaut';
 
 export type CardData = {
   id: number;
@@ -17,9 +40,41 @@ export type Stack = {
   dragging: boolean;
   isDropTarget: boolean;
   cards: CardData[]; // index 0 = bottom
-  progress: number; // 0–1, for hat rendering
+  progress: number; // 0–1, for progress bar rendering
   progressStartTime: number | null;
-  progressResult: number | null; // result at the time progress started; null = inactive
+  activeRecipeId: string | null; // null = no active recipe
+};
+
+/** Canonical display data for every card type. Used by recipe outputs and buyCard. */
+export const CARD_CATALOG: Record<CardType, Omit<CardData, 'id'>> = {
+  // Resources
+  'alien-parts':       { type: 'alien-parts',        value: 0, title: 'Alien Parts',        symbol: '👾', color: '#69F0AE' },
+  'biomass':           { type: 'biomass',            value: 0, title: 'Biomass',            symbol: '🌿', color: '#4A7C3F' },
+  'energy-cell':       { type: 'energy-cell',        value: 0, title: 'Energy Cell',        symbol: '⚡', color: '#F4C430' },
+  'computronium':      { type: 'computronium',       value: 0, title: 'Computronium',       symbol: '🧠', color: '#3F51B5' },
+  'crust-chunk':       { type: 'crust-chunk',        value: 0, title: 'Crust Chunk',        symbol: '🪨', color: '#8B7355' },
+  'dark-matter':       { type: 'dark-matter',        value: 0, title: 'Dark Matter',        symbol: '🌑', color: '#4A148C' },
+  'dark-matter-chunk': { type: 'dark-matter-chunk',  value: 0, title: 'Dark Matter Chunk',  symbol: '🌑', color: '#6A1B9A' },
+  'electronics':       { type: 'electronics',        value: 0, title: 'Electronics',        symbol: '💡', color: '#00ACC1' },
+  'fossil-regolith':   { type: 'fossil-regolith',    value: 0, title: 'Fossil Regolith',    symbol: '🦴', color: '#A1887F' },
+  'helium3':           { type: 'helium3',            value: 0, title: 'Helium-3',           symbol: '☁',  color: '#87CEEB' },
+  'higgs-boson':       { type: 'higgs-boson',        value: 0, title: 'Higgs Boson',        symbol: '⚛',  color: '#9E9E9E' },
+  'nanocarbon':        { type: 'nanocarbon',         value: 0, title: 'Nanocarbon',         symbol: '◼',  color: '#212121' },
+  'plasteel':          { type: 'plasteel',           value: 0, title: 'Plasteel',           symbol: '🔩', color: '#607D8B' },
+  'plasteel-deposit':  { type: 'plasteel-deposit',   value: 0, title: 'Plasteel Deposit',   symbol: '⛏',  color: '#455A64' },
+  'snow-block':        { type: 'snow-block',         value: 0, title: 'Snow Block',         symbol: '🧊', color: '#B3E5FC' },
+  'snow-pile':         { type: 'snow-pile',          value: 0, title: 'Snow Pile',          symbol: '❄',  color: '#90CAF9' },
+  'snow-sphere':       { type: 'snow-sphere',        value: 0, title: 'Snow Sphere',        symbol: '🔵', color: '#64B5F6' },
+  'snowballs':         { type: 'snowballs',          value: 0, title: 'Snowballs',          symbol: '⛄',  color: '#4FC3F7' },
+  'unobtainium':       { type: 'unobtainium',        value: 0, title: 'Unobtainium',        symbol: '💎', color: '#E91E63' },
+  'wishalloy':         { type: 'wishalloy',          value: 0, title: 'Wishalloy',          symbol: '✨', color: '#B8860B' },
+  // Units
+  'astronaut': { type: 'astronaut', value: 0, title: 'Astronaut', symbol: '🧑‍🚀', color: '#5C85B4' },
+};
+
+/** Groups a card type belongs to, used for recipe ingredient matching. */
+export const CARD_GROUPS: Partial<Record<CardType, string[]>> = {
+  astronaut: ['people'],
 };
 
 let nextId = 1;
@@ -33,7 +88,7 @@ export function makeStack(pos: Vec2, cards: Omit<CardData, 'id'>[]): Stack {
     cards: cards.map((c) => ({ ...c, id: nextId++ })),
     progress: 0,
     progressStartTime: null,
-    progressResult: null,
+    activeRecipeId: null,
   };
 }
 
@@ -47,38 +102,13 @@ export function makeStackFromCards(pos: Vec2, cards: CardData[]): Stack {
     cards,
     progress: 0,
     progressStartTime: null,
-    progressResult: null,
+    activeRecipeId: null,
   };
 }
 
-/** Create a new number card with a fresh ID. */
-export function makeNumberCard(value: number): CardData {
-  return {
-    id: nextId++,
-    type: 'number',
-    value,
-    title: 'Number',
-    symbol: String(value),
-    color: 'cornflowerblue',
-  };
-}
-
-/**
- * If the stack contains exactly one operator and at least one number,
- * returns the result of applying that operator to all numbers.
- * Otherwise returns null.
- */
-export function computeResult(stack: Stack): number | null {
-  const operators = stack.cards.filter((c) => c.type === 'add' || c.type === 'multiply');
-  if (operators.length !== 1) return null;
-  const numbers = stack.cards.filter((c) => c.type === 'number');
-  if (numbers.length < 2) return null;
-  const op = operators[0];
-  if (op.type === 'add') {
-    return numbers.reduce((sum, c) => sum + c.value, 0);
-  } else {
-    return numbers.reduce((product, c) => product * c.value, 1);
-  }
+/** Create a new card of the given type with a fresh ID, using catalog display data. */
+export function makeCardOfType(type: CardType): CardData {
+  return { ...CARD_CATALOG[type], id: nextId++ };
 }
 
 export type ShopItem = {
@@ -123,22 +153,13 @@ export const initialBoards: Board[] = [
   makeBoard(
     'Board 1',
     [
-      makeStack({ x: 80, y: 30 }, [
-        { type: 'number', value: 3, title: 'Number', symbol: '3', color: 'cornflowerblue' },
-        { type: 'number', value: 4, title: 'Number', symbol: '4', color: 'cornflowerblue' },
-        { type: 'number', value: 5, title: 'Number', symbol: '5', color: 'cornflowerblue' },
-      ]),
-      makeStack({ x: 40, y: 80 }, [
-        { type: 'number', value: 6, title: 'Number', symbol: '6', color: 'goldenrod' },
-        { type: 'number', value: 7, title: 'Number', symbol: '7', color: 'goldenrod' },
-      ]),
+      makeStack({ x: 80, y: 56 }, [CARD_CATALOG['astronaut']]),
     ],
     176,
     112,
-    0,
+    3,
     [
-      { cardType: 'add', price: 3, symbol: '+', label: 'Add', color: 'hotpink' },
-      { cardType: 'multiply', price: 8, symbol: '×', label: 'Multiply', color: 'hotpink' },
+      { cardType: 'crust-chunk', price: 3, symbol: '🪨', label: 'Crust Chunk', color: '#8B7355' },
     ],
   ),
 ];

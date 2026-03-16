@@ -1,0 +1,35 @@
+import type { Recipe } from '$lib/recipe-types';
+
+export const recipes: Recipe[] = [
+  {
+    id: 'punch-crust-chunk',
+    time: 3000,
+    ingredients: [
+      { match: 'crust-chunk', consumed: true },
+      { match: 'people', consumed: false },
+    ],
+    results: [
+      { action: 'weighted', cards: { 'fossil-regolith': 25, nanocarbon: 75 } },
+      { action: 'weighted', cards: { 'plasteel-deposit': 25, plasteel: 75 } },
+      { action: 'card', card: 'helium3', chance: 25 },
+    ],
+  },
+  {
+    id: 'punch-plasteel-deposit',
+    time: 3000,
+    ingredients: [
+      { match: 'plasteel-deposit', consumed: true },
+      { match: 'people', consumed: false },
+    ],
+    results: [{ action: 'card', card: 'plasteel' }],
+  },
+  {
+    id: 'punch-fossil-regolith',
+    time: 3000,
+    ingredients: [
+      { match: 'fossil-regolith', consumed: true },
+      { match: 'people', consumed: false },
+    ],
+    results: [{ action: 'weighted', cards: { helium3: 100, biomass: 100 } }],
+  },
+] satisfies Recipe[];

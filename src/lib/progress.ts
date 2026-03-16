@@ -1,38 +1,102 @@
-import { type Stack, makeStackFromCards, makeNumberCard, computeResult } from '$lib/cards';
+import { recipes } from '$lib/recipes';
+import { type Stack, type CardType, CARD_CATALOG, CARD_GROUPS, makeCardOfType, makeStackFromCards } from '$lib/cards';
+import type { Recipe } from '$lib/recipe-types';
 
-function splitStack(stacks: Stack[], stack: Stack): void {
-  const operatorCard = stack.cards.find((c) => c.type === 'add' || c.type === 'multiply')!;
-  const resultCard = makeNumberCard(stack.progressResult!);
-  const opStack = makeStackFromCards({ x: stack.pos.x, y: stack.pos.y }, [operatorCard]);
-  const resultStack = makeStackFromCards({ x: stack.pos.x + 1, y: stack.pos.y }, [resultCard]);
-  const index = stacks.indexOf(stack);
-  stacks.splice(index, 1, opStack, resultStack);
+function isCardType(s: string): s is CardType {
+  return s in CARD_CATALOG;
+}
+
+function cardMatchesIngredient(type: CardType, match: string): boolean {
+  if (type === match) return true;
+  return CARD_GROUPS[type]?.includes(match) ?? false;
+}
+
+function matchRecipe(stack: Stack): Recipe | null {
+  outer: for (const recipe of recipes) {
+    const used = new Set<number>();
+    for (const ing of recipe.ingredients) {
+      const idx = stack.cards.findIndex((c, i) => !used.has(i) && cardMatchesIngredient(c.type, ing.match));
+      if (idx === -1) continue outer;
+      used.add(idx);
+    }
+    return recipe;
+  }
+  return null;
+}
+
+function weightedRandom(cards: Record<string, number>): string {
+  const total = Object.values(cards).reduce((a, b) => a + b, 0);
+  let r = Math.random() * total;
+  for (const [type, weight] of Object.entries(cards)) {
+    r -= weight;
+    if (r <= 0) return type;
+  }
+  return Object.keys(cards)[0];
+}
+
+function executeRecipe(stacks: Stack[], stack: Stack, recipe: Recipe): void {
+  const consumed = new Set<number>();
+  for (const ing of recipe.ingredients) {
+    if (!ing.consumed) continue;
+    const idx = stack.cards.findIndex((c, i) => !consumed.has(i) && cardMatchesIngredient(c.type, ing.match));
+    if (idx !== -1) consumed.add(idx);
+  }
+
+  stack.cards = stack.cards.filter((_, i) => !consumed.has(i));
+  stack.progress = 0;
+  stack.progressStartTime = null;
+  stack.activeRecipeId = null;
+
+  let offset = 0;
+  for (const result of recipe.results) {
+    let type: string | null = null;
+    if (result.action === 'card') {
+      if (result.chance !== undefined && Math.random() * 100 > result.chance) continue;
+      type = result.card;
+    } else if (result.action === 'weighted') {
+      type = weightedRandom(result.cards);
+    }
+    if (!type || !isCardType(type)) continue;
+    const card = makeCardOfType(type);
+    stacks.push(makeStackFromCards({ x: stack.pos.x + offset * 2, y: stack.pos.y + offset * 2 }, [card]));
+    offset++;
+  }
+
+  if (stack.cards.length === 0) {
+    stacks.splice(stacks.indexOf(stack), 1);
+  }
 }
 
 export function tick(stacks: Stack[], now: number): void {
-  const toSplit: Stack[] = [];
+  const toExecute: { stack: Stack; recipe: Recipe }[] = [];
+
   for (const stack of stacks) {
     if (stack.dragging) {
       stack.progress = 0;
       stack.progressStartTime = null;
-      stack.progressResult = null;
+      stack.activeRecipeId = null;
       continue;
     }
-    const result = computeResult(stack);
-    if (result === null) {
+
+    const recipe = matchRecipe(stack);
+    if (!recipe) {
       stack.progress = 0;
       stack.progressStartTime = null;
-      stack.progressResult = null;
+      stack.activeRecipeId = null;
       continue;
     }
-    if (result !== stack.progressResult) {
-      stack.progressResult = result;
+
+    if (recipe.id !== stack.activeRecipeId) {
+      stack.activeRecipeId = recipe.id;
       stack.progressStartTime = now;
       stack.progress = 0;
     } else {
-      stack.progress = Math.min((now - stack.progressStartTime!) / (result * 100), 1);
-      if (stack.progress >= 1) toSplit.push(stack);
+      stack.progress = Math.min((now - stack.progressStartTime!) / recipe.time, 1);
+      if (stack.progress >= 1) toExecute.push({ stack, recipe });
     }
   }
-  for (const stack of toSplit) splitStack(stacks, stack);
+
+  for (const { stack, recipe } of toExecute) {
+    executeRecipe(stacks, stack, recipe);
+  }
 }

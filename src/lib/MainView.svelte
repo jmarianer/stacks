@@ -11,7 +11,7 @@
   } from '$lib/constants';
   import Draggable from './Draggable.svelte';
   import { addScaled } from '$lib/utils/vec2';
-  import { type Stack, type Board, type ShopItem, initialBoards, makeStack, makeStackFromCards } from '$lib/cards';
+  import { type Stack, type Board, type ShopItem, CARD_CATALOG, initialBoards, makeStack, makeStackFromCards } from '$lib/cards';
   import { tick as tickPhysics } from '$lib/physics';
   import { tick as tickProgress } from '$lib/progress';
 
@@ -64,13 +64,7 @@
     if (e.key === 'Backspace') {
       const stack = stackAtMouse();
       if (!stack) return;
-      const numbers = stack.cards.filter((c) => c.type === 'number');
-      if (numbers.length === 0) return;
-      currentBoard.currency += numbers.reduce((sum, c) => sum + c.value, 0);
-      stack.cards = stack.cards.filter((c) => c.type !== 'number');
-      if (stack.cards.length === 0) {
-        currentBoard.stacks = currentBoard.stacks.filter((s) => s.id !== stack.id);
-      }
+      // TODO: sell the cards
     }
   }
 
@@ -164,7 +158,7 @@
     if (currentBoard.currency < item.price) return;
     currentBoard.currency -= item.price;
     const pos = { x: currentBoard.width / 2, y: currentBoard.height / 2 };
-    const newStack = makeStack(pos, [{ type: item.cardType, value: 0, title: item.label, symbol: item.symbol, color: item.color }]);
+    const newStack = makeStack(pos, [CARD_CATALOG[item.cardType]]);
     currentBoard.stacks = [...currentBoard.stacks, newStack];
   }
 
@@ -214,7 +208,7 @@
       />
     {/each}
     {#each currentBoard.stacks as stack (stack.id)}
-      {#if stack.progressResult !== null}
+      {#if stack.activeRecipeId !== null}
         {@const progressBarLeft = stack.pos.x}
         {@const progressBarTop = stack.pos.y - 2.5}
         <div
