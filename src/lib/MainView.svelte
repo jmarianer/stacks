@@ -518,7 +518,10 @@
 
     .energy-hud {
       opacity: 0.85;
-      &.short { color: #ff6b6b; opacity: 1; }
+      &.short {
+        color: #ff6b6b;
+        opacity: 1;
+      }
     }
 
     .recipes-toggle {
