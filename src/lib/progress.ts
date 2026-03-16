@@ -82,13 +82,6 @@ export function tick(stacks: Stack[], now: number): void {
   const toExecute: { stack: Stack; recipe: Recipe }[] = [];
 
   for (const stack of stacks) {
-    if (stack.dragging) {
-      stack.progress = 0;
-      stack.progressStartTime = null;
-      stack.activeRecipeId = null;
-      continue;
-    }
-
     const recipe = matchRecipe(stack);
     if (!recipe) {
       stack.progress = 0;
