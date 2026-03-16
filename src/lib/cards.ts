@@ -29,6 +29,7 @@ export type CardData = {
   id: number;
   type: CardType;
   value?: number; // coin value; undefined = not sellable
+  usesRemaining?: number; // charges remaining; undefined = infinite uses
   title: string;
   symbol: string;
   color: string;
@@ -61,7 +62,7 @@ export const CARD_CATALOG: Record<CardType, Omit<CardData, 'id'>> = {
   'higgs-boson':       { type: 'higgs-boson',        value:  1, title: 'Higgs Boson',        symbol: '⚛',  color: '#9E9E9E' },
   'nanocarbon':        { type: 'nanocarbon',         value:  2, title: 'Nanocarbon',         symbol: '◼',  color: '#212121' },
   'plasteel':          { type: 'plasteel',           value:  2, title: 'Plasteel',           symbol: '🔩', color: '#607D8B' },
-  'plasteel-deposit':  { type: 'plasteel-deposit',   value:  1, title: 'Plasteel Deposit',   symbol: '⛏',  color: '#455A64' },
+  'plasteel-deposit':  { type: 'plasteel-deposit',   value:  1, title: 'Plasteel Deposit',   symbol: '⛏',  color: '#455A64', usesRemaining: 3 },
   'snow-block':        { type: 'snow-block',         value:  1, title: 'Snow Block',         symbol: '🧊', color: '#B3E5FC' },
   'snow-pile':         { type: 'snow-pile',          value:  1, title: 'Snow Pile',          symbol: '❄',  color: '#90CAF9' },
   'snow-sphere':       { type: 'snow-sphere',        value:  1, title: 'Snow Sphere',        symbol: '🔵', color: '#64B5F6' },

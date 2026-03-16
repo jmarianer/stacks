@@ -42,7 +42,18 @@ function executeRecipe(stacks: Stack[], stack: Stack, recipe: Recipe): void {
     if (idx !== -1) consumed.add(idx);
   }
 
-  stack.cards = stack.cards.filter((_, i) => !consumed.has(i));
+  // Decrement uses for cards that have charges; only fully remove when depleted
+  const fullyConsumed = new Set<number>();
+  for (const idx of consumed) {
+    const card = stack.cards[idx];
+    if (card.usesRemaining !== undefined) {
+      card.usesRemaining -= 1;
+      if (card.usesRemaining <= 0) fullyConsumed.add(idx);
+    } else {
+      fullyConsumed.add(idx);
+    }
+  }
+  stack.cards = stack.cards.filter((_, i) => !fullyConsumed.has(i));
   stack.progress = 0;
   stack.progressStartTime = null;
   stack.activeRecipeId = null;
