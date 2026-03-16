@@ -78,8 +78,8 @@ export const CARD_CATALOG: Record<CardType, CardDef> = {
   astronaut: { title: 'Astronaut', image: 'astronaut.svg', color: '#5C85B4' },
   'service-drone-1': { title: 'Service Drone', image: 'service-drone-1.svg', color: '#546E7A' },
   // Buildings
-  workbench: { title: 'Workbench', image: 'workbench.svg', color: '#795548' },
-  'solar-panel': { title: 'Solar Panel', image: 'solar-panel.svg', color: '#F57F17' },
+  workbench: { title: 'Workbench', image: 'workbench.svg', color: '#795548', value: 5 },
+  'solar-panel': { title: 'Solar Panel', image: 'solar-panel.svg', color: '#F57F17', value: 5 },
 };
 
 /** Groups a card type belongs to, used for recipe ingredient matching. */
