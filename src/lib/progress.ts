@@ -223,6 +223,30 @@ const MILESTONES: Milestone[] = [
     unlockRecipeIds: ['make-electronics'],
     notificationCard: 'idea-electronics',
   },
+  {
+    id: 'first-electronics',
+    condition: (b) => b.stacks.some((s) => s.cards.some((c) => c.type === 'electronics')),
+    unlockRecipeIds: ['build-drill'],
+    notificationCard: 'idea-drill',
+  },
+  {
+    id: 'first-drill',
+    condition: (b) => b.stacks.some((s) => s.cards.some((c) => c.type === 'drill')),
+    unlockRecipeIds: ['build-adv-workbench'],
+    notificationCard: 'idea-adv-workbench',
+  },
+  {
+    id: 'first-adv-workbench',
+    condition: (b) => b.stacks.some((s) => s.cards.some((c) => c.type === 'adv-workbench')),
+    unlockRecipeIds: ['build-power-station'],
+    notificationCard: 'idea-power-station',
+  },
+  {
+    id: 'first-power-station',
+    condition: (b) => b.stacks.some((s) => s.cards.some((c) => c.type === 'power-station')),
+    unlockRecipeIds: ['build-cloning-chamber'],
+    notificationCard: 'idea-cloning-chamber',
+  },
 ];
 
 function checkMilestones(board: Board): void {

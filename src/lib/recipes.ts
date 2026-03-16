@@ -140,6 +140,105 @@ export const recipes: Recipe[] = [
     results: [{ action: 'card', card: 'solar-panel' }],
   },
 
+  // --- Drill ---
+  {
+    id: 'build-drill',
+    label: 'Build Drill',
+    time: 5000,
+    ingredients: [
+      { match: 'plasteel', count: 3, consumed: true },
+      { match: 'nanocarbon', consumed: true },
+      { match: 'people', consumed: false },
+    ],
+    results: [{ action: 'card', card: 'drill' }],
+  },
+  {
+    id: 'use-drill',
+    label: 'Drill: Mine Resources',
+    time: 15000,
+    alwaysKnown: true,
+    ingredients: [
+      { match: 'drill', consumed: false },
+      { match: 'people', consumed: false },
+    ],
+    results: [{ action: 'weighted', cards: { plasteel: 60, helium3: 40 } }],
+  },
+
+  // --- Advanced workbench ---
+  {
+    id: 'build-adv-workbench',
+    label: 'Build Adv. Workbench',
+    time: 3000,
+    ingredients: [
+      { match: 'electronics', count: 4, consumed: true },
+      { match: 'people', consumed: false },
+    ],
+    results: [{ action: 'card', card: 'adv-workbench' }],
+  },
+  {
+    id: 'use-adv-workbench',
+    label: 'Adv. Workbench: Make Computronium',
+    time: 10000,
+    alwaysKnown: true,
+    ingredients: [
+      { match: 'adv-workbench', consumed: false },
+      { match: 'nanocarbon', consumed: true },
+      { match: 'electronics', consumed: true },
+      { match: 'people', consumed: false },
+    ],
+    results: [{ action: 'card', card: 'computronium' }],
+  },
+
+  // --- Power station ---
+  {
+    id: 'build-power-station',
+    label: 'Build Power Station',
+    time: 5000,
+    ingredients: [
+      { match: 'computronium', count: 2, consumed: true },
+      { match: 'plasteel', count: 2, consumed: true },
+      { match: 'people', consumed: false },
+    ],
+    results: [{ action: 'card', card: 'power-station' }],
+  },
+  {
+    id: 'use-power-station',
+    label: 'Power Station: Generate Multi-Cell',
+    time: 15000,
+    alwaysKnown: true,
+    ingredients: [
+      { match: 'power-station', consumed: false },
+      { match: 'people', consumed: false },
+    ],
+    results: [{ action: 'card', card: 'multi-cell' }],
+  },
+
+  // --- Cloning chamber ---
+  {
+    id: 'build-cloning-chamber',
+    label: 'Build Cloning Chamber',
+    time: 10000,
+    ingredients: [
+      { match: 'plasteel', count: 3, consumed: true },
+      { match: 'biomass', consumed: true },
+      { match: 'energy-cell', consumed: true },
+      { match: 'people', consumed: false },
+    ],
+    results: [{ action: 'card', card: 'cloning-chamber' }],
+  },
+  {
+    id: 'clone-astronaut',
+    label: 'Clone Astronaut',
+    time: 30000,
+    alwaysKnown: true,
+    ingredients: [
+      { match: 'cloning-chamber', consumed: false },
+      { match: 'energy-cell', count: 2, consumed: true },
+      { match: 'people', consumed: false },
+    ],
+    results: [{ action: 'card', card: 'astronaut' }],
+  },
+
   // --- Solar panel energy production ---
   {
     id: 'solar-panel-generate',

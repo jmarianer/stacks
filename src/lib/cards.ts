@@ -1,40 +1,6 @@
 import type { Vec2 } from '$lib/utils/vec2';
-
-export type CardType =
-  // Resources
-  | 'alien-parts'
-  | 'biomass'
-  | 'energy-cell'
-  | 'multi-cell'
-  | 'mega-cell'
-  | 'computronium'
-  | 'crust-chunk'
-  | 'dark-matter'
-  | 'dark-matter-chunk'
-  | 'electronics'
-  | 'fossil-regolith'
-  | 'helium3'
-  | 'higgs-boson'
-  | 'nanocarbon'
-  | 'plasteel'
-  | 'plasteel-deposit'
-  | 'snow-block'
-  | 'snow-pile'
-  | 'snow-sphere'
-  | 'snowballs'
-  | 'unobtainium'
-  | 'wishalloy'
-  // Ideas
-  | 'idea-service-drone'
-  | 'idea-solar-panel'
-  | 'idea-electronics'
-  | 'idea-workbench'
-  // Units
-  | 'astronaut'
-  | 'service-drone-1'
-  // Buildings
-  | 'workbench'
-  | 'solar-panel';
+import type { CardType } from '$lib/card-defs';
+export type { CardType } from '$lib/card-defs';
 
 export type CardData = {
   id: number;
