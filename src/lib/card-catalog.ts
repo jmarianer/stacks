@@ -5,46 +5,70 @@ export type CardDef = {
   title: string;
   symbol: string;
   color: string;
-  value?: number;       // coin value; undefined = not sellable
+  value?: number; // coin value; undefined = not sellable
   usesInitial?: number; // starting usesRemaining when a card is created; undefined = single-use
   energyValueInitial?: number; // starting energy units (energy cells only); can be partially consumed
 };
 
 export const CARD_CATALOG: Record<CardType, CardDef> = {
   // Resources
-  'alien-parts':       { title: 'Alien Parts',        symbol: '👾', color: '#69F0AE', value: 15 },
-  'biomass':           { title: 'Biomass',            symbol: '🌿', color: '#4A7C3F', value:  1 },
-  'energy-cell':       { title: 'Energy Cell',        symbol: '⚡', color: '#F4C430', value:  1, energyValueInitial:  1 },
-  'multi-cell':        { title: 'Multi-Cell',         symbol: '⚡', color: '#FFB300', value:  4, energyValueInitial:  4 },
-  'mega-cell':         { title: 'Mega-Cell',          symbol: '⚡', color: '#FF6F00', value: 16, energyValueInitial: 16 },
-  'computronium':      { title: 'Computronium',       symbol: '🧠', color: '#3F51B5', value: 10 },
-  'crust-chunk':       { title: 'Crust Chunk',        symbol: '🪨', color: '#8B7355', value:  1 },
-  'dark-matter':       { title: 'Dark Matter',        symbol: '🌑', color: '#4A148C', value: 15 },
-  'dark-matter-chunk': { title: 'Dark Matter Chunk',  symbol: '🌑', color: '#6A1B9A', value:  5 },
-  'electronics':       { title: 'Electronics',        symbol: '💡', color: '#00ACC1', value:  3 },
-  'fossil-regolith':   { title: 'Fossil Regolith',    symbol: '🦴', color: '#A1887F', value:  1 },
-  'helium3':           { title: 'Helium-3',           symbol: '☁',  color: '#87CEEB', value:  1 },
-  'higgs-boson':       { title: 'Higgs Boson',        symbol: '⚛',  color: '#9E9E9E', value:  1 },
-  'nanocarbon':        { title: 'Nanocarbon',         symbol: '◼',  color: '#212121', value:  2 },
-  'plasteel':          { title: 'Plasteel',           symbol: '🔩', color: '#607D8B', value:  2 },
-  'plasteel-deposit':  { title: 'Plasteel Deposit',   symbol: '⛏',  color: '#455A64', value:  1, usesInitial: 3 },
-  'snow-block':        { title: 'Snow Block',         symbol: '🧊', color: '#B3E5FC', value:  1 },
-  'snow-pile':         { title: 'Snow Pile',          symbol: '❄',  color: '#90CAF9', value:  1 },
-  'snow-sphere':       { title: 'Snow Sphere',        symbol: '🔵', color: '#64B5F6', value:  1 },
-  'snowballs':         { title: 'Snowballs',          symbol: '⛄',  color: '#4FC3F7', value:  1 },
-  'unobtainium':       { title: 'Unobtainium',        symbol: '💎', color: '#E91E63', value: 10 },
-  'wishalloy':         { title: 'Wishalloy',          symbol: '✨', color: '#B8860B', value: 15 },
+  'alien-parts': { title: 'Alien Parts', symbol: '👾', color: '#69F0AE', value: 15 },
+  biomass: { title: 'Biomass', symbol: '🌿', color: '#4A7C3F', value: 1 },
+  'energy-cell': {
+    title: 'Energy Cell',
+    symbol: '⚡',
+    color: '#F4C430',
+    value: 1,
+    energyValueInitial: 1,
+  },
+  'multi-cell': {
+    title: 'Multi-Cell',
+    symbol: '⚡',
+    color: '#FFB300',
+    value: 4,
+    energyValueInitial: 4,
+  },
+  'mega-cell': {
+    title: 'Mega-Cell',
+    symbol: '⚡',
+    color: '#FF6F00',
+    value: 16,
+    energyValueInitial: 16,
+  },
+  computronium: { title: 'Computronium', symbol: '🧠', color: '#3F51B5', value: 10 },
+  'crust-chunk': { title: 'Crust Chunk', symbol: '🪨', color: '#8B7355', value: 1 },
+  'dark-matter': { title: 'Dark Matter', symbol: '🌑', color: '#4A148C', value: 15 },
+  'dark-matter-chunk': { title: 'Dark Matter Chunk', symbol: '🌑', color: '#6A1B9A', value: 5 },
+  electronics: { title: 'Electronics', symbol: '💡', color: '#00ACC1', value: 3 },
+  'fossil-regolith': { title: 'Fossil Regolith', symbol: '🦴', color: '#A1887F', value: 1 },
+  helium3: { title: 'Helium-3', symbol: '☁', color: '#87CEEB', value: 1 },
+  'higgs-boson': { title: 'Higgs Boson', symbol: '⚛', color: '#9E9E9E', value: 1 },
+  nanocarbon: { title: 'Nanocarbon', symbol: '◼', color: '#212121', value: 2 },
+  plasteel: { title: 'Plasteel', symbol: '🔩', color: '#607D8B', value: 2 },
+  'plasteel-deposit': {
+    title: 'Plasteel Deposit',
+    symbol: '⛏',
+    color: '#455A64',
+    value: 1,
+    usesInitial: 3,
+  },
+  'snow-block': { title: 'Snow Block', symbol: '🧊', color: '#B3E5FC', value: 1 },
+  'snow-pile': { title: 'Snow Pile', symbol: '❄', color: '#90CAF9', value: 1 },
+  'snow-sphere': { title: 'Snow Sphere', symbol: '🔵', color: '#64B5F6', value: 1 },
+  snowballs: { title: 'Snowballs', symbol: '⛄', color: '#4FC3F7', value: 1 },
+  unobtainium: { title: 'Unobtainium', symbol: '💎', color: '#E91E63', value: 10 },
+  wishalloy: { title: 'Wishalloy', symbol: '✨', color: '#B8860B', value: 15 },
   // Ideas
-  'idea-workbench':     { title: 'Idea: Workbench',     symbol: '💡', color: '#827717' },
-  'idea-service-drone': { title: 'Idea: Drone',         symbol: '💡', color: '#827717' },
-  'idea-solar-panel':   { title: 'Idea: Solar Panel',   symbol: '💡', color: '#827717' },
-  'idea-electronics':   { title: 'Idea: Electronics',   symbol: '💡', color: '#827717' },
+  'idea-workbench': { title: 'Idea: Workbench', symbol: '💡', color: '#827717' },
+  'idea-service-drone': { title: 'Idea: Drone', symbol: '💡', color: '#827717' },
+  'idea-solar-panel': { title: 'Idea: Solar Panel', symbol: '💡', color: '#827717' },
+  'idea-electronics': { title: 'Idea: Electronics', symbol: '💡', color: '#827717' },
   // Units
-  'astronaut':          { title: 'Astronaut',            symbol: '🧑‍🚀', color: '#5C85B4' },
-  'service-drone-1':    { title: 'Service Drone',        symbol: '🤖', color: '#546E7A' },
+  astronaut: { title: 'Astronaut', symbol: '🧑‍🚀', color: '#5C85B4' },
+  'service-drone-1': { title: 'Service Drone', symbol: '🤖', color: '#546E7A' },
   // Buildings
-  'workbench':          { title: 'Workbench',            symbol: '🔧', color: '#795548' },
-  'solar-panel':        { title: 'Solar Panel',          symbol: '☀',  color: '#F57F17' },
+  workbench: { title: 'Workbench', symbol: '🔧', color: '#795548' },
+  'solar-panel': { title: 'Solar Panel', symbol: '☀', color: '#F57F17' },
 };
 
 /** Groups a card type belongs to, used for recipe ingredient matching. */

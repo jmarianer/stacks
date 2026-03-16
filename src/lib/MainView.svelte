@@ -12,7 +12,12 @@
   import Draggable from './Draggable.svelte';
   import { addScaled } from '$lib/utils/vec2';
   import { type Stack, type Board, type ShopItem, type CardType } from '$lib/cards';
-  import { CARD_CATALOG, initialBoards, makeStackFromCards, addCardToMatchingStack } from '$lib/card-catalog';
+  import {
+    CARD_CATALOG,
+    initialBoards,
+    makeStackFromCards,
+    addCardToMatchingStack,
+  } from '$lib/card-catalog';
   import { tick as tickPhysics } from '$lib/physics';
   import { tick as tickProgress, SOL_DURATION } from '$lib/progress';
   import { recipes } from '$lib/recipes';
@@ -35,7 +40,10 @@
     }
     if (result.action === 'weighted') {
       return Object.keys(result.cards)
-        .map((k) => { const d = CARD_CATALOG[k as CardType]; return d ? d.title : k; })
+        .map((k) => {
+          const d = CARD_CATALOG[k as CardType];
+          return d ? d.title : k;
+        })
         .join(' / ');
     }
     if (result.action === 'unlock-recipe') {
@@ -311,19 +319,16 @@
             </div>
           {/if}
         {/if}
-        <button class="sol-continue" onclick={continueSol}>Continue to Sol {currentBoard.sol + 1}</button>
+        <button class="sol-continue" onclick={continueSol}
+          >Continue to Sol {currentBoard.sol + 1}</button
+        >
       </div>
     </div>
   {/if}
   {#if showRecipes}
     <div class="recipes-panel">
       <div class="recipes-title">Known Recipes</div>
-      <input
-        class="recipe-search"
-        type="search"
-        placeholder="Search…"
-        bind:value={recipeSearch}
-      />
+      <input class="recipe-search" type="search" placeholder="Search…" bind:value={recipeSearch} />
       {#each currentBoard.knownRecipeIds as id (id)}
         {@const recipe = recipes.find((r) => r.id === id)}
         {#if recipe && recipe.label.toLowerCase().includes(recipeSearch.toLowerCase())}
@@ -336,7 +341,10 @@
               {#each recipe.ingredients as ing, i}
                 {#if i > 0}<span class="sep">+</span>{/if}
                 <span class="ingredient" class:reusable={!ing.consumed}>
-                  {#if ing.count && ing.count > 1}{ing.count}×{/if}{ingredientLabel(ing.match)}{#if !ing.consumed} ↺{/if}
+                  {#if ing.count && ing.count > 1}{ing.count}×{/if}{ingredientLabel(
+                    ing.match,
+                  )}{#if !ing.consumed}
+                    ↺{/if}
                 </span>
               {/each}
             </div>
@@ -579,8 +587,13 @@
       width: 100%;
       box-sizing: border-box;
 
-      &::placeholder { opacity: 0.4; }
-      &:focus { outline: none; border-color: rgba(255, 255, 255, 0.4); }
+      &::placeholder {
+        opacity: 0.4;
+      }
+      &:focus {
+        outline: none;
+        border-color: rgba(255, 255, 255, 0.4);
+      }
     }
 
     .recipe-entry {
@@ -625,7 +638,9 @@
 
       .ingredient {
         color: #aaa;
-        &.reusable { color: #80cbc4; }
+        &.reusable {
+          color: #80cbc4;
+        }
       }
 
       .result {

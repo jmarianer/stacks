@@ -4,7 +4,15 @@
   import { CARD_CATALOG } from '$lib/card-catalog';
   import type { CardData } from '$lib/cards';
 
-  let { cardData, top, left, isDropTarget = false, onDrag, onDragStart, onDragEnd }: {
+  let {
+    cardData,
+    top,
+    left,
+    isDropTarget = false,
+    onDrag,
+    onDragStart,
+    onDragEnd,
+  }: {
     cardData: CardData;
     top: number;
     left: number;
@@ -80,7 +88,8 @@
     padding: 0 0.75vmin;
   }
 
-  .value, .energy {
+  .value,
+  .energy {
     width: 3vmin;
     height: 3vmin;
     background-color: rgba(0, 0, 0, 0.6);

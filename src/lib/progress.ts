@@ -7,7 +7,7 @@ export const SOL_DURATION = 2 * 60 * 1000; // 2 minutes in ms
 
 // Lower priority number = fed first
 const UNIT_FEED: Partial<Record<CardType, { cost: number; priority: number }>> = {
-  'astronaut':      { cost: 2, priority: 2 },
+  astronaut: { cost: 2, priority: 2 },
   'service-drone-1': { cost: 1, priority: 6 },
 };
 
@@ -170,7 +170,10 @@ function executeRecipe(board: Board, stack: Stack, recipe: Recipe): void {
       type = weightedRandom(result.cards);
     }
     if (!type || !isCardType(type)) continue;
-    addCardToMatchingStack(stacks, type, { x: stack.pos.x + offset * 2, y: stack.pos.y + offset * 2 });
+    addCardToMatchingStack(stacks, type, {
+      x: stack.pos.x + offset * 2,
+      y: stack.pos.y + offset * 2,
+    });
     offset++;
   }
 

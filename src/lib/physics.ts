@@ -9,7 +9,12 @@ const BOARD_PADDING = 5;
 function stackDimensions(stack: Stack): Rect {
   const { x, y } = stack.pos;
   const n = stack.cards.length - 1;
-  return { x, y, width: CARD_W + n * STACK_CARD_OFFSET_X, height: CARD_H + n * STACK_CARD_OFFSET_Y };
+  return {
+    x,
+    y,
+    width: CARD_W + n * STACK_CARD_OFFSET_X,
+    height: CARD_H + n * STACK_CARD_OFFSET_Y,
+  };
 }
 
 function stackCenter(stack: Stack): Vec2 {
@@ -36,8 +41,10 @@ export function tick(board: Board): void {
       if (b.dragging) continue;
 
       const bDim = rectExtend(stackDimensions(b), CARD_GAP);
-      const overlapX = Math.min(aDim.x + aDim.width, bDim.x + bDim.width) - Math.max(aDim.x, bDim.x);
-      const overlapY = Math.min(aDim.y + aDim.height, bDim.y + bDim.height) - Math.max(aDim.y, bDim.y);
+      const overlapX =
+        Math.min(aDim.x + aDim.width, bDim.x + bDim.width) - Math.max(aDim.x, bDim.x);
+      const overlapY =
+        Math.min(aDim.y + aDim.height, bDim.y + bDim.height) - Math.max(aDim.y, bDim.y);
 
       if (overlapX > 0 && overlapY > 0) {
         const sep = norm(sub(stackCenter(b), stackCenter(a)));
