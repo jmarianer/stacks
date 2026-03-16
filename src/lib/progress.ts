@@ -97,8 +97,10 @@ function cardMatchesIngredient(type: CardType, match: string): boolean {
 
 function matchRecipe(stack: Stack, knownRecipeIds: string[]): Recipe | null {
   // Among all matching recipes, prefer the one whose highest-indexed matched card
-  // is lowest — i.e. the recipe that "uses the bottom of the stack most tightly".
-  let best: { recipe: Recipe; maxIdx: number } | null = null;
+  // is lowest (uses the bottom of the stack most tightly). Break ties by preferring
+  // the recipe with more total ingredients (avoids a subset recipe winning over a
+  // superset recipe when both reach the same max index).
+  let best: { recipe: Recipe; maxIdx: number; total: number } | null = null;
 
   outer: for (const recipe of recipes) {
     if (!recipe.alwaysKnown && !knownRecipeIds.includes(recipe.id)) continue;
@@ -116,7 +118,10 @@ function matchRecipe(stack: Stack, knownRecipeIds: string[]): Recipe | null {
       }
       if (found < need) continue outer;
     }
-    if (best === null || maxIdx < best.maxIdx) best = { recipe, maxIdx };
+    const total = recipe.ingredients.reduce((s, ing) => s + (ing.count ?? 1), 0);
+    if (best === null || maxIdx < best.maxIdx || (maxIdx === best.maxIdx && total > best.total)) {
+      best = { recipe, maxIdx, total };
+    }
   }
 
   return best?.recipe ?? null;
