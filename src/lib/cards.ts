@@ -45,8 +45,10 @@ export type Board = {
   shop: ShopItem[];
   knownRecipeIds: string[];
   firedMilestones: string[];
-  paused: boolean;
-  pausedAt: number | null; // performance.now() timestamp when paused
+  speed: number; // 0 = paused, 1/2/3 = active speed multiplier
+  lastActiveSpeed: number; // speed before last pause, for spacebar toggle
+  vTime: number; // accumulated virtual time (ms at speed=1)
+  vTimeAt: number | null; // real performance.now() when vTime was last set; null = not started
   sol: number;
   solStartTime: number | null; // performance.now() when current sol started; null = not yet started
   endOfSol: boolean;

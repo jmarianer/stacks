@@ -269,16 +269,40 @@ function checkMilestones(board: Board): void {
   }
 }
 
-export function tick(board: Board, now: number): void {
-  if (board.paused || board.endOfSol) return;
+/** Returns the current virtual time, which advances at board.speed per real ms. */
+export function getVirtualNow(board: Board, realNow: number): number {
+  if (board.vTimeAt === null || board.speed === 0 || board.endOfSol) return board.vTime;
+  return board.vTime + (realNow - board.vTimeAt) * board.speed;
+}
+
+/** Change speed (0=pause, 1/2/3=active). Syncs virtual clock before switching. */
+export function setSpeed(board: Board, realNow: number, newSpeed: number): void {
+  board.vTime = getVirtualNow(board, realNow);
+  board.vTimeAt = realNow;
+  if (newSpeed > 0) board.lastActiveSpeed = newSpeed;
+  board.speed = newSpeed;
+}
+
+export function tick(board: Board, realNow: number): void {
+  if (board.endOfSol) return;
+  if (board.speed === 0) return;
+
+  // Start virtual clock on first tick
+  if (board.vTimeAt === null) board.vTimeAt = realNow;
+
+  const now = getVirtualNow(board, realNow);
 
   // Sol timer
   if (board.solStartTime === null) {
     board.solStartTime = now;
   } else if (now - board.solStartTime >= SOL_DURATION) {
     feedUnits(board);
+    // Sync vTime to current virtual time before freezing, so continueSol
+    // restarts the clock from the correct position.
+    board.vTime = now;
+    board.vTimeAt = realNow;
     board.endOfSol = true;
-    board.endOfSolAt = now;
+    board.endOfSolAt = realNow;
     return;
   }
   checkMilestones(board);

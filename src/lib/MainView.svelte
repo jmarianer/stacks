@@ -19,7 +19,7 @@
     addCardToMatchingStack,
   } from '$lib/card-catalog';
   import { tick as tickPhysics } from '$lib/physics';
-  import { tick as tickProgress, SOL_DURATION, UNIT_FEED } from '$lib/progress';
+  import { tick as tickProgress, SOL_DURATION, UNIT_FEED, getVirtualNow, setSpeed } from '$lib/progress';
   import { recipes } from '$lib/recipes';
   import type { RecipeResult } from '$lib/recipe-types';
 
@@ -101,16 +101,15 @@
     if (e.key === 'd') translate.x -= speed;
     if (e.key === ' ') {
       e.preventDefault();
-      const now = performance.now();
-      if (currentBoard.paused && !currentBoard.endOfSol) {
-        applyPauseDuration(now - currentBoard.pausedAt!);
-        currentBoard.paused = false;
-        currentBoard.pausedAt = null;
-      } else if (!currentBoard.paused && !currentBoard.endOfSol) {
-        currentBoard.paused = true;
-        currentBoard.pausedAt = now;
+      if (!currentBoard.endOfSol) {
+        const now = performance.now();
+        setSpeed(currentBoard, now, currentBoard.speed === 0 ? currentBoard.lastActiveSpeed : 0);
       }
     }
+    if (e.key === '1') setSpeed(currentBoard, performance.now(), 1);
+    if (e.key === '2') setSpeed(currentBoard, performance.now(), 2);
+    if (e.key === '3') setSpeed(currentBoard, performance.now(), 3);
+    if (e.key === '4' && !currentBoard.endOfSol) setSpeed(currentBoard, performance.now(), 0);
     if (e.key === 'Backspace') {
       const stack = stackAtMouse();
       if (!stack) return;
@@ -124,20 +123,14 @@
     }
   }
 
-  function applyPauseDuration(duration: number) {
-    for (const stack of currentBoard.stacks) {
-      if (stack.progressStartTime !== null) stack.progressStartTime += duration;
-    }
-    if (currentBoard.solStartTime !== null) currentBoard.solStartTime += duration;
-  }
-
   function continueSol() {
-    const now = performance.now();
-    applyPauseDuration(now - currentBoard.endOfSolAt!);
+    const realNow = performance.now();
+    // Virtual time was frozen during end-of-sol. Restart it from its frozen position.
+    currentBoard.vTimeAt = realNow;
     currentBoard.endOfSol = false;
     currentBoard.endOfSolAt = null;
     currentBoard.sol++;
-    currentBoard.solStartTime = now;
+    currentBoard.solStartTime = currentBoard.vTime;
   }
 
   let solProgress = $state(0);
@@ -256,7 +249,8 @@
       tickPhysics(currentBoard);
       tickProgress(currentBoard, now);
       if (currentBoard.solStartTime !== null && !currentBoard.endOfSol) {
-        solProgress = Math.min((now - currentBoard.solStartTime) / SOL_DURATION, 1);
+        const vNow = getVirtualNow(currentBoard, now);
+        solProgress = Math.min((vNow - currentBoard.solStartTime) / SOL_DURATION, 1);
       }
       rafId = requestAnimationFrame(loop);
     }
@@ -372,7 +366,22 @@
     </div>
   {/if}
   <div class="hud">
-    {#if currentBoard.paused && !currentBoard.endOfSol}<span class="paused">⏸ PAUSED</span>{/if}
+    <div class="speed-controls">
+      <button
+        class="speed-btn"
+        class:active={currentBoard.speed === 0 && !currentBoard.endOfSol}
+        onclick={() => setSpeed(currentBoard, performance.now(), 0)}
+        disabled={currentBoard.endOfSol}
+      >⏸</button>
+      {#each [1, 2, 3] as s (s)}
+        <button
+          class="speed-btn"
+          class:active={currentBoard.speed === s && !currentBoard.endOfSol}
+          onclick={() => setSpeed(currentBoard, performance.now(), s)}
+          disabled={currentBoard.endOfSol}
+        >{s}×</button>
+      {/each}
+    </div>
     <span class="sol-hud">Sol {currentBoard.sol}</span>
     <div class="sol-bar"><div class="sol-bar-fill" style="width: {solProgress * 100}%"></div></div>
     <span class="currency">${currentBoard.currency}</span>
@@ -489,9 +498,39 @@
     font-size: 1.5rem;
     pointer-events: none;
 
-    .paused {
-      opacity: 0.7;
-      letter-spacing: 0.05em;
+    .speed-controls {
+      display: flex;
+      gap: 0.2rem;
+      pointer-events: all;
+    }
+
+    .speed-btn {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      border-radius: 0.3rem;
+      color: white;
+      font-family: 'BigNoodleTitling', sans-serif;
+      font-size: 1.1rem;
+      padding: 0.1rem 0.4rem;
+      cursor: pointer;
+      opacity: 0.6;
+
+      &:hover:not(:disabled) {
+        background: rgba(255, 255, 255, 0.2);
+        opacity: 1;
+      }
+
+      &.active {
+        background: rgba(244, 196, 48, 0.25);
+        border-color: #f4c430;
+        color: #f4c430;
+        opacity: 1;
+      }
+
+      &:disabled {
+        opacity: 0.3;
+        cursor: default;
+      }
     }
 
     .sol-hud {
