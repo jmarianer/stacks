@@ -11,7 +11,8 @@
   } from '$lib/constants';
   import Draggable from './Draggable.svelte';
   import { addScaled } from '$lib/utils/vec2';
-  import { type Stack, type Board, type ShopItem, CARD_CATALOG, initialBoards, makeStack, makeStackFromCards } from '$lib/cards';
+  import { type Stack, type Board, type ShopItem } from '$lib/cards';
+  import { CARD_CATALOG, initialBoards, makeStack, makeStackFromCards } from '$lib/card-catalog';
   import { tick as tickPhysics } from '$lib/physics';
   import { tick as tickProgress } from '$lib/progress';
 
@@ -64,10 +65,10 @@
     if (e.key === 'Backspace') {
       const stack = stackAtMouse();
       if (!stack) return;
-      const sellable = stack.cards.filter((c) => c.value !== undefined);
+      const sellable = stack.cards.filter((c) => CARD_CATALOG[c.type].value !== undefined);
       if (sellable.length === 0) return;
-      currentBoard.currency += sellable.reduce((sum, c) => sum + c.value!, 0);
-      stack.cards = stack.cards.filter((c) => c.value === undefined);
+      currentBoard.currency += sellable.reduce((sum, c) => sum + CARD_CATALOG[c.type].value!, 0);
+      stack.cards = stack.cards.filter((c) => CARD_CATALOG[c.type].value === undefined);
       if (stack.cards.length === 0) {
         currentBoard.stacks = currentBoard.stacks.filter((s) => s.id !== stack.id);
       }
@@ -164,7 +165,7 @@
     if (currentBoard.currency < item.price) return;
     currentBoard.currency -= item.price;
     const pos = { x: currentBoard.width / 2, y: currentBoard.height / 2 };
-    const newStack = makeStack(pos, [CARD_CATALOG[item.cardType]]);
+    const newStack = makeStack(pos, [item.cardType]);
     currentBoard.stacks = [...currentBoard.stacks, newStack];
   }
 
@@ -200,9 +201,7 @@
   >
     {#each renderedCards as { cardData, stack, cardIndex } (cardData.id)}
       <Card
-        title={cardData.title}
-        symbol={cardData.symbol}
-        color={cardData.color}
+        type={cardData.type}
         top={stack.pos.y + cardIndex * STACK_CARD_OFFSET_Y}
         left={stack.pos.x + cardIndex * STACK_CARD_OFFSET_X}
         isDropTarget={stack.isDropTarget && cardIndex === stack.cards.length - 1}

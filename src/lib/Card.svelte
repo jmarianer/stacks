@@ -1,15 +1,17 @@
 <script lang="ts">
   import Draggable, { type DragProps } from './Draggable.svelte';
   import { CARD_W, CARD_H } from '$lib/constants';
+  import { CARD_CATALOG } from '$lib/card-catalog';
+  import type { CardType } from '$lib/cards';
 
-  let { title, symbol, color, top, left, isDropTarget = false, onDrag, onDragStart, onDragEnd } = $props<{
-    title: string;
-    symbol: string;
-    color: string;
+  let { type, top, left, isDropTarget = false, onDrag, onDragStart, onDragEnd } = $props<{
+    type: CardType;
     top: number;
     left: number;
     isDropTarget?: boolean;
   } & DragProps>();
+
+  const def = $derived(CARD_CATALOG[type]);
 </script>
 
 <Draggable
@@ -19,18 +21,18 @@
     left: {left}vmin;
     width: {CARD_W}vmin;
     height: {CARD_H}vmin;
-    background-color: {color};
+    background-color: {def.color};
   "
   {onDrag}
   {onDragStart}
   {onDragEnd}
 >
   <div class="card-inner">
-    <div class="title">{title}</div>
+    <div class="title">{def.title}</div>
     <div class="circle-area">
-      <div class="circle">{symbol}</div>
+      <div class="circle">{def.symbol}</div>
     </div>
-    <div class="title inverted">{title}</div>
+    <div class="title inverted">{def.title}</div>
   </div>
 </Draggable>
 

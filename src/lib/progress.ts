@@ -1,5 +1,6 @@
 import { recipes } from '$lib/recipes';
-import { type Stack, type CardType, CARD_CATALOG, CARD_GROUPS, makeCardOfType, makeStackFromCards } from '$lib/cards';
+import { type Stack, type CardType } from '$lib/cards';
+import { CARD_CATALOG, CARD_GROUPS, makeCardOfType, makeStackFromCards } from '$lib/card-catalog';
 import type { Recipe } from '$lib/recipe-types';
 
 function isCardType(s: string): s is CardType {
