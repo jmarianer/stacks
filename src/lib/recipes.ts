@@ -94,53 +94,7 @@ export const recipes: Recipe[] = [
     results: [{ action: 'card', card: 'snowballs' }],
   },
 
-  // --- Idea study recipes (alwaysKnown: true) ---
-  {
-    id: 'study-idea-workbench',
-    label: 'Study: Workbench',
-    time: 5000,
-    alwaysKnown: true,
-    ingredients: [
-      { match: 'idea-workbench', consumed: true },
-      { match: 'people', consumed: false },
-    ],
-    results: [{ action: 'unlock-recipe', recipeId: 'build-workbench' }],
-  },
-  {
-    id: 'study-idea-electronics',
-    label: 'Study: Electronics',
-    time: 5000,
-    alwaysKnown: true,
-    ingredients: [
-      { match: 'idea-electronics', consumed: true },
-      { match: 'people', consumed: false },
-    ],
-    results: [{ action: 'unlock-recipe', recipeId: 'make-electronics' }],
-  },
-  {
-    id: 'study-idea-service-drone',
-    label: 'Study: Service Drone',
-    time: 5000,
-    alwaysKnown: true,
-    ingredients: [
-      { match: 'idea-service-drone', consumed: true },
-      { match: 'people', consumed: false },
-    ],
-    results: [{ action: 'unlock-recipe', recipeId: 'make-service-drone' }],
-  },
-  {
-    id: 'study-idea-solar-panel',
-    label: 'Study: Solar Panel',
-    time: 5000,
-    alwaysKnown: true,
-    ingredients: [
-      { match: 'idea-solar-panel', consumed: true },
-      { match: 'people', consumed: false },
-    ],
-    results: [{ action: 'unlock-recipe', recipeId: 'build-solar-panel' }],
-  },
-
-  // --- Recipes unlocked via ideas ---
+  // --- Recipes unlocked via milestones ---
   {
     id: 'build-workbench',
     label: 'Build Workbench',

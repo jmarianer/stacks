@@ -192,31 +192,36 @@ function executeRecipe(board: Board, stack: Stack, recipe: Recipe): void {
 type Milestone = {
   id: string;
   condition: (board: Board) => boolean;
-  reward: CardType[];
+  unlockRecipeIds: string[];
+  notificationCard: CardType; // dropped as a cosmetic $1 card when milestone fires
 };
 
 const MILESTONES: Milestone[] = [
   {
     id: 'first-plasteel',
     condition: (b) => b.stacks.some((s) => s.cards.some((c) => c.type === 'plasteel')),
-    reward: ['idea-solar-panel'],
+    unlockRecipeIds: ['build-solar-panel'],
+    notificationCard: 'idea-solar-panel',
   },
   {
     id: 'sol-2',
     condition: (b) => b.sol >= 2,
-    reward: ['idea-service-drone'],
+    unlockRecipeIds: ['make-service-drone'],
+    notificationCard: 'idea-service-drone',
   },
   {
     id: 'three-plasteel-sol-3',
     condition: (b) =>
       b.sol >= 3 &&
       b.stacks.flatMap((s) => s.cards).filter((c) => c.type === 'plasteel').length >= 3,
-    reward: ['idea-workbench'],
+    unlockRecipeIds: ['build-workbench'],
+    notificationCard: 'idea-workbench',
   },
   {
     id: 'first-workbench',
     condition: (b) => b.stacks.some((s) => s.cards.some((c) => c.type === 'workbench')),
-    reward: ['idea-electronics'],
+    unlockRecipeIds: ['make-electronics'],
+    notificationCard: 'idea-electronics',
   },
 ];
 
@@ -225,12 +230,13 @@ function checkMilestones(board: Board): void {
     if (board.firedMilestones.includes(milestone.id)) continue;
     if (!milestone.condition(board)) continue;
     board.firedMilestones.push(milestone.id);
-    for (const cardType of milestone.reward) {
-      addCardToMatchingStack(board.stacks, cardType, {
-        x: board.width / 2,
-        y: board.height / 2,
-      });
+    for (const id of milestone.unlockRecipeIds) {
+      if (!board.knownRecipeIds.includes(id)) board.knownRecipeIds.push(id);
     }
+    addCardToMatchingStack(board.stacks, milestone.notificationCard, {
+      x: board.width / 2,
+      y: board.height / 2,
+    });
   }
 }
 

@@ -69,11 +69,11 @@ export const CARD_CATALOG: Record<CardType, CardDef> = {
   snowballs: { title: 'Snowballs', image: 'snowballs.svg', color: '#4FC3F7', value: 1 },
   unobtainium: { title: 'Unobtainium', image: 'unobtainium.svg', color: '#E91E63', value: 10 },
   wishalloy: { title: 'Wishalloy', image: 'wishalloy.svg', color: '#B8860B', value: 15 },
-  // Ideas (no SVG available — keep emoji)
-  'idea-workbench': { title: 'Idea: Workbench', symbol: '💡', color: '#827717' },
-  'idea-service-drone': { title: 'Idea: Drone', symbol: '💡', color: '#827717' },
-  'idea-solar-panel': { title: 'Idea: Solar Panel', symbol: '💡', color: '#827717' },
-  'idea-electronics': { title: 'Idea: Electronics', symbol: '💡', color: '#827717' },
+  // Ideas — cosmetic notification cards dropped when a milestone unlocks a recipe; sellable for $1
+  'idea-workbench':     { title: 'Idea: Workbench',    symbol: '💡', color: '#827717', value: 1 },
+  'idea-service-drone': { title: 'Idea: Drone',        symbol: '💡', color: '#827717', value: 1 },
+  'idea-solar-panel':   { title: 'Idea: Solar Panel',  symbol: '💡', color: '#827717', value: 1 },
+  'idea-electronics':   { title: 'Idea: Electronics',  symbol: '💡', color: '#827717', value: 1 },
   // Units
   astronaut: { title: 'Astronaut', image: 'astronaut.svg', color: '#5C85B4' },
   'service-drone-1': { title: 'Service Drone', image: 'service-drone-1.svg', color: '#546E7A' },
