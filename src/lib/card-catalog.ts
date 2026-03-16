@@ -6,7 +6,7 @@ export type CardDef = {
   symbol: string;
   color: string;
   value?: number;       // coin value; undefined = not sellable
-  usesInitial?: number; // starting usesRemaining when a card is created; undefined = infinite
+  usesInitial?: number; // starting usesRemaining when a card is created; undefined = single-use
   energyValueInitial?: number; // starting energy units (energy cells only); can be partially consumed
 };
 
