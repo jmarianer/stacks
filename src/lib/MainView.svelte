@@ -201,7 +201,7 @@
   >
     {#each renderedCards as { cardData, stack, cardIndex } (cardData.id)}
       <Card
-        type={cardData.type}
+        {cardData}
         top={stack.pos.y + cardIndex * STACK_CARD_OFFSET_Y}
         left={stack.pos.x + cardIndex * STACK_CARD_OFFSET_X}
         isDropTarget={stack.isDropTarget && cardIndex === stack.cards.length - 1}

@@ -2,16 +2,19 @@
   import Draggable, { type DragProps } from './Draggable.svelte';
   import { CARD_W, CARD_H } from '$lib/constants';
   import { CARD_CATALOG } from '$lib/card-catalog';
-  import type { CardType } from '$lib/cards';
+  import type { CardData } from '$lib/cards';
 
-  let { type, top, left, isDropTarget = false, onDrag, onDragStart, onDragEnd } = $props<{
-    type: CardType;
+  let { cardData, top, left, isDropTarget = false, onDrag, onDragStart, onDragEnd }: {
+    cardData: CardData;
     top: number;
     left: number;
     isDropTarget?: boolean;
-  } & DragProps>();
+  } & DragProps = $props();
 
-  const def = $derived(CARD_CATALOG[type]);
+  const def = $derived(CARD_CATALOG[cardData.type]);
+  const isEnergyCell = $derived(
+    cardData.type === 'energy-cell' || cardData.type === 'multi-cell' || cardData.type === 'mega-cell'
+  );
 </script>
 
 <Draggable
@@ -32,7 +35,14 @@
     <div class="circle-area">
       <div class="circle">{def.symbol}</div>
     </div>
-    <div class="title inverted">{def.title}</div>
+    <div class="footer">
+      {#if def.value !== undefined}
+        <div class="value">{def.value}</div>
+      {/if}
+      {#if isEnergyCell}
+        <div class="energy">{cardData.usesRemaining ?? ''}</div>
+      {/if}
+    </div>
   </div>
 </Draggable>
 
@@ -63,10 +73,33 @@
     font-size: 3vmin;
     color: white;
     border-bottom: 0.5vmin solid #000;
+  }
 
-    &.inverted {
-      transform: rotate(180deg);
-    }
+  .footer {
+    height: 4vmin;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 0.75vmin;
+  }
+
+  .value, .energy {
+    width: 3vmin;
+    height: 3vmin;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'BigNoodleTitling';
+    color: white;
+  }
+
+  .value {
+    border-radius: 50%;
+  }
+
+  .energy {
+    border-radius: 0.4vmin;
   }
 
   .circle-area {
