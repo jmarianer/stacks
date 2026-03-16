@@ -177,9 +177,8 @@ export const recipes: Recipe[] = [
   },
   {
     id: 'make-computronium',
-    label: 'Adv. Workbench: Make Computronium',
+    label: 'Computronium',
     time: 10000,
-    alwaysKnown: true,
     ingredients: [
       { match: 'adv-workbench', consumed: false },
       { match: 'electronics', count: 3, consumed: true },

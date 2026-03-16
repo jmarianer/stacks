@@ -39,6 +39,7 @@ export const CARD_CATALOG = {
   'idea-electronics':     { title: 'Idea: Electronics',     symbol: '💡', color: '#827717', value: 1 },
   'idea-drill':           { title: 'Idea: Drill',           symbol: '💡', color: '#827717', value: 1 },
   'idea-adv-workbench':   { title: 'Idea: Adv. Workbench',  symbol: '💡', color: '#827717', value: 1 },
+  'idea-computronium':    { title: 'Idea: Computronium',    symbol: '💡', color: '#827717', value: 1 },
   'idea-power-station':   { title: 'Idea: Power Station',   symbol: '💡', color: '#827717', value: 1 },
   'idea-cloning-chamber': { title: 'Idea: Cloning Chamber', symbol: '💡', color: '#827717', value: 1 },
   // Units
