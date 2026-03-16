@@ -96,23 +96,30 @@ function cardMatchesIngredient(type: CardType, match: string): boolean {
 }
 
 function matchRecipe(stack: Stack, knownRecipeIds: string[]): Recipe | null {
+  // Among all matching recipes, prefer the one whose highest-indexed matched card
+  // is lowest — i.e. the recipe that "uses the bottom of the stack most tightly".
+  let best: { recipe: Recipe; maxIdx: number } | null = null;
+
   outer: for (const recipe of recipes) {
     if (!recipe.alwaysKnown && !knownRecipeIds.includes(recipe.id)) continue;
     const used = new Set<number>();
+    let maxIdx = -1;
     for (const ing of recipe.ingredients) {
       const need = ing.count ?? 1;
       let found = 0;
       for (let i = 0; i < stack.cards.length; i++) {
         if (!used.has(i) && cardMatchesIngredient(stack.cards[i].type, ing.match)) {
           used.add(i);
+          if (i > maxIdx) maxIdx = i;
           if (++found >= need) break;
         }
       }
       if (found < need) continue outer;
     }
-    return recipe;
+    if (best === null || maxIdx < best.maxIdx) best = { recipe, maxIdx };
   }
-  return null;
+
+  return best?.recipe ?? null;
 }
 
 function weightedRandom(cards: Record<string, number>): string {
