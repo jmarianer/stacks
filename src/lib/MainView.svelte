@@ -12,7 +12,7 @@
   import Draggable from './Draggable.svelte';
   import { addScaled } from '$lib/utils/vec2';
   import { type Stack, type Board, type ShopItem } from '$lib/cards';
-  import { CARD_CATALOG, initialBoards, makeStack, makeStackFromCards } from '$lib/card-catalog';
+  import { CARD_CATALOG, initialBoards, makeStackFromCards, addCardToMatchingStack } from '$lib/card-catalog';
   import { tick as tickPhysics } from '$lib/physics';
   import { tick as tickProgress } from '$lib/progress';
 
@@ -165,8 +165,7 @@
     if (currentBoard.currency < item.price) return;
     currentBoard.currency -= item.price;
     const pos = { x: currentBoard.width / 2, y: currentBoard.height / 2 };
-    const newStack = makeStack(pos, [item.cardType]);
-    currentBoard.stacks = [...currentBoard.stacks, newStack];
+    addCardToMatchingStack(currentBoard.stacks, item.cardType, pos);
   }
 
   $effect(() => {

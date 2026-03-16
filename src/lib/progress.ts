@@ -1,6 +1,6 @@
 import { recipes } from '$lib/recipes';
 import { type Stack, type CardType } from '$lib/cards';
-import { CARD_CATALOG, CARD_GROUPS, makeCardOfType, makeStackFromCards } from '$lib/card-catalog';
+import { CARD_CATALOG, CARD_GROUPS, addCardToMatchingStack } from '$lib/card-catalog';
 import type { Recipe } from '$lib/recipe-types';
 
 function isCardType(s: string): s is CardType {
@@ -80,8 +80,7 @@ function executeRecipe(stacks: Stack[], stack: Stack, recipe: Recipe): void {
       type = weightedRandom(result.cards);
     }
     if (!type || !isCardType(type)) continue;
-    const card = makeCardOfType(type);
-    stacks.push(makeStackFromCards({ x: stack.pos.x + offset * 2, y: stack.pos.y + offset * 2 }, [card]));
+    addCardToMatchingStack(stacks, type, { x: stack.pos.x + offset * 2, y: stack.pos.y + offset * 2 });
     offset++;
   }
 

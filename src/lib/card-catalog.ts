@@ -80,6 +80,17 @@ export function makeStackFromCards(pos: Vec2, cards: CardData[]): Stack {
   };
 }
 
+/** Add a card of `type` to the first existing stack that already contains that type,
+ *  or create a new stack at `fallbackPos` if none exists. */
+export function addCardToMatchingStack(stacks: Stack[], type: CardType, fallbackPos: Vec2): void {
+  const existing = stacks.find((s) => s.cards.some((c) => c.type === type));
+  if (existing) {
+    existing.cards.push(makeCardOfType(type));
+  } else {
+    stacks.push(makeStack(fallbackPos, [type]));
+  }
+}
+
 export function makeBoard(
   name: string,
   stacks: Stack[],
