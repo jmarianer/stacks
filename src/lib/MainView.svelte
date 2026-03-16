@@ -19,7 +19,7 @@
     addCardToMatchingStack,
   } from '$lib/card-catalog';
   import { tick as tickPhysics } from '$lib/physics';
-  import { tick as tickProgress, SOL_DURATION } from '$lib/progress';
+  import { tick as tickProgress, SOL_DURATION, UNIT_FEED } from '$lib/progress';
   import { recipes } from '$lib/recipes';
   import type { RecipeResult } from '$lib/recipe-types';
 
@@ -141,6 +141,18 @@
   }
 
   let solProgress = $state(0);
+
+  const energyAvailable = $derived(
+    currentBoard.stacks
+      .flatMap((s) => s.cards)
+      .reduce((sum, c) => sum + (c.energyRemaining ?? 0), 0),
+  );
+
+  const energyNeeded = $derived(
+    currentBoard.stacks
+      .flatMap((s) => s.cards)
+      .reduce((sum, c) => sum + (UNIT_FEED[c.type]?.cost ?? 0), 0),
+  );
 
   let boards = $state<Board[]>(initialBoards);
   let currentBoardIndex = $state(0);
@@ -364,6 +376,9 @@
     <span class="sol-hud">Sol {currentBoard.sol}</span>
     <div class="sol-bar"><div class="sol-bar-fill" style="width: {solProgress * 100}%"></div></div>
     <span class="currency">${currentBoard.currency}</span>
+    <span class="energy-hud" class:short={energyAvailable < energyNeeded}>
+      ⚡ {energyAvailable} / {energyNeeded}
+    </span>
     <button class="recipes-toggle" onclick={() => (showRecipes = !showRecipes)}>📖</button>
     <div class="shop">
       {#each currentBoard.shop as item (item.id)}
@@ -499,6 +514,11 @@
 
     .currency {
       min-width: 4rem;
+    }
+
+    .energy-hud {
+      opacity: 0.85;
+      &.short { color: #ff6b6b; opacity: 1; }
     }
 
     .recipes-toggle {

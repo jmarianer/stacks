@@ -6,7 +6,7 @@ import type { Recipe } from '$lib/recipe-types';
 export const SOL_DURATION = 2 * 60 * 1000; // 2 minutes in ms
 
 // Lower priority number = fed first
-const UNIT_FEED: Partial<Record<CardType, { cost: number; priority: number }>> = {
+export const UNIT_FEED: Partial<Record<CardType, { cost: number; priority: number }>> = {
   astronaut: { cost: 2, priority: 2 },
   'service-drone-1': { cost: 1, priority: 6 },
 };
