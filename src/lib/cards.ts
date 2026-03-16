@@ -30,7 +30,8 @@ export type CardType =
 export type CardData = {
   id: number;
   type: CardType;
-  usesRemaining?: number; // charges remaining; undefined = infinite uses
+  usesRemaining?: number;    // charges remaining; undefined = single-use
+  energyRemaining?: number;  // energy units remaining (energy cells only)
 };
 
 export type Stack = {

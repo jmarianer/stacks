@@ -12,9 +12,6 @@
   } & DragProps = $props();
 
   const def = $derived(CARD_CATALOG[cardData.type]);
-  const isEnergyCell = $derived(
-    cardData.type === 'energy-cell' || cardData.type === 'multi-cell' || cardData.type === 'mega-cell'
-  );
 </script>
 
 <Draggable
@@ -39,8 +36,8 @@
       {#if def.value !== undefined}
         <div class="value">{def.value}</div>
       {/if}
-      {#if isEnergyCell}
-        <div class="energy">{cardData.usesRemaining ?? ''}</div>
+      {#if cardData.energyRemaining !== undefined}
+        <div class="energy">{cardData.energyRemaining ?? ''}</div>
       {/if}
     </div>
   </div>
