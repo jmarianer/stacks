@@ -1,4 +1,4 @@
-export type RecipeIngredient = { match: string; consumed: boolean };
+export type RecipeIngredient = { match: string; count?: number; consumed: boolean };
 
 export type RecipeResult =
   | { action: 'card'; card: string; chance?: number }

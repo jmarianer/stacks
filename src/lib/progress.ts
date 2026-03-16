@@ -15,9 +15,15 @@ function matchRecipe(stack: Stack): Recipe | null {
   outer: for (const recipe of recipes) {
     const used = new Set<number>();
     for (const ing of recipe.ingredients) {
-      const idx = stack.cards.findIndex((c, i) => !used.has(i) && cardMatchesIngredient(c.type, ing.match));
-      if (idx === -1) continue outer;
-      used.add(idx);
+      const need = ing.count ?? 1;
+      let found = 0;
+      for (let i = 0; i < stack.cards.length; i++) {
+        if (!used.has(i) && cardMatchesIngredient(stack.cards[i].type, ing.match)) {
+          used.add(i);
+          if (++found >= need) break;
+        }
+      }
+      if (found < need) continue outer;
     }
     return recipe;
   }
@@ -38,8 +44,13 @@ function executeRecipe(stacks: Stack[], stack: Stack, recipe: Recipe): void {
   const consumed = new Set<number>();
   for (const ing of recipe.ingredients) {
     if (!ing.consumed) continue;
-    const idx = stack.cards.findIndex((c, i) => !consumed.has(i) && cardMatchesIngredient(c.type, ing.match));
-    if (idx !== -1) consumed.add(idx);
+    let need = ing.count ?? 1;
+    for (let i = 0; i < stack.cards.length && need > 0; i++) {
+      if (!consumed.has(i) && cardMatchesIngredient(stack.cards[i].type, ing.match)) {
+        consumed.add(i);
+        need--;
+      }
+    }
   }
 
   // Decrement uses for cards that have charges; only fully remove when depleted

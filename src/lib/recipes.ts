@@ -24,6 +24,19 @@ export const recipes: Recipe[] = [
     results: [{ action: 'card', card: 'plasteel' }],
   },
   {
+    id: 'punch-dark-matter-chunk',
+    time: 3000,
+    ingredients: [
+      { match: 'dark-matter-chunk', consumed: true },
+      { match: 'people', consumed: false },
+    ],
+    results: [
+      { action: 'card', card: 'dark-matter' },
+      { action: 'card', card: 'dark-matter', chance: 33 },
+      { action: 'card', card: 'dark-matter', chance: 33 },
+    ],
+  },
+  {
     id: 'punch-fossil-regolith',
     time: 3000,
     ingredients: [
@@ -31,5 +44,32 @@ export const recipes: Recipe[] = [
       { match: 'people', consumed: false },
     ],
     results: [{ action: 'weighted', cards: { helium3: 100, biomass: 100 } }],
+  },
+  {
+    id: 'make-energy-cell',
+    time: 2000,
+    ingredients: [
+      { match: 'plasteel', consumed: true },
+      { match: 'helium3', consumed: true },
+    ],
+    results: [{ action: 'card', card: 'energy-cell' }],
+  },
+  {
+    id: 'make-snow-sphere',
+    time: 3000,
+    ingredients: [
+      { match: 'snow-pile', count: 3, consumed: true },
+      { match: 'people', consumed: false },
+    ],
+    results: [{ action: 'card', card: 'snow-sphere' }],
+  },
+  {
+    id: 'make-snowballs',
+    time: 3000,
+    ingredients: [
+      { match: 'snow-pile', count: 2, consumed: true },
+      { match: 'people', consumed: false },
+    ],
+    results: [{ action: 'card', card: 'snowballs' }],
   },
 ] satisfies Recipe[];
