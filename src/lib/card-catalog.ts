@@ -123,6 +123,11 @@ export function makeBoard(
     knownRecipeIds,
     paused: false,
     pausedAt: null,
+    sol: 1,
+    solStartTime: null,
+    endOfSol: false,
+    endOfSolAt: null,
+    lastSolFeed: null,
   };
 }
 

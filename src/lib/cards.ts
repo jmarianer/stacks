@@ -63,6 +63,11 @@ export type ShopItem = {
   color: string;
 };
 
+export type SolFeedResult = {
+  needed: number;
+  provided: number;
+};
+
 export type Board = {
   id: number;
   name: string;
@@ -74,4 +79,9 @@ export type Board = {
   knownRecipeIds: string[];
   paused: boolean;
   pausedAt: number | null; // performance.now() timestamp when paused
+  sol: number;
+  solStartTime: number | null; // performance.now() when current sol started; null = not yet started
+  endOfSol: boolean;
+  endOfSolAt: number | null; // performance.now() when end-of-sol began
+  lastSolFeed: SolFeedResult | null;
 };

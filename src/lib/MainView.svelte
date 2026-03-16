@@ -14,7 +14,7 @@
   import { type Stack, type Board, type ShopItem } from '$lib/cards';
   import { CARD_CATALOG, initialBoards, makeStackFromCards, addCardToMatchingStack } from '$lib/card-catalog';
   import { tick as tickPhysics } from '$lib/physics';
-  import { tick as tickProgress } from '$lib/progress';
+  import { tick as tickProgress, SOL_DURATION } from '$lib/progress';
 
   let scale = $state(1);
   let translate = $state({ x: 0, y: 0 });
@@ -65,16 +65,11 @@
     if (e.key === ' ') {
       e.preventDefault();
       const now = performance.now();
-      if (currentBoard.paused) {
-        const pauseDuration = now - currentBoard.pausedAt!;
-        for (const stack of currentBoard.stacks) {
-          if (stack.progressStartTime !== null) {
-            stack.progressStartTime += pauseDuration;
-          }
-        }
+      if (currentBoard.paused && !currentBoard.endOfSol) {
+        applyPauseDuration(now - currentBoard.pausedAt!);
         currentBoard.paused = false;
         currentBoard.pausedAt = null;
-      } else {
+      } else if (!currentBoard.paused && !currentBoard.endOfSol) {
         currentBoard.paused = true;
         currentBoard.pausedAt = now;
       }
@@ -91,6 +86,24 @@
       }
     }
   }
+
+  function applyPauseDuration(duration: number) {
+    for (const stack of currentBoard.stacks) {
+      if (stack.progressStartTime !== null) stack.progressStartTime += duration;
+    }
+    if (currentBoard.solStartTime !== null) currentBoard.solStartTime += duration;
+  }
+
+  function continueSol() {
+    const now = performance.now();
+    applyPauseDuration(now - currentBoard.endOfSolAt!);
+    currentBoard.endOfSol = false;
+    currentBoard.endOfSolAt = null;
+    currentBoard.sol++;
+    currentBoard.solStartTime = now;
+  }
+
+  let solProgress = $state(0);
 
   let boards = $state<Board[]>(initialBoards);
   let currentBoardIndex = $state(0);
@@ -193,6 +206,9 @@
       updateDropTargets();
       tickPhysics(currentBoard);
       tickProgress(currentBoard, now);
+      if (currentBoard.solStartTime !== null && !currentBoard.endOfSol) {
+        solProgress = Math.min((now - currentBoard.solStartTime) / SOL_DURATION, 1);
+      }
       rafId = requestAnimationFrame(loop);
     }
 
@@ -241,8 +257,30 @@
       {/if}
     {/each}
   </Draggable>
+  {#if currentBoard.endOfSol}
+    <div class="sol-overlay">
+      <div class="sol-dialog">
+        <div class="sol-title">Sol {currentBoard.sol} complete</div>
+        {#if currentBoard.lastSolFeed}
+          {@const feed = currentBoard.lastSolFeed}
+          <div class="sol-feed">
+            {#if feed.needed === 0}
+              No units to feed.
+            {:else if feed.provided >= feed.needed}
+              Fed all units: {feed.needed} energy consumed.
+            {:else}
+              ⚠ Only {feed.provided} / {feed.needed} energy available — some units went hungry.
+            {/if}
+          </div>
+        {/if}
+        <button class="sol-continue" onclick={continueSol}>Continue to Sol {currentBoard.sol + 1}</button>
+      </div>
+    </div>
+  {/if}
   <div class="hud">
-    {#if currentBoard.paused}<span class="paused">⏸ PAUSED</span>{/if}
+    {#if currentBoard.paused && !currentBoard.endOfSol}<span class="paused">⏸ PAUSED</span>{/if}
+    <span class="sol-hud">Sol {currentBoard.sol}</span>
+    <div class="sol-bar"><div class="sol-bar-fill" style="width: {solProgress * 100}%"></div></div>
     <span class="currency">${currentBoard.currency}</span>
     <div class="shop">
       {#each currentBoard.shop as item (item.id)}
@@ -277,6 +315,56 @@
     position: relative;
   }
 
+  .sol-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+  }
+
+  .sol-dialog {
+    background: #1a1a2e;
+    border: 2px solid #f4c430;
+    border-radius: 1rem;
+    padding: 2rem 3rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.25rem;
+    font-family: 'BigNoodleTitling', sans-serif;
+    color: white;
+
+    .sol-title {
+      font-size: 2.5rem;
+      color: #f4c430;
+      letter-spacing: 0.05em;
+    }
+
+    .sol-feed {
+      font-size: 1.4rem;
+      color: #ccc;
+    }
+
+    .sol-continue {
+      margin-top: 0.5rem;
+      padding: 0.5rem 2rem;
+      background: #f4c430;
+      border: none;
+      border-radius: 0.5rem;
+      font-family: 'BigNoodleTitling', sans-serif;
+      font-size: 1.5rem;
+      color: #1a1a2e;
+      cursor: pointer;
+
+      &:hover {
+        background: #ffe066;
+      }
+    }
+  }
+
   .hud {
     position: absolute;
     top: 0;
@@ -295,6 +383,24 @@
     .paused {
       opacity: 0.7;
       letter-spacing: 0.05em;
+    }
+
+    .sol-hud {
+      opacity: 0.8;
+    }
+
+    .sol-bar {
+      width: 6rem;
+      height: 0.5rem;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 0.25rem;
+      overflow: hidden;
+
+      .sol-bar-fill {
+        height: 100%;
+        background: #f4c430;
+        transition: width 0.1s linear;
+      }
     }
 
     .currency {

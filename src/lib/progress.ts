@@ -1,7 +1,84 @@
 import { recipes } from '$lib/recipes';
-import { type Stack, type CardType, type Board } from '$lib/cards';
+import { type Stack, type CardType, type Board, type CardData } from '$lib/cards';
 import { CARD_CATALOG, CARD_GROUPS, addCardToMatchingStack } from '$lib/card-catalog';
 import type { Recipe } from '$lib/recipe-types';
+
+export const SOL_DURATION = 2 * 60 * 1000; // 2 minutes in ms
+
+// Lower priority number = fed first
+const UNIT_FEED: Partial<Record<CardType, { cost: number; priority: number }>> = {
+  'astronaut':      { cost: 2, priority: 2 },
+  'service-drone-1': { cost: 1, priority: 6 },
+};
+
+function feedUnits(board: Board): void {
+  // Tally available energy
+  let energyPool = 0;
+  for (const stack of board.stacks) {
+    for (const card of stack.cards) {
+      if (card.energyRemaining !== undefined) energyPool += card.energyRemaining;
+    }
+  }
+
+  // Collect units sorted by priority (lower = fed first)
+  const units: { card: CardData; cost: number }[] = [];
+  for (const stack of board.stacks) {
+    for (const card of stack.cards) {
+      const feed = UNIT_FEED[card.type];
+      if (feed) units.push({ card, cost: feed.cost });
+    }
+  }
+  units.sort((a, b) => {
+    const pa = UNIT_FEED[a.card.type]!.priority;
+    const pb = UNIT_FEED[b.card.type]!.priority;
+    return pa - pb;
+  });
+
+  // Feed in priority order; starved units die
+  const dead = new Set<number>();
+  let needed = 0;
+  let consumed = 0;
+  for (const { card, cost } of units) {
+    needed += cost;
+    if (energyPool >= cost) {
+      energyPool -= cost;
+      consumed += cost;
+    } else {
+      dead.add(card.id);
+    }
+  }
+
+  // Consume energy cells (smallest first)
+  const energyCards: { card: CardData }[] = [];
+  for (const stack of board.stacks) {
+    for (const card of stack.cards) {
+      if (card.energyRemaining !== undefined) energyCards.push({ card });
+    }
+  }
+  energyCards.sort((a, b) => a.card.energyRemaining! - b.card.energyRemaining!);
+
+  let toConsume = consumed;
+  const depleted = new Set<number>();
+  for (const { card } of energyCards) {
+    if (toConsume <= 0) break;
+    const available = card.energyRemaining!;
+    if (available <= toConsume) {
+      toConsume -= available;
+      depleted.add(card.id);
+    } else {
+      card.energyRemaining = available - toConsume;
+      toConsume = 0;
+    }
+  }
+
+  // Remove depleted cells and dead units; prune empty stacks
+  for (const stack of board.stacks) {
+    stack.cards = stack.cards.filter((c) => !depleted.has(c.id) && !dead.has(c.id));
+  }
+  board.stacks = board.stacks.filter((s) => s.cards.length > 0);
+
+  board.lastSolFeed = { needed, provided: consumed };
+}
 
 function isCardType(s: string): s is CardType {
   return s in CARD_CATALOG;
@@ -97,7 +174,17 @@ function executeRecipe(board: Board, stack: Stack, recipe: Recipe): void {
 }
 
 export function tick(board: Board, now: number): void {
-  if (board.paused) return;
+  if (board.paused || board.endOfSol) return;
+
+  // Sol timer
+  if (board.solStartTime === null) {
+    board.solStartTime = now;
+  } else if (now - board.solStartTime >= SOL_DURATION) {
+    feedUnits(board);
+    board.endOfSol = true;
+    board.endOfSolAt = now;
+    return;
+  }
   const stacks = board.stacks;
   const toExecute: { stack: Stack; recipe: Recipe }[] = [];
 
