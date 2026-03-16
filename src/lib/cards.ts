@@ -24,8 +24,17 @@ export type CardType =
   | 'snowballs'
   | 'unobtainium'
   | 'wishalloy'
+  // Ideas
+  | 'idea-service-drone'
+  | 'idea-solar-panel'
+  | 'idea-electronics'
+  | 'idea-workbench'
   // Units
-  | 'astronaut';
+  | 'astronaut'
+  | 'service-drone-1'
+  // Buildings
+  | 'workbench'
+  | 'solar-panel';
 
 export type CardData = {
   id: number;
@@ -62,4 +71,5 @@ export type Board = {
   height: number; // vmin
   currency: number;
   shop: ShopItem[];
+  knownRecipeIds: string[];
 };

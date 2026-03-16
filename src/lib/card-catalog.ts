@@ -34,13 +34,23 @@ export const CARD_CATALOG: Record<CardType, CardDef> = {
   'snowballs':         { title: 'Snowballs',          symbol: '⛄',  color: '#4FC3F7', value:  1 },
   'unobtainium':       { title: 'Unobtainium',        symbol: '💎', color: '#E91E63', value: 10 },
   'wishalloy':         { title: 'Wishalloy',          symbol: '✨', color: '#B8860B', value: 15 },
+  // Ideas
+  'idea-workbench':     { title: 'Idea: Workbench',     symbol: '💡', color: '#827717' },
+  'idea-service-drone': { title: 'Idea: Drone',         symbol: '💡', color: '#827717' },
+  'idea-solar-panel':   { title: 'Idea: Solar Panel',   symbol: '💡', color: '#827717' },
+  'idea-electronics':   { title: 'Idea: Electronics',   symbol: '💡', color: '#827717' },
   // Units
-  'astronaut': { title: 'Astronaut', symbol: '🧑‍🚀', color: '#5C85B4' },
+  'astronaut':          { title: 'Astronaut',            symbol: '🧑‍🚀', color: '#5C85B4' },
+  'service-drone-1':    { title: 'Service Drone',        symbol: '🤖', color: '#546E7A' },
+  // Buildings
+  'workbench':          { title: 'Workbench',            symbol: '🔧', color: '#795548' },
+  'solar-panel':        { title: 'Solar Panel',          symbol: '☀',  color: '#F57F17' },
 };
 
 /** Groups a card type belongs to, used for recipe ingredient matching. */
 export const CARD_GROUPS: Partial<Record<CardType, string[]>> = {
   astronaut: ['people'],
+  'service-drone-1': ['people'],
 };
 
 let nextId = 1;
@@ -100,6 +110,7 @@ export function makeBoard(
   height: number,
   currency: number = 0,
   shop: Omit<ShopItem, 'id'>[] = [],
+  knownRecipeIds: string[] = [],
 ): Board {
   return {
     id: nextId++,
@@ -109,16 +120,38 @@ export function makeBoard(
     height,
     currency,
     shop: shop.map((item) => ({ ...item, id: nextId++ })),
+    knownRecipeIds,
   };
 }
 
 export const initialBoards: Board[] = [
   makeBoard(
     'Board 1',
-    [makeStack({ x: 80, y: 56 }, ['astronaut'])],
+    [
+      makeStack({ x: 20, y: 40 }, ['astronaut']),
+      makeStack({ x: 50, y: 40 }, ['idea-workbench']),
+      makeStack({ x: 80, y: 40 }, ['idea-service-drone']),
+      makeStack({ x: 110, y: 40 }, ['idea-solar-panel']),
+      makeStack({ x: 140, y: 40 }, ['idea-electronics']),
+      makeStack({ x: 20, y: 80 }, ['crust-chunk', 'crust-chunk', 'crust-chunk']),
+      makeStack({ x: 50, y: 80 }, ['plasteel', 'plasteel', 'nanocarbon', 'nanocarbon']),
+      makeStack({ x: 80, y: 80 }, ['helium3', 'helium3', 'biomass']),
+      makeStack({ x: 110, y: 80 }, ['energy-cell', 'energy-cell']),
+    ],
     176,
     112,
     3,
     [{ cardType: 'crust-chunk', price: 3, symbol: '🪨', label: 'Crust Chunk', color: '#8B7355' }],
+    [
+      'punch-crust-chunk',
+      'punch-plasteel-deposit',
+      'punch-dark-matter-chunk',
+      'punch-fossil-regolith',
+      'make-energy-cell',
+      'make-multi-cell',
+      'make-mega-cell',
+      'make-snow-sphere',
+      'make-snowballs',
+    ],
   ),
 ];

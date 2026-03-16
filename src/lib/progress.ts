@@ -1,5 +1,5 @@
 import { recipes } from '$lib/recipes';
-import { type Stack, type CardType } from '$lib/cards';
+import { type Stack, type CardType, type Board } from '$lib/cards';
 import { CARD_CATALOG, CARD_GROUPS, addCardToMatchingStack } from '$lib/card-catalog';
 import type { Recipe } from '$lib/recipe-types';
 
@@ -12,8 +12,9 @@ function cardMatchesIngredient(type: CardType, match: string): boolean {
   return CARD_GROUPS[type]?.includes(match) ?? false;
 }
 
-function matchRecipe(stack: Stack): Recipe | null {
+function matchRecipe(stack: Stack, knownRecipeIds: string[]): Recipe | null {
   outer: for (const recipe of recipes) {
+    if (!recipe.alwaysKnown && !knownRecipeIds.includes(recipe.id)) continue;
     const used = new Set<number>();
     for (const ing of recipe.ingredients) {
       const need = ing.count ?? 1;
@@ -41,7 +42,8 @@ function weightedRandom(cards: Record<string, number>): string {
   return Object.keys(cards)[0];
 }
 
-function executeRecipe(stacks: Stack[], stack: Stack, recipe: Recipe): void {
+function executeRecipe(board: Board, stack: Stack, recipe: Recipe): void {
+  const stacks = board.stacks;
   const consumed = new Set<number>();
   for (const ing of recipe.ingredients) {
     if (!ing.consumed) continue;
@@ -54,7 +56,6 @@ function executeRecipe(stacks: Stack[], stack: Stack, recipe: Recipe): void {
     }
   }
 
-  // Decrement uses for cards that have charges; only fully remove when depleted
   const fullyConsumed = new Set<number>();
   for (const idx of consumed) {
     const card = stack.cards[idx];
@@ -72,6 +73,12 @@ function executeRecipe(stacks: Stack[], stack: Stack, recipe: Recipe): void {
 
   let offset = 0;
   for (const result of recipe.results) {
+    if (result.action === 'unlock-recipe') {
+      if (!board.knownRecipeIds.includes(result.recipeId)) {
+        board.knownRecipeIds.push(result.recipeId);
+      }
+      continue;
+    }
     let type: string | null = null;
     if (result.action === 'card') {
       if (result.chance !== undefined && Math.random() * 100 > result.chance) continue;
@@ -89,11 +96,12 @@ function executeRecipe(stacks: Stack[], stack: Stack, recipe: Recipe): void {
   }
 }
 
-export function tick(stacks: Stack[], now: number): void {
+export function tick(board: Board, now: number): void {
+  const stacks = board.stacks;
   const toExecute: { stack: Stack; recipe: Recipe }[] = [];
 
   for (const stack of stacks) {
-    const recipe = matchRecipe(stack);
+    const recipe = matchRecipe(stack, board.knownRecipeIds);
     if (!recipe) {
       stack.progress = 0;
       stack.progressStartTime = null;
@@ -112,6 +120,6 @@ export function tick(stacks: Stack[], now: number): void {
   }
 
   for (const { stack, recipe } of toExecute) {
-    executeRecipe(stacks, stack, recipe);
+    executeRecipe(board, stack, recipe);
   }
 }

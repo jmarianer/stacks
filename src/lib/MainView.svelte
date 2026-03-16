@@ -175,7 +175,7 @@
       const now = performance.now();
       updateDropTargets();
       tickPhysics(currentBoard);
-      tickProgress(currentBoard.stacks, now);
+      tickProgress(currentBoard, now);
       rafId = requestAnimationFrame(loop);
     }
 

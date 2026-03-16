@@ -84,4 +84,100 @@ export const recipes: Recipe[] = [
     ],
     results: [{ action: 'card', card: 'snowballs' }],
   },
+
+  // --- Idea study recipes (alwaysKnown: true) ---
+  {
+    id: 'study-idea-workbench',
+    time: 5000,
+    alwaysKnown: true,
+    ingredients: [
+      { match: 'idea-workbench', consumed: true },
+      { match: 'people', consumed: false },
+    ],
+    results: [{ action: 'unlock-recipe', recipeId: 'build-workbench' }],
+  },
+  {
+    id: 'study-idea-electronics',
+    time: 5000,
+    alwaysKnown: true,
+    ingredients: [
+      { match: 'idea-electronics', consumed: true },
+      { match: 'people', consumed: false },
+    ],
+    results: [{ action: 'unlock-recipe', recipeId: 'make-electronics' }],
+  },
+  {
+    id: 'study-idea-service-drone',
+    time: 5000,
+    alwaysKnown: true,
+    ingredients: [
+      { match: 'idea-service-drone', consumed: true },
+      { match: 'people', consumed: false },
+    ],
+    results: [{ action: 'unlock-recipe', recipeId: 'make-service-drone' }],
+  },
+  {
+    id: 'study-idea-solar-panel',
+    time: 5000,
+    alwaysKnown: true,
+    ingredients: [
+      { match: 'idea-solar-panel', consumed: true },
+      { match: 'people', consumed: false },
+    ],
+    results: [{ action: 'unlock-recipe', recipeId: 'build-solar-panel' }],
+  },
+
+  // --- Recipes unlocked via ideas ---
+  {
+    id: 'build-workbench',
+    time: 5000,
+    ingredients: [
+      { match: 'plasteel', count: 4, consumed: true },
+      { match: 'people', consumed: false },
+    ],
+    results: [{ action: 'card', card: 'workbench' }],
+  },
+  {
+    id: 'make-electronics',
+    time: 3000,
+    ingredients: [
+      { match: 'workbench', consumed: false },
+      { match: 'plasteel', consumed: true },
+      { match: 'people', consumed: false },
+    ],
+    results: [{ action: 'card', card: 'electronics' }],
+  },
+  {
+    id: 'make-service-drone',
+    time: 3000,
+    ingredients: [
+      { match: 'plasteel', consumed: true },
+      { match: 'nanocarbon', consumed: true },
+      { match: 'energy-cell', consumed: true },
+      { match: 'people', consumed: false },
+    ],
+    results: [{ action: 'card', card: 'service-drone-1' }],
+  },
+  {
+    id: 'build-solar-panel',
+    time: 3000,
+    ingredients: [
+      { match: 'plasteel', count: 2, consumed: true },
+      { match: 'nanocarbon', consumed: true },
+      { match: 'people', consumed: false },
+    ],
+    results: [{ action: 'card', card: 'solar-panel' }],
+  },
+
+  // --- Solar panel energy production ---
+  {
+    id: 'solar-panel-generate',
+    time: 15000,
+    alwaysKnown: true,
+    ingredients: [
+      { match: 'solar-panel', consumed: false },
+      { match: 'people', consumed: false },
+    ],
+    results: [{ action: 'card', card: 'energy-cell' }],
+  },
 ] satisfies Recipe[];
