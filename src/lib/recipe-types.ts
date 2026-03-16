@@ -7,6 +7,7 @@ export type RecipeResult =
 
 export type Recipe = {
   id: string;
+  label: string;
   time: number;
   ingredients: RecipeIngredient[];
   results: RecipeResult[];

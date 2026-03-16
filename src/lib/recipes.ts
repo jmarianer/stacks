@@ -3,6 +3,7 @@ import type { Recipe } from '$lib/recipe-types';
 export const recipes: Recipe[] = [
   {
     id: 'punch-crust-chunk',
+    label: 'Punch Crust Chunk',
     time: 3000,
     ingredients: [
       { match: 'crust-chunk', consumed: true },
@@ -16,6 +17,7 @@ export const recipes: Recipe[] = [
   },
   {
     id: 'punch-plasteel-deposit',
+    label: 'Mine Plasteel Deposit',
     time: 3000,
     ingredients: [
       { match: 'plasteel-deposit', consumed: true },
@@ -25,6 +27,7 @@ export const recipes: Recipe[] = [
   },
   {
     id: 'punch-dark-matter-chunk',
+    label: 'Collect Dark Matter',
     time: 3000,
     ingredients: [
       { match: 'dark-matter-chunk', consumed: true },
@@ -38,6 +41,7 @@ export const recipes: Recipe[] = [
   },
   {
     id: 'punch-fossil-regolith',
+    label: 'Process Fossil Regolith',
     time: 3000,
     ingredients: [
       { match: 'fossil-regolith', consumed: true },
@@ -47,6 +51,7 @@ export const recipes: Recipe[] = [
   },
   {
     id: 'make-energy-cell',
+    label: 'Craft Energy Cell',
     time: 2000,
     ingredients: [
       { match: 'plasteel', consumed: true },
@@ -56,18 +61,21 @@ export const recipes: Recipe[] = [
   },
   {
     id: 'make-multi-cell',
+    label: 'Combine: Multi-Cell',
     time: 2000,
     ingredients: [{ match: 'energy-cell', count: 4, consumed: true }],
     results: [{ action: 'card', card: 'multi-cell' }],
   },
   {
     id: 'make-mega-cell',
+    label: 'Combine: Mega-Cell',
     time: 2000,
     ingredients: [{ match: 'multi-cell', count: 4, consumed: true }],
     results: [{ action: 'card', card: 'mega-cell' }],
   },
   {
     id: 'make-snow-sphere',
+    label: 'Pack Snow Sphere',
     time: 3000,
     ingredients: [
       { match: 'snow-pile', count: 3, consumed: true },
@@ -77,6 +85,7 @@ export const recipes: Recipe[] = [
   },
   {
     id: 'make-snowballs',
+    label: 'Pack Snowballs',
     time: 3000,
     ingredients: [
       { match: 'snow-pile', count: 2, consumed: true },
@@ -88,6 +97,7 @@ export const recipes: Recipe[] = [
   // --- Idea study recipes (alwaysKnown: true) ---
   {
     id: 'study-idea-workbench',
+    label: 'Study: Workbench',
     time: 5000,
     alwaysKnown: true,
     ingredients: [
@@ -98,6 +108,7 @@ export const recipes: Recipe[] = [
   },
   {
     id: 'study-idea-electronics',
+    label: 'Study: Electronics',
     time: 5000,
     alwaysKnown: true,
     ingredients: [
@@ -108,6 +119,7 @@ export const recipes: Recipe[] = [
   },
   {
     id: 'study-idea-service-drone',
+    label: 'Study: Service Drone',
     time: 5000,
     alwaysKnown: true,
     ingredients: [
@@ -118,6 +130,7 @@ export const recipes: Recipe[] = [
   },
   {
     id: 'study-idea-solar-panel',
+    label: 'Study: Solar Panel',
     time: 5000,
     alwaysKnown: true,
     ingredients: [
@@ -130,6 +143,7 @@ export const recipes: Recipe[] = [
   // --- Recipes unlocked via ideas ---
   {
     id: 'build-workbench',
+    label: 'Build Workbench',
     time: 5000,
     ingredients: [
       { match: 'plasteel', count: 4, consumed: true },
@@ -139,6 +153,7 @@ export const recipes: Recipe[] = [
   },
   {
     id: 'make-electronics',
+    label: 'Make Electronics',
     time: 3000,
     ingredients: [
       { match: 'workbench', consumed: false },
@@ -149,6 +164,7 @@ export const recipes: Recipe[] = [
   },
   {
     id: 'make-service-drone',
+    label: 'Build Service Drone',
     time: 3000,
     ingredients: [
       { match: 'plasteel', consumed: true },
@@ -160,6 +176,7 @@ export const recipes: Recipe[] = [
   },
   {
     id: 'build-solar-panel',
+    label: 'Build Solar Panel',
     time: 3000,
     ingredients: [
       { match: 'plasteel', count: 2, consumed: true },
@@ -172,6 +189,7 @@ export const recipes: Recipe[] = [
   // --- Solar panel energy production ---
   {
     id: 'solar-panel-generate',
+    label: 'Solar: Generate Energy',
     time: 15000,
     alwaysKnown: true,
     ingredients: [
