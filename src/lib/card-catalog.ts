@@ -187,13 +187,13 @@ export const initialBoards: Board[] = [
     [
       'punch-crust-chunk',
       'punch-plasteel-deposit',
-      'punch-dark-matter-chunk',
+    //   'punch-dark-matter-chunk',
       'punch-fossil-regolith',
       'make-energy-cell',
       'make-multi-cell',
       'make-mega-cell',
-      'make-snow-sphere',
-      'make-snowballs',
+    //   'make-snow-sphere',
+    //   'make-snowballs',
     ],
   ),
 ];
