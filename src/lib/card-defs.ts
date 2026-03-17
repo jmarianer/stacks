@@ -45,6 +45,10 @@ export const CARD_CATALOG = {
   // Units
   astronaut:          { title: 'Astronaut',      image: 'astronaut.svg',        color: '#5C85B4' },
   'service-drone-1':  { title: 'Service Drone',  image: 'service-drone-1.svg',  color: '#546E7A' },
+  'pet-alien-bug':    { title: 'Pet Alien Bug',  image: 'alien-bug.svg',        color: '#8BC34A' },
+  // Critters / wildlife
+  cactus:             { title: 'Cactus',          image: 'cactus.svg',           color: '#4CAF50', value: 1 },
+  'alien-eggs':       { title: 'Alien Eggs',      image: 'alien-eggs.svg',       color: '#CDDC39', value: 2 },
   // Buildings
   workbench:          { title: 'Workbench',       image: 'workbench.svg',        color: '#795548', value: 5 },
   'solar-panel':      { title: 'Solar Panel',     image: 'solar-panel.svg',      color: '#F57F17', value: 5 },
@@ -52,6 +56,9 @@ export const CARD_CATALOG = {
   'adv-workbench':    { title: 'Adv. Workbench',  image: 'adv-workbench.svg',    color: '#4E342E', value: 5 },
   'power-station':    { title: 'Power Station',   image: 'power-station.svg',    color: '#1565C0', value: 5 },
   'cloning-chamber':  { title: 'Cloning Chamber', image: 'cloning-chamber.svg',  color: '#4A148C', value: 5 },
+  'snow-converter':   { title: 'Snow Converter',  image: 'snow-converter.svg',   color: '#90CAF9', value: 5 },
+  'power-flower':     { title: 'Power Flower',    image: 'power-flower.svg',     color: '#FF4081', value: 5 },
+  'drill-tres2b':     { title: 'Tres-2b Drill',   image: 'drill.svg',            color: '#9C27B0', value: 5 },
 } satisfies Record<string, CardDef>;
 
 export type CardType = keyof typeof CARD_CATALOG;

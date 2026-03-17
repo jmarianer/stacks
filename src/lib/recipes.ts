@@ -237,6 +237,98 @@ export const recipes: Recipe[] = [
     results: [{ action: 'card', card: 'astronaut' }],
   },
 
+  // --- Alien bug breeding ---
+  {
+    id: 'hatch-pet-alien-bug',
+    label: 'Hatch Alien Egg',
+    time: 5000,
+    alwaysKnown: true,
+    ingredients: [
+      { match: 'alien-eggs', consumed: true },
+      { match: 'people', consumed: false },
+    ],
+    results: [{ action: 'card', card: 'pet-alien-bug' }],
+  },
+  {
+    id: 'breed-pet-alien-bug',
+    label: 'Breed Alien Bugs',
+    time: 10000,
+    alwaysKnown: true,
+    ingredients: [{ match: 'pet-alien-bug', count: 2, consumed: false }],
+    results: [{ action: 'card', card: 'pet-alien-bug' }],
+  },
+  {
+    id: 'stomp-pet-alien-bug',
+    label: 'Stomp Bug → Biomass',
+    time: 2000,
+    alwaysKnown: true,
+    ingredients: [
+      { match: 'pet-alien-bug', consumed: true },
+      { match: 'people', consumed: false },
+    ],
+    results: [{ action: 'card', card: 'biomass' }],
+  },
+
+  // --- Cactus ---
+  {
+    id: 'punch-cactus',
+    label: 'Punch Cactus',
+    time: 3000,
+    alwaysKnown: true,
+    ingredients: [
+      { match: 'cactus', consumed: true },
+      { match: 'people', consumed: false },
+    ],
+    results: [{ action: 'card', card: 'biomass' }],
+  },
+
+  // --- Snow converter ---
+  {
+    id: 'use-snow-converter',
+    label: 'Snow Converter: Generate Snow',
+    time: 5000,
+    alwaysKnown: true,
+    ingredients: [{ match: 'snow-converter', consumed: false }],
+    results: [{ action: 'card', card: 'snow-pile' }],
+  },
+  {
+    id: 'make-snow-block',
+    label: 'Pack Snow Block',
+    time: 3000,
+    alwaysKnown: true,
+    ingredients: [
+      { match: 'snow-converter', consumed: false },
+      { match: 'snow-pile', count: 3, consumed: true },
+    ],
+    results: [{ action: 'card', card: 'snow-block' }],
+  },
+
+  // --- Tres-2b drill ---
+  {
+    id: 'use-drill-tres2b',
+    label: 'Tres-2b Drill: Dark Matter',
+    time: 5000,
+    alwaysKnown: true,
+    ingredients: [
+      { match: 'drill-tres2b', consumed: false },
+      { match: 'people', consumed: false },
+    ],
+    results: [{ action: 'card', card: 'dark-matter-chunk' }],
+  },
+
+  // --- Power flower ---
+  {
+    id: 'use-power-flower',
+    label: 'Power Flower: Generate Energy',
+    time: 15000,
+    alwaysKnown: true,
+    ingredients: [
+      { match: 'power-flower', consumed: false },
+      { match: 'computronium', consumed: false },
+    ],
+    results: [{ action: 'card', card: 'energy-cell' }],
+  },
+
   // --- Solar panel energy production ---
   {
     id: 'solar-panel-generate',
