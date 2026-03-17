@@ -284,14 +284,6 @@ export const recipes: Recipe[] = [
 
   // --- Snow converter ---
   {
-    id: 'use-snow-converter',
-    label: 'Snow Converter: Generate Snow',
-    time: 5000,
-    alwaysKnown: true,
-    ingredients: [{ match: 'snow-converter', consumed: false }],
-    results: [{ action: 'card', card: 'snow-pile' }],
-  },
-  {
     id: 'make-snow-block',
     label: 'Pack Snow Block',
     time: 3000,
