@@ -158,7 +158,7 @@
   // move between stacks (e.g. during peel), keeping isDragging state intact.
   const renderedCards = $derived(
     currentBoard.stacks.flatMap((stack) =>
-      stack.cards.map((cardData, i) => ({ cardData, stack, cardIndex: i })),
+      stack.cards.map((cardData, cardIndex) => ({ cardData, stack, cardIndex })),
     ),
   );
 
@@ -315,16 +315,14 @@
           addScaled(stack.pos, { x: dx, y: dy }, 1 / (vmin * scale));
         }}
       />
-    {/each}
-    {#each currentBoard.stacks as stack (stack.id)}
-      {#if stack.activeRecipeId !== null}
-        {@const progressBarLeft = stack.pos.x}
-        {@const progressBarTop = stack.pos.y - 2.5}
+      {#if cardIndex === 0 && stack.activeRecipeId !== null}
+        {@const recipeLabel = recipes.find((r) => r.id === stack.activeRecipeId)?.label ?? ''}
         <div
           class="progress-bar"
-          style="left: {progressBarLeft}vmin; top: {progressBarTop}vmin; width: {CARD_W}vmin;"
+          style="left: {stack.pos.x}vmin; top: {stack.pos.y - 4.5}vmin; width: {CARD_W}vmin;"
         >
           <div class="progress-bar-fill" style="width: {stack.progress * 100}%;"></div>
+          <span class="progress-bar-label">{recipeLabel}</span>
         </div>
       {/if}
     {/each}
@@ -848,15 +846,32 @@
 
     .progress-bar {
       position: absolute;
-      height: 2vmin;
-      background: rgba(0, 0, 0, 0.25);
+      height: 4vmin;
+      background: rgba(0, 0, 0, 0.45);
       border-radius: 0.5vmin 0.5vmin 0 0;
       overflow: hidden;
       pointer-events: none;
 
       .progress-bar-fill {
-        height: 100%;
+        position: absolute;
+        inset: 0;
         background: limegreen;
+        opacity: 0.55;
+      }
+
+      .progress-bar-label {
+        position: relative;
+        z-index: 1;
+        display: block;
+        font-family: 'BigNoodleTitling', sans-serif;
+        font-size: 2.2vmin;
+        line-height: 4vmin;
+        padding: 0 0.4vmin;
+        color: white;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        text-shadow: 0 0 3px rgba(0, 0, 0, 0.9);
       }
     }
   }
