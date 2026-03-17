@@ -1,4 +1,4 @@
-import { type CardData, type Stack, type Board, type ShopItem } from '$lib/cards';
+import { type CardData, type Stack, type Board, type ShopItem, type Clock } from '$lib/cards';
 import { CARD_CATALOG, type CardType, type CardDef } from '$lib/card-defs';
 import type { Vec2 } from '$lib/utils/vec2';
 
@@ -61,6 +61,20 @@ export function addCardToMatchingStack(stacks: Stack[], type: CardType, fallback
   }
 }
 
+export function makeClock(): Clock {
+  return {
+    sol: 1,
+    solStartTime: null,
+    endOfSol: false,
+    endOfSolAt: null,
+    lastSolFeeds: [],
+    speed: 1,
+    lastActiveSpeed: 1,
+    vTime: 0,
+    vTimeAt: null,
+  };
+}
+
 export function makeBoard(
   name: string,
   stacks: Stack[],
@@ -80,15 +94,6 @@ export function makeBoard(
     shop: shop.map((item) => ({ ...item, id: nextId++ })),
     knownRecipeIds,
     firedMilestones: [],
-    speed: 1,
-    lastActiveSpeed: 1,
-    vTime: 0,
-    vTimeAt: null,
-    sol: 1,
-    solStartTime: null,
-    endOfSol: false,
-    endOfSolAt: null,
-    lastSolFeed: null,
   };
 }
 

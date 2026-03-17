@@ -11,15 +11,16 @@
   } from '$lib/constants';
   import Draggable from './Draggable.svelte';
   import { addScaled } from '$lib/utils/vec2';
-  import { type Stack, type Board, type ShopItem, type CardType, type CardData } from '$lib/cards';
+  import { type Stack, type Board, type ShopItem, type CardType, type CardData, type Clock } from '$lib/cards';
   import {
     CARD_CATALOG,
     initialBoards,
+    makeClock,
     makeStackFromCards,
     addCardToMatchingStack,
   } from '$lib/card-catalog';
   import { tick as tickPhysics } from '$lib/physics';
-  import { tick as tickProgress, SOL_DURATION, UNIT_FEED, getVirtualNow, setSpeed } from '$lib/progress';
+  import { tick as tickProgress, tickClock, SOL_DURATION, UNIT_FEED, getVirtualNow, setSpeed } from '$lib/progress';
   import { recipes } from '$lib/recipes';
   import type { RecipeResult } from '$lib/recipe-types';
 
@@ -102,15 +103,15 @@
     if (e.key === 'd') translate.x -= speed;
     if (e.key === ' ') {
       e.preventDefault();
-      if (!currentBoard.endOfSol) {
+      if (!clock.endOfSol) {
         const now = performance.now();
-        setSpeed(currentBoard, now, currentBoard.speed === 0 ? currentBoard.lastActiveSpeed : 0);
+        setSpeed(clock, now, clock.speed === 0 ? clock.lastActiveSpeed : 0);
       }
     }
-    if (e.key === '1') setSpeed(currentBoard, performance.now(), 1);
-    if (e.key === '2') setSpeed(currentBoard, performance.now(), 2);
-    if (e.key === '3') setSpeed(currentBoard, performance.now(), 3);
-    if (e.key === '4' && !currentBoard.endOfSol) setSpeed(currentBoard, performance.now(), 0);
+    if (e.key === '1') setSpeed(clock, performance.now(), 1);
+    if (e.key === '2') setSpeed(clock, performance.now(), 2);
+    if (e.key === '3') setSpeed(clock, performance.now(), 3);
+    if (e.key === '4' && !clock.endOfSol) setSpeed(clock, performance.now(), 0);
     if (e.key === 'Backspace') {
       const stack = stackAtMouse();
       if (!stack) return;
@@ -126,12 +127,11 @@
 
   function continueSol() {
     const realNow = performance.now();
-    // Virtual time was frozen during end-of-sol. Restart it from its frozen position.
-    currentBoard.vTimeAt = realNow;
-    currentBoard.endOfSol = false;
-    currentBoard.endOfSolAt = null;
-    currentBoard.sol++;
-    currentBoard.solStartTime = currentBoard.vTime;
+    clock.vTimeAt = realNow;
+    clock.endOfSol = false;
+    clock.endOfSolAt = null;
+    clock.sol++;
+    clock.solStartTime = clock.vTime;
   }
 
   let solProgress = $state(0);
@@ -149,6 +149,7 @@
   );
 
   let boards = $state<Board[]>(initialBoards);
+  let clock = $state<Clock>(makeClock());
   let currentBoardIndex = $state(0);
   const currentBoard = $derived(boards[currentBoardIndex]);
 
@@ -271,11 +272,14 @@
     function loop() {
       const now = performance.now();
       updateDropTargets();
-      tickPhysics(currentBoard);
-      tickProgress(currentBoard, now);
-      if (currentBoard.solStartTime !== null && !currentBoard.endOfSol) {
-        const vNow = getVirtualNow(currentBoard, now);
-        solProgress = Math.min((vNow - currentBoard.solStartTime) / SOL_DURATION, 1);
+      tickClock(clock, boards, now);
+      for (const board of boards) {
+        tickPhysics(board);
+        tickProgress(board, clock, now);
+      }
+      if (clock.solStartTime !== null && !clock.endOfSol) {
+        const vNow = getVirtualNow(clock, now);
+        solProgress = Math.min((vNow - clock.solStartTime) / SOL_DURATION, 1);
       }
       rafId = requestAnimationFrame(loop);
     }
@@ -325,33 +329,20 @@
       {/if}
     {/each}
   </Draggable>
-  {#if currentBoard.endOfSol}
+  {#if clock.endOfSol}
     <div class="sol-overlay">
       <div class="sol-dialog">
-        <div class="sol-title">Sol {currentBoard.sol} complete</div>
-        {#if currentBoard.lastSolFeed}
-          {@const feed = currentBoard.lastSolFeed}
-          <div class="sol-feed">
-            {#if feed.needed === 0}
-              No units to feed.
-            {:else if feed.provided >= feed.needed}
-              Fed all units: {feed.needed} energy consumed.
-            {:else}
-              ⚠ Only {feed.provided} / {feed.needed} energy available.
-            {/if}
+        <div class="sol-title">Sol {clock.sol} complete</div>
+        {#each clock.lastSolFeeds.filter((f) => f.deaths.length > 0 || f.provided < f.needed) as feed (feed.boardName)}
+          <div class="sol-board-section">
+            <div class="sol-board-name">{feed.boardName}: {feed.provided}/{feed.needed} ⚡</div>
+            {#each feed.deaths as { type, count } (type)}
+              <span class="sol-death-entry">💀 {count}× {CARD_CATALOG[type].title} died</span>
+            {/each}
           </div>
-          {#if feed.deaths.length > 0}
-            <div class="sol-deaths">
-              {#each feed.deaths as { type, count } (type)}
-                <span class="sol-death-entry">
-                  💀 {count}× {CARD_CATALOG[type].title} died
-                </span>
-              {/each}
-            </div>
-          {/if}
-        {/if}
+        {/each}
         <button class="sol-continue" onclick={continueSol}
-          >Continue to Sol {currentBoard.sol + 1}</button
+          >Continue to Sol {clock.sol + 1}</button
         >
       </div>
     </div>
@@ -415,20 +406,20 @@
     <div class="speed-controls">
       <button
         class="speed-btn"
-        class:active={currentBoard.speed === 0 && !currentBoard.endOfSol}
-        onclick={() => setSpeed(currentBoard, performance.now(), 0)}
-        disabled={currentBoard.endOfSol}
+        class:active={clock.speed === 0 && !clock.endOfSol}
+        onclick={() => setSpeed(clock, performance.now(), 0)}
+        disabled={clock.endOfSol}
       >⏸</button>
       {#each [1, 2, 3] as s (s)}
         <button
           class="speed-btn"
-          class:active={currentBoard.speed === s && !currentBoard.endOfSol}
-          onclick={() => setSpeed(currentBoard, performance.now(), s)}
-          disabled={currentBoard.endOfSol}
+          class:active={clock.speed === s && !clock.endOfSol}
+          onclick={() => setSpeed(clock, performance.now(), s)}
+          disabled={clock.endOfSol}
         >{s}×</button>
       {/each}
     </div>
-    <span class="sol-hud">Sol {currentBoard.sol}</span>
+    <span class="sol-hud">Sol {clock.sol}</span>
     <div class="sol-bar"><div class="sol-bar-fill" style="width: {solProgress * 100}%"></div></div>
     <span class="currency">${currentBoard.currency}</span>
     <span class="energy-hud" class:short={energyAvailable < energyNeeded}>
@@ -502,14 +493,20 @@
       color: #ccc;
     }
 
-    .sol-deaths {
+    .sol-board-section {
       display: flex;
       flex-direction: column;
-      gap: 0.25rem;
-      font-size: 1.2rem;
+      gap: 0.2rem;
+      font-size: 1.1rem;
+
+      .sol-board-name {
+        color: #aaa;
+        font-size: 1rem;
+      }
 
       .sol-death-entry {
         color: #ff6b6b;
+        padding-left: 0.5rem;
       }
     }
 

@@ -1,5 +1,5 @@
 import { recipes } from '$lib/recipes';
-import { type Stack, type CardType, type Board, type CardData } from '$lib/cards';
+import { type Stack, type CardType, type Board, type CardData, type Clock, type SolFeedResult } from '$lib/cards';
 import { CARD_CATALOG, CARD_GROUPS, addCardToMatchingStack } from '$lib/card-catalog';
 import type { Recipe } from '$lib/recipe-types';
 
@@ -11,7 +11,7 @@ export const UNIT_FEED: Partial<Record<CardType, { cost: number; priority: numbe
   'service-drone-1': { cost: 1, priority: 6 },
 };
 
-function feedUnits(board: Board): void {
+function feedUnits(board: Board): SolFeedResult {
   // Tally available energy
   let energyPool = 0;
   for (const stack of board.stacks) {
@@ -83,7 +83,7 @@ function feedUnits(board: Board): void {
   }
   const deaths = [...deathTally.entries()].map(([type, count]) => ({ type, count }));
 
-  board.lastSolFeed = { needed, provided: consumed, deaths };
+  return { needed, provided: consumed, deaths };
 }
 
 function isCardType(s: string): s is CardType {
@@ -197,7 +197,7 @@ function executeRecipe(board: Board, stack: Stack, recipe: Recipe): void {
 
 type Milestone = {
   id: string;
-  condition: (board: Board) => boolean;
+  condition: (board: Board, clock: Clock) => boolean;
   unlockRecipeIds: string[];
   notificationCards: CardType[]; // dropped as cosmetic $1 cards when milestone fires
 };
@@ -211,14 +211,14 @@ const MILESTONES: Milestone[] = [
   },
   {
     id: 'sol-2',
-    condition: (b) => b.sol >= 2,
+    condition: (_b, clock) => clock.sol >= 2,
     unlockRecipeIds: ['make-service-drone'],
     notificationCards: ['idea-service-drone'],
   },
   {
     id: 'three-plasteel-sol-3',
-    condition: (b) =>
-      b.sol >= 3 &&
+    condition: (b, clock) =>
+      clock.sol >= 3 &&
       b.stacks.flatMap((s) => s.cards).filter((c) => c.type === 'plasteel').length >= 3,
     unlockRecipeIds: ['build-workbench'],
     notificationCards: ['idea-workbench'],
@@ -255,10 +255,10 @@ const MILESTONES: Milestone[] = [
   },
 ];
 
-function checkMilestones(board: Board): void {
+function checkMilestones(board: Board, clock: Clock): void {
   for (const milestone of MILESTONES) {
     if (board.firedMilestones.includes(milestone.id)) continue;
-    if (!milestone.condition(board)) continue;
+    if (!milestone.condition(board, clock)) continue;
     board.firedMilestones.push(milestone.id);
     for (const id of milestone.unlockRecipeIds) {
       if (!board.knownRecipeIds.includes(id)) board.knownRecipeIds.push(id);
@@ -269,43 +269,47 @@ function checkMilestones(board: Board): void {
   }
 }
 
-/** Returns the current virtual time, which advances at board.speed per real ms. */
-export function getVirtualNow(board: Board, realNow: number): number {
-  if (board.vTimeAt === null || board.speed === 0 || board.endOfSol) return board.vTime;
-  return board.vTime + (realNow - board.vTimeAt) * board.speed;
+/** Returns the current virtual time, which advances at clock.speed per real ms. */
+export function getVirtualNow(clock: Clock, realNow: number): number {
+  if (clock.vTimeAt === null || clock.speed === 0 || clock.endOfSol) return clock.vTime;
+  return clock.vTime + (realNow - clock.vTimeAt) * clock.speed;
 }
 
 /** Change speed (0=pause, 1/2/3=active). Syncs virtual clock before switching. */
-export function setSpeed(board: Board, realNow: number, newSpeed: number): void {
-  board.vTime = getVirtualNow(board, realNow);
-  board.vTimeAt = realNow;
-  if (newSpeed > 0) board.lastActiveSpeed = newSpeed;
-  board.speed = newSpeed;
+export function setSpeed(clock: Clock, realNow: number, newSpeed: number): void {
+  clock.vTime = getVirtualNow(clock, realNow);
+  clock.vTimeAt = realNow;
+  if (newSpeed > 0) clock.lastActiveSpeed = newSpeed;
+  clock.speed = newSpeed;
 }
 
-export function tick(board: Board, realNow: number): void {
-  if (board.endOfSol) return;
-  if (board.speed === 0) return;
+/** Advance the global sol timer; feed all boards when sol ends. */
+export function tickClock(clock: Clock, boards: Board[], realNow: number): void {
+  if (clock.endOfSol) return;
+  if (clock.speed === 0) return;
+  if (clock.vTimeAt === null) clock.vTimeAt = realNow;
 
-  // Start virtual clock on first tick
-  if (board.vTimeAt === null) board.vTimeAt = realNow;
+  const now = getVirtualNow(clock, realNow);
 
-  const now = getVirtualNow(board, realNow);
-
-  // Sol timer
-  if (board.solStartTime === null) {
-    board.solStartTime = now;
-  } else if (now - board.solStartTime >= SOL_DURATION) {
-    feedUnits(board);
-    // Sync vTime to current virtual time before freezing, so continueSol
-    // restarts the clock from the correct position.
-    board.vTime = now;
-    board.vTimeAt = realNow;
-    board.endOfSol = true;
-    board.endOfSolAt = realNow;
-    return;
+  if (clock.solStartTime === null) {
+    clock.solStartTime = now;
+  } else if (now - clock.solStartTime >= SOL_DURATION) {
+    clock.lastSolFeeds = boards.map((b) => ({ boardName: b.name, ...feedUnits(b) }));
+    clock.vTime = now;
+    clock.vTimeAt = realNow;
+    clock.endOfSol = true;
+    clock.endOfSolAt = realNow;
   }
-  checkMilestones(board);
+}
+
+/** Advance recipe progress on a single board. */
+export function tick(board: Board, clock: Clock, realNow: number): void {
+  if (clock.endOfSol) return;
+  if (clock.speed === 0) return;
+
+  const now = getVirtualNow(clock, realNow);
+
+  checkMilestones(board, clock);
   const stacks = board.stacks;
   const toExecute: { stack: Stack; recipe: Recipe }[] = [];
 

@@ -37,6 +37,20 @@ export type SolFeedResult = {
   deaths: { type: CardType; count: number }[];
 };
 
+export type BoardFeedResult = SolFeedResult & { boardName: string };
+
+export type Clock = {
+  sol: number;
+  solStartTime: number | null;
+  endOfSol: boolean;
+  endOfSolAt: number | null;
+  lastSolFeeds: BoardFeedResult[];
+  speed: number; // 0 = paused, 1/2/3 = active speed multiplier
+  lastActiveSpeed: number;
+  vTime: number;
+  vTimeAt: number | null;
+};
+
 export type Board = {
   id: number;
   name: string;
@@ -47,13 +61,4 @@ export type Board = {
   shop: ShopItem[];
   knownRecipeIds: string[];
   firedMilestones: string[];
-  speed: number; // 0 = paused, 1/2/3 = active speed multiplier
-  lastActiveSpeed: number; // speed before last pause, for spacebar toggle
-  vTime: number; // accumulated virtual time (ms at speed=1)
-  vTimeAt: number | null; // real performance.now() when vTime was last set; null = not started
-  sol: number;
-  solStartTime: number | null; // performance.now() when current sol started; null = not yet started
-  endOfSol: boolean;
-  endOfSolAt: number | null; // performance.now() when end-of-sol began
-  lastSolFeed: SolFeedResult | null;
 };
