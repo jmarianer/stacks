@@ -42,6 +42,8 @@ export const CARD_CATALOG = {
   'idea-computronium':    { title: 'Idea: Computronium',    symbol: '💡', color: '#827717', value: 1 },
   'idea-power-station':   { title: 'Idea: Power Station',   symbol: '💡', color: '#827717', value: 1 },
   'idea-cloning-chamber': { title: 'Idea: Cloning Chamber', symbol: '💡', color: '#827717', value: 1 },
+  // Teleport
+  teleport:           { title: 'Teleport',        symbol: '⬡',                  color: '#00BCD4' },
   // Units
   astronaut:          { title: 'Astronaut',      image: 'astronaut.svg',        color: '#5C85B4' },
   'service-drone-1':  { title: 'Service Drone',  image: 'service-drone-1.svg',  color: '#546E7A' },

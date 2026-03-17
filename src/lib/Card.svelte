@@ -36,7 +36,7 @@
   {onDragEnd}
 >
   <div class="card-inner">
-    <div class="title">{def.title}</div>
+    <div class="title">{cardData.label ?? def.title}</div>
     <div class="image">
       {#if def.image}
         <img class="card-image" src="/cards/{def.image}" alt={def.title} draggable="false" />

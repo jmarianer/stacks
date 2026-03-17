@@ -11,7 +11,7 @@
   } from '$lib/constants';
   import Draggable from './Draggable.svelte';
   import { addScaled } from '$lib/utils/vec2';
-  import { type Stack, type Board, type ShopItem, type CardType } from '$lib/cards';
+  import { type Stack, type Board, type ShopItem, type CardType, type CardData } from '$lib/cards';
   import {
     CARD_CATALOG,
     initialBoards,
@@ -25,6 +25,7 @@
 
   let showRecipes = $state(false);
   let recipeSearch = $state('');
+  let showTeleport = $state(false);
 
   function ingredientLabel(match: string): string {
     if (match === 'people') return 'Person';
@@ -184,6 +185,20 @@
     }
   }
 
+  let nextCardId = $state(1_000_000); // high enough to not collide with catalog IDs
+
+  function createTeleportCard(targetBoardIndex: number) {
+    const card: CardData = {
+      id: nextCardId++,
+      type: 'teleport',
+      label: `→ ${boards[targetBoardIndex].name}`,
+      targetBoardIndex,
+    };
+    const stack = makeStackFromCards({ x: currentBoard.width / 2, y: currentBoard.height / 2 }, [card]);
+    currentBoard.stacks = [...currentBoard.stacks, stack];
+    showTeleport = false;
+  }
+
   function handleDragEnd() {
     const stacks = currentBoard.stacks;
     const dragging = stacks.find((s) => s.dragging);
@@ -191,6 +206,16 @@
 
     const target = stacks.find((s) => s.isDropTarget);
     if (target) {
+      const teleportCard = target.cards.find((c) => c.type === 'teleport');
+      if (teleportCard?.targetBoardIndex !== undefined) {
+        const destIdx = teleportCard.targetBoardIndex;
+        const dest = boards[destIdx];
+        const newStack = makeStackFromCards({ x: dest.width / 2, y: dest.height / 2 }, dragging.cards);
+        dest.stacks = [...dest.stacks, newStack];
+        currentBoard.stacks = stacks.filter((s) => s.id !== target.id && s.id !== dragging.id);
+        currentBoardIndex = destIdx;
+        return;
+      }
       target.cards = [...target.cards, ...dragging.cards];
       target.isDropTarget = false;
       currentBoard.stacks = stacks.filter((s) => s.id !== dragging.id);
@@ -331,6 +356,18 @@
       </div>
     </div>
   {/if}
+  {#if showTeleport}
+    <div class="teleport-panel">
+      <div class="teleport-title">Teleport To…</div>
+      {#each boards as board, i (board.name)}
+        {#if i !== currentBoardIndex}
+          <button class="teleport-dest" onclick={() => createTeleportCard(i)}>
+            {board.name}
+          </button>
+        {/if}
+      {/each}
+    </div>
+  {/if}
   {#if showRecipes}
     <div class="recipes-panel">
       <div class="recipes-title">Known Recipes</div>
@@ -398,6 +435,7 @@
       ⚡ {energyAvailable} / {energyNeeded}
     </span>
     <button class="recipes-toggle" onclick={() => (showRecipes = !showRecipes)}>📖</button>
+    <button class="recipes-toggle" onclick={() => (showTeleport = !showTeleport)}>✈</button>
     <div class="shop">
       {#each currentBoard.shop as item (item.id)}
         <button
@@ -654,6 +692,48 @@
 
       .shop-symbol {
         font-size: 1.5rem;
+      }
+    }
+  }
+
+  .teleport-panel {
+    position: absolute;
+    top: 3.5rem;
+    right: 6rem;
+    background: rgba(10, 10, 20, 0.92);
+    border: 1px solid rgba(0, 188, 212, 0.4);
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem;
+    font-family: 'BigNoodleTitling', sans-serif;
+    color: white;
+    font-size: 1.1rem;
+    min-width: 12rem;
+    z-index: 5;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+
+    .teleport-title {
+      font-size: 1.3rem;
+      color: #00bcd4;
+      margin-bottom: 0.25rem;
+      letter-spacing: 0.05em;
+    }
+
+    .teleport-dest {
+      background: rgba(0, 188, 212, 0.1);
+      border: 1px solid rgba(0, 188, 212, 0.3);
+      border-radius: 0.4rem;
+      color: white;
+      font-family: 'BigNoodleTitling', sans-serif;
+      font-size: 1.1rem;
+      padding: 0.3rem 0.75rem;
+      text-align: left;
+      cursor: pointer;
+
+      &:hover {
+        background: rgba(0, 188, 212, 0.25);
+        border-color: #00bcd4;
       }
     }
   }

@@ -116,7 +116,6 @@ export const initialBoards: Board[] = [
   makeBoard(
     'Alien Eggs',
     [
-      makeStack({ x: 20, y: 42 }, ['astronaut']),
       makeStack({ x: 68, y: 20 }, ['alien-eggs']),
       makeStack({ x: 92, y: 20 }, ['alien-eggs']),
       makeStack({ x: 116, y: 20 }, ['alien-eggs']),
@@ -131,7 +130,6 @@ export const initialBoards: Board[] = [
   makeBoard(
     'Desert',
     [
-      makeStack({ x: 20, y: 42 }, ['astronaut']),
       makeStack({ x: 68, y: 20 }, ['cactus']),
       makeStack({ x: 92, y: 20 }, ['cactus']),
       makeStack({ x: 116, y: 20 }, ['cactus']),
@@ -146,7 +144,6 @@ export const initialBoards: Board[] = [
   makeBoard(
     'Snow',
     [
-      makeStack({ x: 20, y: 42 }, ['astronaut']),
       makeStack({ x: 68, y: 20 }, ['snow-converter']),
       makeStack({ x: 92, y: 20 }, ['snow-pile']),
       makeStack({ x: 116, y: 20 }, ['snow-pile']),
@@ -163,7 +160,6 @@ export const initialBoards: Board[] = [
   makeBoard(
     'Tres-2b',
     [
-      makeStack({ x: 20, y: 42 }, ['astronaut']),
       makeStack({ x: 80, y: 42 }, ['drill-tres2b']),
       makeStack({ x: 128, y: 42 }, ['energy-cell', 'energy-cell', 'energy-cell']),
     ],
@@ -176,7 +172,6 @@ export const initialBoards: Board[] = [
   makeBoard(
     'Flowers',
     [
-      makeStack({ x: 20, y: 42 }, ['astronaut']),
       makeStack({ x: 56, y: 20 }, ['power-flower']),
       makeStack({ x: 80, y: 20 }, ['power-flower']),
       makeStack({ x: 104, y: 20 }, ['power-flower']),

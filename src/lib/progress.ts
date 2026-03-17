@@ -96,6 +96,7 @@ function cardMatchesIngredient(type: CardType, match: string): boolean {
 }
 
 function matchRecipe(stack: Stack, knownRecipeIds: string[]): Recipe | null {
+  if (stack.cards.some((c) => c.type === 'teleport')) return null;
   // Among all matching recipes, prefer the one whose highest-indexed matched card
   // is lowest (uses the bottom of the stack most tightly). Break ties by preferring
   // the recipe with more total ingredients (avoids a subset recipe winning over a

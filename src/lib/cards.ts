@@ -7,6 +7,8 @@ export type CardData = {
   type: CardType;
   usesRemaining?: number; // charges remaining; undefined = single-use
   energyRemaining?: number; // energy units remaining (energy cells only)
+  label?: string; // overrides def.title for display (used by teleport cards)
+  targetBoardIndex?: number; // set on teleport cards
 };
 
 export type Stack = {
