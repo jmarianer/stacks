@@ -401,15 +401,19 @@
       {/each}
     </div>
   {/if}
-  <nav class="location-nav">
-    {#each boards as board, i (board.name)}
-      <button
-        class="location-btn"
-        class:active={i === currentBoardIndex}
-        onclick={() => (currentBoardIndex = i)}
-      >{board.name}</button>
-    {/each}
-  </nav>
+  {#if boards.filter((b) => b.discovered).length > 1}
+    <nav class="location-nav">
+      {#each boards as board, i (board.name)}
+        {#if board.discovered}
+          <button
+            class="location-btn"
+            class:active={i === currentBoardIndex}
+            onclick={() => (currentBoardIndex = i)}
+          >{board.name}</button>
+        {/if}
+      {/each}
+    </nav>
+  {/if}
   <div class="hud">
     <div class="speed-controls">
       <button
