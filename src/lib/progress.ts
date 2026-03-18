@@ -238,8 +238,8 @@ const MILESTONES: Milestone[] = [
   {
     id: 'first-drill',
     condition: (b) => b.stacks.some((s) => s.cards.some((c) => c.type === 'drill')),
-    unlockRecipeIds: ['build-adv-workbench'],
-    notificationCards: ['idea-adv-workbench'],
+    unlockRecipeIds: ['build-adv-workbench', 'build-rover'],
+    notificationCards: ['idea-adv-workbench', 'idea-rover'],
   },
   {
     id: 'first-adv-workbench',

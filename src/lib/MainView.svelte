@@ -280,7 +280,8 @@
           const recipe = recipes.find((r) => r.id === recipeId);
           for (const disc of recipe?.discovers ?? []) {
             const target = boards.find((b) => b.name === disc.boardName);
-            if (target && !target.discovered && Math.random() * 100 < disc.chance) {
+            const prereqMet = !disc.prerequisite || boards.find((b) => b.name === disc.prerequisite)?.discovered;
+            if (target && !target.discovered && prereqMet && Math.random() * 100 < disc.chance) {
               target.discovered = true;
               createTeleportCard(boards.indexOf(target), board);
             }

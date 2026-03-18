@@ -39,6 +39,7 @@ export const CARD_CATALOG = {
   'idea-electronics':     { title: 'Idea: Electronics',     symbol: '💡', color: '#827717', value: 1 },
   'idea-drill':           { title: 'Idea: Drill',           symbol: '💡', color: '#827717', value: 1 },
   'idea-adv-workbench':   { title: 'Idea: Adv. Workbench',  symbol: '💡', color: '#827717', value: 1 },
+  'idea-rover':           { title: 'Idea: Rover',           symbol: '💡', color: '#827717', value: 1 },
   'idea-computronium':    { title: 'Idea: Computronium',    symbol: '💡', color: '#827717', value: 1 },
   'idea-power-station':   { title: 'Idea: Power Station',   symbol: '💡', color: '#827717', value: 1 },
   'idea-cloning-chamber': { title: 'Idea: Cloning Chamber', symbol: '💡', color: '#827717', value: 1 },
@@ -61,6 +62,7 @@ export const CARD_CATALOG = {
   'snow-converter':   { title: 'Snow Converter',  image: 'snow-converter.svg',   color: '#90CAF9', value: 5 },
   'power-flower':     { title: 'Power Flower',    image: 'power-flower.svg',     color: '#FF4081', value: 5 },
   'drill-tres2b':     { title: 'Tres-2b Drill',   image: 'drill.svg',            color: '#9C27B0', value: 5 },
+  'rover':            { title: 'Rover',            image: 'rover.svg',            color: '#FF8F00', value: 5 },
 } satisfies Record<string, CardDef>;
 
 export type CardType = keyof typeof CARD_CATALOG;

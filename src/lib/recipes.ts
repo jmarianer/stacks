@@ -296,6 +296,35 @@ export const recipes: Recipe[] = [
     results: [{ action: 'card', card: 'snow-block' }],
   },
 
+  // --- Rover ---
+  {
+    id: 'build-rover',
+    label: 'Build Rover',
+    time: 10000,
+    ingredients: [
+      { match: 'plasteel', consumed: true },
+      { match: 'nanocarbon', count: 3, consumed: true },
+      { match: 'energy-cell', consumed: true },
+      { match: 'people', consumed: false },
+    ],
+    results: [{ action: 'card', card: 'rover' }],
+  },
+  {
+    id: 'use-rover',
+    label: 'Rover: Explore',
+    time: 10000,
+    alwaysKnown: true,
+    ingredients: [
+      { match: 'rover', consumed: false },
+      { match: 'people', consumed: false },
+    ],
+    results: [{ action: 'weighted', cards: { 'crust-chunk': 100, 'alien-bug': 20 } }],
+    discovers: [
+      { boardName: 'Flowers', chance: 10 },
+      { boardName: 'Desert', chance: 10, prerequisite: 'Flowers' },
+    ],
+  },
+
   // --- Tres-2b drill ---
   {
     id: 'use-drill-tres2b',
