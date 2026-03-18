@@ -188,15 +188,15 @@
 
   let nextCardId = $state(1_000_000); // high enough to not collide with catalog IDs
 
-  function createTeleportCard(targetBoardIndex: number) {
+  function createTeleportCard(targetBoardIndex: number, onBoard: Board = currentBoard) {
     const card: CardData = {
       id: nextCardId++,
       type: 'teleport',
       label: `→ ${boards[targetBoardIndex].name}`,
       targetBoardIndex,
     };
-    const stack = makeStackFromCards({ x: currentBoard.width / 2, y: currentBoard.height / 2 }, [card]);
-    currentBoard.stacks = [...currentBoard.stacks, stack];
+    const stack = makeStackFromCards({ x: onBoard.width / 2, y: onBoard.height / 2 }, [card]);
+    onBoard.stacks = [...onBoard.stacks, stack];
     showTeleport = false;
   }
 
@@ -275,7 +275,17 @@
       tickClock(clock, boards, now);
       for (const board of boards) {
         tickPhysics(board);
-        tickProgress(board, clock, now);
+        const executedRecipeIds = tickProgress(board, clock, now);
+        for (const recipeId of executedRecipeIds) {
+          const recipe = recipes.find((r) => r.id === recipeId);
+          for (const disc of recipe?.discovers ?? []) {
+            const target = boards.find((b) => b.name === disc.boardName);
+            if (target && !target.discovered && Math.random() * 100 < disc.chance) {
+              target.discovered = true;
+              createTeleportCard(boards.indexOf(target), board);
+            }
+          }
+        }
       }
       if (clock.solStartTime !== null && !clock.endOfSol) {
         const vNow = getVirtualNow(clock, now);
@@ -349,7 +359,7 @@
     <div class="teleport-panel">
       <div class="teleport-title">Teleport To…</div>
       {#each boards as board, i (board.name)}
-        {#if i !== currentBoardIndex}
+        {#if i !== currentBoardIndex && board.discovered}
           <button class="teleport-dest" onclick={() => createTeleportCard(i)}>
             {board.name}
           </button>
@@ -424,7 +434,9 @@
       ⚡ {energyAvailable} / {energyNeeded}
     </span>
     <button class="recipes-toggle" onclick={() => (showRecipes = !showRecipes)}>📖</button>
-    <button class="recipes-toggle" onclick={() => (showTeleport = !showTeleport)}>✈</button>
+    {#if boards.some((b, i) => i !== currentBoardIndex && b.discovered)}
+      <button class="recipes-toggle" onclick={() => (showTeleport = !showTeleport)}>✈</button>
+    {/if}
     <div class="shop">
       {#each currentBoard.shop as item (item.id)}
         <button

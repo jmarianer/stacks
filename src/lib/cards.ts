@@ -61,4 +61,5 @@ export type Board = {
   shop: ShopItem[];
   knownRecipeIds: string[];
   firedMilestones: string[];
+  discovered: boolean;
 };

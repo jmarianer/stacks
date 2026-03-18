@@ -83,6 +83,7 @@ export function makeBoard(
   currency: number = 0,
   shop: Omit<ShopItem, 'id'>[] = [],
   knownRecipeIds: string[] = [],
+  discovered: boolean = false,
 ): Board {
   return {
     id: nextId++,
@@ -94,6 +95,7 @@ export function makeBoard(
     shop: shop.map((item) => ({ ...item, id: nextId++ })),
     knownRecipeIds,
     firedMilestones: [],
+    discovered,
   };
 }
 
@@ -117,6 +119,7 @@ export const initialBoards: Board[] = [
       'make-multi-cell',
       'make-mega-cell',
     ],
+    true, // discovered
   ),
   makeBoard(
     'Alien Eggs',

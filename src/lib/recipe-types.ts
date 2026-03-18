@@ -12,4 +12,5 @@ export type Recipe = {
   ingredients: RecipeIngredient[];
   results: RecipeResult[];
   alwaysKnown?: boolean; // fires even if not in board.knownRecipeIds
+  discovers?: { boardName: string; chance: number }[]; // locations this recipe can reveal
 };

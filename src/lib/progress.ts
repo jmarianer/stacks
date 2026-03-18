@@ -303,9 +303,9 @@ export function tickClock(clock: Clock, boards: Board[], realNow: number): void 
 }
 
 /** Advance recipe progress on a single board. */
-export function tick(board: Board, clock: Clock, realNow: number): void {
-  if (clock.endOfSol) return;
-  if (clock.speed === 0) return;
+export function tick(board: Board, clock: Clock, realNow: number): string[] {
+  if (clock.endOfSol) return [];
+  if (clock.speed === 0) return [];
 
   const now = getVirtualNow(clock, realNow);
 
@@ -332,7 +332,10 @@ export function tick(board: Board, clock: Clock, realNow: number): void {
     }
   }
 
+  const executedRecipeIds: string[] = [];
   for (const { stack, recipe } of toExecute) {
     executeRecipe(board, stack, recipe);
+    executedRecipeIds.push(recipe.id);
   }
+  return executedRecipeIds;
 }

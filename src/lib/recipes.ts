@@ -162,6 +162,7 @@ export const recipes: Recipe[] = [
       { match: 'people', consumed: false },
     ],
     results: [{ action: 'weighted', cards: { plasteel: 60, helium3: 40 } }],
+    discovers: [{ boardName: 'Alien Eggs', chance: 10 }],
   },
 
   // --- Advanced workbench ---
