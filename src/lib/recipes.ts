@@ -296,6 +296,19 @@ export const recipes: Recipe[] = [
     results: [{ action: 'card', card: 'snow-block' }],
   },
 
+  // --- Foundation ---
+  {
+    id: 'build-foundation',
+    label: 'Build Foundation',
+    time: 3000,
+    ingredients: [
+      { match: 'workbench', consumed: false },
+      { match: 'plasteel', consumed: true },
+      { match: 'nanocarbon', consumed: true },
+    ],
+    results: [{ action: 'card', card: 'foundation' }],
+  },
+
   // --- Rover ---
   {
     id: 'build-rover',

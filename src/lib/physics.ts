@@ -1,9 +1,8 @@
-import { CARD_W, CARD_H, STACK_CARD_OFFSET_Y, STACK_CARD_OFFSET_X } from '$lib/constants';
+import { CARD_W, CARD_H, STACK_CARD_OFFSET_Y, STACK_CARD_OFFSET_X, CARD_GAP } from '$lib/constants';
 import type { Stack, Board } from '$lib/cards';
 import { type Vec2, sub, len, norm, addScaled } from '$lib/utils/vec2';
 import { rectCenter, rectExtend, type Rect } from './utils/rect';
 
-const CARD_GAP = 1;
 const BOARD_PADDING = 5;
 
 function stackDimensions(stack: Stack): Rect {
@@ -81,9 +80,10 @@ export function tick(board: Board): void {
     }
   }
 
-  // Apply velocities
+  // Apply velocities — foundations are immovable (grid-snapped, never drift)
   for (const stack of stacks) {
     if (stack.dragging) continue;
+    if (stack.cards[0]?.type === 'foundation') continue;
     addScaled(stack.pos, velocities[stack.id], 1);
   }
 }

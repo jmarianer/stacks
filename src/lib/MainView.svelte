@@ -8,6 +8,7 @@
     CARD_W,
     CARD_H,
     DROP_TARGET_INSET,
+    CARD_GAP,
   } from '$lib/constants';
   import Draggable from './Draggable.svelte';
   import { addScaled } from '$lib/utils/vec2';
@@ -162,6 +163,10 @@
     ),
   );
 
+  const isDraggingFoundation = $derived(
+    currentBoard.stacks.some((s) => s.dragging && s.cards[0]?.type === 'foundation'),
+  );
+
   let mousePosition = { x: 0, y: 0 };
 
   function handleDragStart(stack: Stack, cardIndex: number, e: MouseEvent) {
@@ -204,6 +209,12 @@
     const stacks = currentBoard.stacks;
     const dragging = stacks.find((s) => s.dragging);
     if (!dragging) return;
+
+    // Grid-snap stacks based on a foundation card
+    if (dragging.cards[0]?.type === 'foundation') {
+      dragging.pos.x = Math.round(dragging.pos.x / (CARD_W + CARD_GAP)) * (CARD_W + CARD_GAP) + CARD_GAP;
+      dragging.pos.y = Math.round(dragging.pos.y / (CARD_H + CARD_GAP)) * (CARD_H + CARD_GAP) + CARD_GAP;
+    }
 
     const target = stacks.find((s) => s.isDropTarget);
     if (target) {
@@ -314,6 +325,19 @@
     "
     onwheel={onWheel}
   >
+    {#if isDraggingFoundation}
+      {@const gx = CARD_W + CARD_GAP}
+      {@const gy = CARD_H + CARD_GAP}
+      <svg class="foundation-grid" viewBox="0 0 {currentBoard.width} {currentBoard.height}" style="width:{currentBoard.width}vmin;height:{currentBoard.height}vmin;">
+        {#each Array.from({ length: Math.ceil(currentBoard.width / gx) - 1 }, (_, i) => (i + 1) * gx) as x (x)}
+          <line x1={x + CARD_GAP / 2} y1="0" x2={x + CARD_GAP / 2} y2={currentBoard.height} stroke="white" stroke-width="0.3" stroke-dasharray="1 1" opacity="0.25" />
+        {/each}
+        {#each Array.from({ length: Math.ceil(currentBoard.height / gy) - 1 }, (_, i) => (i + 1) * gy) as y (y)}
+          <line x1="0" y1={y + CARD_GAP / 2} x2={currentBoard.width} y2={y + CARD_GAP / 2} stroke="white" stroke-width="0.3" stroke-dasharray="1 1" opacity="0.25" />
+        {/each}
+      </svg>
+    {/if}
+
     {#each renderedCards as { cardData, stack, cardIndex } (cardData.id)}
       <Card
         {cardData}
@@ -853,7 +877,14 @@
     }
   }
 
-  :global .board {
+  .foundation-grid {
+    position: absolute;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+  }
+
+:global .board {
     position: relative;
     background-color: #c9a96e;
     transform-origin: 0 0;

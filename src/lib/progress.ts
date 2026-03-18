@@ -97,6 +97,8 @@ function cardMatchesIngredient(type: CardType, match: string): boolean {
 
 function matchRecipe(stack: Stack, knownRecipeIds: string[]): Recipe | null {
   if (stack.cards.some((c) => c.type === 'teleport')) return null;
+  // Foundation cards are transparent to recipe matching — they act as a base, not an ingredient
+  const cards = stack.cards.filter((c) => c.type !== 'foundation');
   // Among all matching recipes, prefer the one whose highest-indexed matched card
   // is lowest (uses the bottom of the stack most tightly). Break ties by preferring
   // the recipe with more total ingredients (avoids a subset recipe winning over a
@@ -110,8 +112,8 @@ function matchRecipe(stack: Stack, knownRecipeIds: string[]): Recipe | null {
     for (const ing of recipe.ingredients) {
       const need = ing.count ?? 1;
       let found = 0;
-      for (let i = 0; i < stack.cards.length; i++) {
-        if (!used.has(i) && cardMatchesIngredient(stack.cards[i].type, ing.match)) {
+      for (let i = 0; i < cards.length; i++) {
+        if (!used.has(i) && cardMatchesIngredient(cards[i].type, ing.match)) {
           used.add(i);
           if (i > maxIdx) maxIdx = i;
           if (++found >= need) break;
@@ -226,8 +228,8 @@ const MILESTONES: Milestone[] = [
   {
     id: 'first-workbench',
     condition: (b) => b.stacks.some((s) => s.cards.some((c) => c.type === 'workbench')),
-    unlockRecipeIds: ['make-electronics'],
-    notificationCards: ['idea-electronics'],
+    unlockRecipeIds: ['make-electronics', 'build-foundation'],
+    notificationCards: ['idea-electronics', 'idea-foundation'],
   },
   {
     id: 'first-electronics',

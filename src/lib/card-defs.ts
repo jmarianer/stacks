@@ -63,6 +63,8 @@ export const CARD_CATALOG = {
   'power-flower':     { title: 'Power Flower',    image: 'power-flower.svg',     color: '#FF4081', value: 5 },
   'drill-tres2b':     { title: 'Tres-2b Drill',   image: 'drill.svg',            color: '#9C27B0', value: 5 },
   'rover':            { title: 'Rover',            image: 'rover.svg',            color: '#FF8F00', value: 5 },
+  'foundation':       { title: 'Foundation',       image: 'foundation.svg',       color: '#E91E63', value: 5 },
+  'idea-foundation':  { title: 'Idea: Foundation', symbol: '💡',                  color: '#827717', value: 1 },
 } satisfies Record<string, CardDef>;
 
 export type CardType = keyof typeof CARD_CATALOG;
