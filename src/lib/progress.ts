@@ -14,6 +14,7 @@ import {
   addCardToMatchingStack,
   makeCardOfType,
   makeTombstoneCard,
+  makeReviveCard,
   makeStackFromCards,
 } from '$lib/card-catalog';
 import type { Recipe } from '$lib/recipe-types';
@@ -178,6 +179,12 @@ function executeRecipe(board: Board, stack: Stack, recipe: Recipe): void {
     }
   }
 
+  // Save tombstone before it's consumed (needed for revive-unit result)
+  let savedTombstone: CardData | null = null;
+  for (const idx of consumed) {
+    if (stack.cards[idx].type === 'tombstone') savedTombstone = stack.cards[idx];
+  }
+
   const fullyConsumed = new Set<number>();
   for (const idx of consumed) {
     const card = stack.cards[idx];
@@ -216,6 +223,21 @@ function executeRecipe(board: Board, stack: Stack, recipe: Recipe): void {
       board.width += result.dWidth;
       board.height += result.dHeight;
       for (const s of board.stacks) s.pos.x += result.dWidth / 2;
+      continue;
+    }
+    if (result.action === 'heal-unit') {
+      const unit = stack.cards.find((c) => c.unitStats);
+      if (unit?.unitStats) {
+        const max = hpMaxFromStats(unit.unitStats);
+        unit.unitStats.hp = Math.min(unit.unitStats.hp + result.amount, max);
+      }
+      continue;
+    }
+    if (result.action === 'revive-unit') {
+      if (savedTombstone) {
+        const revived = makeReviveCard(savedTombstone);
+        stacks.push(makeStackFromCards({ x: stack.pos.x + 2, y: stack.pos.y + 2 }, [revived]));
+      }
       continue;
     }
     if (result.action === 'train-stat') {
@@ -276,8 +298,8 @@ const MILESTONES: Milestone[] = [
   {
     id: 'first-workbench',
     condition: (b) => b.stacks.some((s) => s.cards.some((c) => c.type === 'workbench')),
-    unlockRecipeIds: ['make-electronics', 'build-foundation', 'build-storage-crate', 'build-train-st', 'build-train-en'],
-    notificationCards: ['idea-electronics', 'idea-foundation', 'idea-storage-crate', 'idea-train-st', 'idea-train-en'],
+    unlockRecipeIds: ['make-electronics', 'build-foundation', 'build-storage-crate', 'build-train-st', 'build-train-en', 'make-uni-kit'],
+    notificationCards: ['idea-electronics', 'idea-foundation', 'idea-storage-crate', 'idea-train-st', 'idea-train-en', 'idea-uni-kit'],
   },
   {
     id: 'first-electronics',
@@ -302,6 +324,12 @@ const MILESTONES: Milestone[] = [
     condition: (b) => b.stacks.some((s) => s.cards.some((c) => c.type === 'power-station')),
     unlockRecipeIds: ['build-cloning-chamber'],
     notificationCards: ['idea-cloning-chamber'],
+  },
+  {
+    id: 'first-uni-kit',
+    condition: (b) => b.stacks.some((s) => s.cards.some((c) => c.type === 'uni-kit')),
+    unlockRecipeIds: ['revive-entity'],
+    notificationCards: [],
   },
   {
     id: 'first-cloning-chamber',

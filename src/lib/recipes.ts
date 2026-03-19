@@ -391,6 +391,63 @@ export const recipes: Recipe[] = [
     results: [{ action: 'card', card: 'energy-cell' }],
   },
 
+  // --- Medical ---
+  {
+    id: 'make-band-aid',
+    label: 'Band-Aid',
+    time: 2000,
+    alwaysKnown: true,
+    ingredients: [
+      { match: 'nanocarbon', consumed: true },
+      { match: 'biomass',    consumed: true },
+    ],
+    results: [{ action: 'card', card: 'band-aid' }],
+  },
+  {
+    id: 'make-uni-kit',
+    label: 'Uni-Kit',
+    time: 5000,
+    ingredients: [
+      { match: 'workbench',  consumed: false },
+      { match: 'nanocarbon', consumed: true, count: 2 },
+      { match: 'biomass',    consumed: true },
+    ],
+    results: [{ action: 'card', card: 'uni-kit' }],
+  },
+  {
+    id: 'use-band-aid',
+    label: 'Apply Band-Aid',
+    time: 1000,
+    alwaysKnown: true,
+    ingredients: [
+      { match: 'band-aid', consumed: true },
+      { match: 'people',   consumed: false },
+    ],
+    results: [{ action: 'heal-unit', amount: 25 }],
+  },
+  {
+    id: 'use-uni-kit',
+    label: 'Apply Uni-Kit',
+    time: 1000,
+    alwaysKnown: true,
+    ingredients: [
+      { match: 'uni-kit', consumed: true },
+      { match: 'people',  consumed: false },
+    ],
+    results: [{ action: 'heal-unit', amount: Infinity }],
+  },
+  {
+    id: 'revive-entity',
+    label: 'Revive',
+    time: 5000,
+    ingredients: [
+      { match: 'tombstone', consumed: true },
+      { match: 'uni-kit',   consumed: true },
+      { match: 'people',    consumed: false },
+    ],
+    results: [{ action: 'revive-unit' }],
+  },
+
   // --- Refinery & Reactor ---
   {
     id: 'build-refinery',

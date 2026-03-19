@@ -41,6 +41,14 @@ export function makeCardOfType(type: CardType): CardData {
   };
 }
 
+/** Restore the unit that died — creates a card of the original type with the tombstone's saved stats. */
+export function makeReviveCard(tombstone: CardData): CardData {
+  const unitType = tombstone.tombstoneOf ?? 'astronaut';
+  const card = makeCardOfType(unitType);
+  if (tombstone.unitStats) card.unitStats = { ...tombstone.unitStats };
+  return card;
+}
+
 export function makeTombstoneCard(fromCard: CardData): CardData {
   return {
     id: nextId++,
