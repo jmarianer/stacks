@@ -51,6 +51,8 @@ export type Clock = {
   vTimeAt: number | null;
 };
 
+export type Connection = { fromId: number; toId: number };
+
 export type Board = {
   id: number;
   name: string;
@@ -62,4 +64,5 @@ export type Board = {
   knownRecipeIds: string[];
   firedMilestones: string[];
   discovered: boolean;
+  connections: Connection[];
 };

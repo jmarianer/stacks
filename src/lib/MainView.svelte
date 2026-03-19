@@ -28,6 +28,9 @@
   let showRecipes = $state(false);
   let recipeSearch = $state('');
   let showTeleport = $state(false);
+  let routingMode = $state(false);
+  let routingFrom = $state<Stack | null>(null);
+  let routingMouseBoard = $state<{ x: number; y: number } | null>(null);
 
   function ingredientLabel(match: string): string {
     if (match === 'people') return 'Person';
@@ -85,6 +88,75 @@
     };
   }
 
+  function boardPosFromEvent(e: MouseEvent) {
+    return {
+      x: (e.clientX - translate.x) / (vmin * scale),
+      y: (e.clientY - translate.y) / (vmin * scale),
+    };
+  }
+
+  function foundationStackAt(pos: { x: number; y: number }): Stack | undefined {
+    return currentBoard.stacks.findLast(
+      (s) =>
+        s.cards[0]?.type === 'foundation' &&
+        pos.x >= s.pos.x && pos.x <= s.pos.x + CARD_W &&
+        pos.y >= s.pos.y && pos.y <= s.pos.y + CARD_H,
+    );
+  }
+
+  function stackCenter(stack: Stack) {
+    return { x: stack.pos.x + CARD_W / 2, y: stack.pos.y + CARD_H / 2 };
+  }
+
+  function connectionEndpoints(from: Stack, to: Stack) {
+    const f = stackCenter(from);
+    const t = stackCenter(to);
+    return { x1: f.x, y1: f.y, x2: t.x, y2: t.y };
+    // const dx = t.x - f.x;
+    // const dy = t.y - f.y;
+    // const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+    // const nx = dx / dist;
+    // const ny = dy / dist;
+    // const r = Math.min(CARD_W, CARD_H) / 2;
+    // return { x1: f.x + nx * r, y1: f.y + ny * r, x2: t.x - nx * (r + 2), y2: t.y - ny * (r + 2) };
+  }
+
+  function handleRoutingMouseDown(e: MouseEvent) {
+    const pos = boardPosFromEvent(e);
+    const stack = foundationStackAt(pos);
+    if (!stack) { routingFrom = null; return; }
+    e.stopPropagation();
+    const hasOutgoing = currentBoard.connections.some((c) => c.fromId === stack.id);
+    if (hasOutgoing) {
+      currentBoard.connections = currentBoard.connections.filter((c) => c.fromId !== stack.id);
+      routingFrom = null;
+    } else {
+      routingFrom = stack;
+      routingMouseBoard = stackCenter(stack);
+    }
+  }
+
+  function handleRoutingMouseMove(e: MouseEvent) {
+    if (!routingFrom) return;
+    routingMouseBoard = boardPosFromEvent(e);
+  }
+
+  function handleRoutingMouseUp(e: MouseEvent) {
+    if (!routingFrom) return;
+    const pos = boardPosFromEvent(e);
+    const target = foundationStackAt(pos);
+    if (target && target.id !== routingFrom.id) {
+      const already = currentBoard.connections.some(
+        (c) => c.fromId === routingFrom!.id && c.toId === target.id,
+      );
+      if (!already) {
+        currentBoard.connections = [...currentBoard.connections, { fromId: routingFrom.id, toId: target.id }];
+      }
+    }
+    routingFrom = null;
+    routingMouseBoard = null;
+  }
+
   function stackAtMouse(): Stack | undefined {
     const { x, y } = boardMouse();
     return currentBoard.stacks.findLast((stack) =>
@@ -113,6 +185,7 @@
     if (e.key === '2') setSpeed(clock, performance.now(), 2);
     if (e.key === '3') setSpeed(clock, performance.now(), 3);
     if (e.key === '4' && !clock.endOfSol) setSpeed(clock, performance.now(), 0);
+    if (e.key === 'r' || e.key === 'R') routingMode = !routingMode;
     if (e.key === 'Backspace') {
       const stack = stackAtMouse();
       if (!stack) return;
@@ -325,6 +398,37 @@
     "
     onwheel={onWheel}
   >
+    <svg
+      class="connections-overlay"
+      viewBox="0 0 {currentBoard.width} {currentBoard.height}"
+      style="width:{currentBoard.width}vmin;height:{currentBoard.height}vmin;"
+    >
+      <defs>
+        <marker id="arrowhead" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L6,3 z" fill="#00000080" />
+        </marker>
+      </defs>
+      {#each currentBoard.connections as conn (conn.fromId + '-' + conn.toId)}
+        {@const fromStack = currentBoard.stacks.find((s) => s.id === conn.fromId)}
+        {@const toStack = currentBoard.stacks.find((s) => s.id === conn.toId)}
+        {#if fromStack && toStack}
+          {@const ep = connectionEndpoints(fromStack, toStack)}
+          <line
+            x1={ep.x1} y1={ep.y1} x2={ep.x2} y2={ep.y2}
+            stroke="#00000080" stroke-width="0.5" opacity="0.8"
+            marker-end="url(#arrowhead)"
+          />
+        {/if}
+      {/each}
+      {#if routingFrom && routingMouseBoard}
+        {@const f = stackCenter(routingFrom)}
+        <line
+          x1={f.x} y1={f.y} x2={routingMouseBoard.x} y2={routingMouseBoard.y}
+          stroke="#00000080" stroke-width="0.4" stroke-dasharray="2 2" opacity="0.6"
+        />
+      {/if}
+    </svg>
+
     {#if isDraggingFoundation}
       {@const gx = CARD_W + CARD_GAP}
       {@const gy = CARD_H + CARD_GAP}
@@ -361,6 +465,16 @@
         </div>
       {/if}
     {/each}
+
+    {#if routingMode}
+      <div
+        class="routing-overlay"
+        onmousedown={handleRoutingMouseDown}
+        onmousemove={handleRoutingMouseMove}
+        onmouseup={handleRoutingMouseUp}
+        role="presentation"
+      ></div>
+    {/if}
   </Draggable>
   {#if clock.endOfSol}
     <div class="sol-overlay">
@@ -466,6 +580,7 @@
     {#if boards.some((b, i) => i !== currentBoardIndex && b.discovered)}
       <button class="recipes-toggle" onclick={() => (showTeleport = !showTeleport)}>✈</button>
     {/if}
+    <button class="recipes-toggle" class:active={routingMode} onclick={() => (routingMode = !routingMode)} title="Routing mode (R)">⛓</button>
     <div class="shop">
       {#each currentBoard.shop as item (item.id)}
         <button
@@ -696,6 +811,12 @@
       &:hover {
         background: rgba(255, 255, 255, 0.25);
       }
+
+      &.active {
+        background: rgba(244, 196, 48, 0.25);
+        border-color: #f4c430;
+        color: #f4c430;
+      }
     }
 
     .shop {
@@ -882,6 +1003,26 @@
     top: 0;
     left: 0;
     pointer-events: none;
+  }
+
+  .connections-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    pointer-events: none;
+    z-index: 4;
+  }
+
+  .routing-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    cursor: crosshair;
+    z-index: 5;
   }
 
 :global .board {
