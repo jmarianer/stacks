@@ -12,11 +12,13 @@
     onDrag,
     onDragStart,
     onDragEnd,
+    onContextMenu,
   }: {
     cardData: CardData;
     top: number;
     left: number;
     isDropTarget?: boolean;
+    onContextMenu?: (e: MouseEvent) => void;
   } & DragProps = $props();
 
   const def = $derived(CARD_CATALOG[cardData.type]);
@@ -34,6 +36,7 @@
   {onDrag}
   {onDragStart}
   {onDragEnd}
+  oncontextmenu={(e) => { if (onContextMenu) { e.preventDefault(); onContextMenu(e); } }}
 >
   <div class="card-inner">
     <div class="title">{cardData.label ?? def.title}</div>

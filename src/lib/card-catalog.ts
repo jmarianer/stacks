@@ -1,4 +1,4 @@
-import { type CardData, type Stack, type Board, type ShopItem, type Clock } from '$lib/cards';
+import { type CardData, type Stack, type Board, type ShopItem, type Clock, type UnitStats, hpMaxFromStats } from '$lib/cards';
 import { CARD_CATALOG, type CardType, type CardDef } from '$lib/card-defs';
 import type { Vec2 } from '$lib/utils/vec2';
 
@@ -11,15 +11,25 @@ export const CARD_GROUPS: Partial<Record<CardType, string[]>> = {
   'service-drone-1': ['people'],
 };
 
+/** Initial unit stats per card type. Only types listed here get unitStats. */
+const UNIT_STAT_DEFAULTS: Partial<Record<CardType, Omit<UnitStats, 'hp'>>> = {
+  astronaut: { en: 1, st: 1, pe: 1, in: 1, ag: 1, lk: 1, level: 1, xp: 0 },
+};
+
 let nextId = 1;
 
 export function makeCardOfType(type: CardType): CardData {
   const def: CardDef = CARD_CATALOG[type];
+  const defaults = UNIT_STAT_DEFAULTS[type];
+  const unitStats: UnitStats | undefined = defaults
+    ? { ...defaults, hp: hpMaxFromStats(defaults) }
+    : undefined;
   return {
     id: nextId++,
     type,
     ...(def.usesInitial !== undefined ? { usesRemaining: def.usesInitial } : {}),
     ...(def.energyValueInitial !== undefined ? { energyRemaining: def.energyValueInitial } : {}),
+    ...(unitStats ? { unitStats } : {}),
   };
 }
 

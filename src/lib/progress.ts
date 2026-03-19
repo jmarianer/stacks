@@ -343,7 +343,10 @@ export function tick(board: Board, clock: Clock, realNow: number): string[] {
       stack.progressStartTime = now;
       stack.progress = 0;
     } else {
-      stack.progress = Math.min((now - stack.progressStartTime!) / recipe.time, 1);
+      // Intelligence speeds up crafting: each point above 1 gives +10% speed
+      const intel = stack.cards.reduce((best, c) => Math.max(best, c.unitStats?.in ?? 0), 0);
+      const effectiveTime = recipe.time / (intel > 0 ? 1 + (intel - 1) * 0.1 : 1);
+      stack.progress = Math.min((now - stack.progressStartTime!) / effectiveTime, 1);
       if (stack.progress >= 1) toExecute.push({ stack, recipe });
     }
   }

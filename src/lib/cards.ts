@@ -2,6 +2,24 @@ import type { Vec2 } from '$lib/utils/vec2';
 import type { CardType } from '$lib/card-defs';
 export type { CardType } from '$lib/card-defs';
 
+export type UnitStats = {
+  // Six core attributes (start at 1)
+  en: number; // Endurance  → max HP per level
+  st: number; // Strength   → damage & knockdown
+  pe: number; // Perception → accuracy & range
+  in: number; // Intelligence → crafting speed
+  ag: number; // Agility    → rate of fire
+  lk: number; // Luck       → crit chance
+  // Tracked
+  hp: number;
+  level: number;
+  xp: number;
+};
+
+export function hpMaxFromStats(stats: Pick<UnitStats, 'en'>): number {
+  return 50 + stats.en * 10;
+}
+
 export type CardData = {
   id: number;
   type: CardType;
@@ -9,6 +27,7 @@ export type CardData = {
   energyRemaining?: number; // energy units remaining (energy cells only)
   label?: string; // overrides def.title for display (used by teleport cards)
   targetBoardIndex?: number; // set on teleport cards
+  unitStats?: UnitStats; // only on unit cards (astronaut, service-drone-1, etc.)
 };
 
 export type Stack = {

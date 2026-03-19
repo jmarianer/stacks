@@ -12,7 +12,7 @@
   } from '$lib/constants';
   import Draggable from './Draggable.svelte';
   import { addScaled } from '$lib/utils/vec2';
-  import { type Stack, type Board, type ShopItem, type CardType, type CardData, type Clock } from '$lib/cards';
+  import { type Stack, type Board, type ShopItem, type CardType, type CardData, type Clock, type UnitStats, hpMaxFromStats } from '$lib/cards';
   import {
     CARD_CATALOG,
     initialBoards,
@@ -28,6 +28,7 @@
   let showRecipes = $state(false);
   let recipeSearch = $state('');
   let showTeleport = $state(false);
+  let statPanel = $state<{ card: CardData; stats: UnitStats; x: number; y: number } | null>(null);
   let routingMode = $state(false);
   let routingFrom = $state<Stack | null>(null);
   let routingMouseBoard = $state<{ x: number; y: number } | null>(null);
@@ -455,6 +456,9 @@
         onDrag={(dx, dy) => {
           addScaled(stack.pos, { x: dx, y: dy }, 1 / (vmin * scale));
         }}
+        onContextMenu={cardData.unitStats ? (e) => {
+          statPanel = { card: cardData, stats: cardData.unitStats!, x: e.clientX, y: e.clientY };
+        } : undefined}
       />
       {#if cardIndex === 0 && stack.activeRecipeId !== null}
         {@const recipeLabel = recipes.find((r) => r.id === stack.activeRecipeId)?.label ?? ''}
@@ -508,6 +512,44 @@
       {/each}
     </div>
   {/if}
+  {#if statPanel}
+    {@const s = statPanel.stats}
+    {@const ATTRS: { key: keyof typeof s; label: string; effect: string }[] = [
+      { key: 'en', label: 'Endurance',    effect: '+10 HP / level' },
+      { key: 'st', label: 'Strength',     effect: 'Damage & knockdown' },
+      { key: 'pe', label: 'Perception',   effect: 'Accuracy & range' },
+      { key: 'in', label: 'Intelligence', effect: 'Crafting speed' },
+      { key: 'ag', label: 'Agility',      effect: 'Rate of fire' },
+      { key: 'lk', label: 'Luck',         effect: 'Critical hits' },
+    ]}
+    <!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
+    <div class="stat-backdrop" onclick={() => (statPanel = null)}></div>
+    <div
+      class="stat-panel"
+      style="left: {Math.min(statPanel.x, window.innerWidth - 220)}px; top: {Math.min(statPanel.y, window.innerHeight - 320)}px;"
+    >
+      <div class="stat-header">
+        <span class="stat-name">{CARD_CATALOG[statPanel.card.type].title}</span>
+        <span class="stat-level">Lv. {s.level}</span>
+      </div>
+      <div class="stat-hp-row">
+        <span class="stat-hp-label">HP</span>
+        <div class="stat-hp-bar">
+          <div class="stat-hp-fill" style="width: {(s.hp / hpMaxFromStats(s)) * 100}%"></div>
+        </div>
+        <span class="stat-hp-nums">{s.hp}/{hpMaxFromStats(s)}</span>
+      </div>
+      {#each ATTRS as attr (attr.key)}
+        <div class="stat-row">
+          <span class="stat-abbr">{attr.key.toUpperCase()}</span>
+          <span class="stat-full">{attr.label}</span>
+          <span class="stat-val">{s[attr.key]}</span>
+          <span class="stat-effect">{attr.effect}</span>
+        </div>
+      {/each}
+    </div>
+  {/if}
+
   {#if showRecipes}
     <div class="recipes-panel">
       <div class="recipes-title">Known Recipes</div>
@@ -1025,6 +1067,75 @@
     right: 0;
     cursor: crosshair;
     z-index: 5;
+  }
+
+  .stat-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 19;
+  }
+
+  .stat-panel {
+    position: fixed;
+    z-index: 20;
+    background: rgba(10, 10, 20, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem;
+    font-family: 'BigNoodleTitling', sans-serif;
+    color: white;
+    min-width: 200px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+
+    .stat-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 0.2rem;
+      border-bottom: 1px solid rgba(255,255,255,0.15);
+      padding-bottom: 0.4rem;
+
+      .stat-name { font-size: 1.3rem; color: #f4c430; }
+      .stat-level { font-size: 1rem; opacity: 0.6; }
+    }
+
+    .stat-hp-row {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      margin-bottom: 0.3rem;
+
+      .stat-hp-label { font-size: 0.9rem; opacity: 0.7; width: 1.5rem; }
+      .stat-hp-bar {
+        flex: 1;
+        height: 0.5rem;
+        background: rgba(255,255,255,0.15);
+        border-radius: 0.25rem;
+        overflow: hidden;
+
+        .stat-hp-fill {
+          height: 100%;
+          background: #4caf50;
+          border-radius: 0.25rem;
+        }
+      }
+      .stat-hp-nums { font-size: 0.85rem; opacity: 0.7; white-space: nowrap; }
+    }
+
+    .stat-row {
+      display: grid;
+      grid-template-columns: 2rem 6rem 1.5rem 1fr;
+      align-items: center;
+      gap: 0.3rem;
+      font-size: 0.9rem;
+
+      .stat-abbr { color: #80cbc4; font-size: 0.85rem; }
+      .stat-full { opacity: 0.75; }
+      .stat-val  { text-align: right; color: #f4c430; }
+      .stat-effect { opacity: 0.45; font-size: 0.8rem; }
+    }
   }
 
 :global .board {
