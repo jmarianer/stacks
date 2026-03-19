@@ -107,7 +107,6 @@ export const initialBoards: Board[] = [
       makeStack({ x: 20, y: 42 }, ['astronaut']),
       makeStack({ x: 68, y: 42 }, ['crust-chunk', 'crust-chunk', 'crust-chunk', 'crust-chunk']),
       makeStack({ x: 116, y: 42 }, ['energy-cell', 'energy-cell', 'energy-cell']),
-      makeStack({ x: 144, y: 42 }, ['service-drone-1', 'foundation', 'foundation', 'foundation', 'foundation', 'solar-panel']),
     ],
     176,
     112,
