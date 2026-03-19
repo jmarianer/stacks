@@ -1,4 +1,5 @@
 import type { Recipe } from '$lib/recipe-types';
+import { CARD_H, CARD_W } from './constants';
 
 export const recipes: Recipe[] = [
   {
@@ -362,6 +363,19 @@ export const recipes: Recipe[] = [
       { match: 'computronium', consumed: false },
     ],
     results: [{ action: 'card', card: 'energy-cell' }],
+  },
+
+  // --- Storage crate: expand board space ---
+  {
+    id: 'build-storage-crate',
+    label: 'Storage Crate',
+    time: 2000,
+    ingredients: [
+      { match: 'plasteel', consumed: true },
+      { match: 'nanocarbon', consumed: true },
+      { match: 'people', consumed: false },
+    ],
+    results: [{ action: 'expand-board', dWidth: 2 * CARD_W, dHeight: CARD_H }],
   },
 
   // --- Solar panel energy production ---

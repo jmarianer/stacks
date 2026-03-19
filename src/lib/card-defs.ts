@@ -43,6 +43,7 @@ export const CARD_CATALOG = {
   'idea-computronium':    { title: 'Idea: Computronium',    symbol: '💡', color: '#827717', value: 1 },
   'idea-power-station':   { title: 'Idea: Power Station',   symbol: '💡', color: '#827717', value: 1 },
   'idea-cloning-chamber': { title: 'Idea: Cloning Chamber', symbol: '💡', color: '#827717', value: 1 },
+  'idea-storage-crate':   { title: 'Idea: Storage Crate',   symbol: '💡', color: '#827717', value: 1 },
   // Teleport
   teleport:           { title: 'Teleport',        symbol: '⬡',                  color: '#00BCD4' },
   // Units

@@ -3,7 +3,8 @@ export type RecipeIngredient = { match: string; count?: number; consumed: boolea
 export type RecipeResult =
   | { action: 'card'; card: string; chance?: number }
   | { action: 'weighted'; cards: Record<string, number> }
-  | { action: 'unlock-recipe'; recipeId: string };
+  | { action: 'unlock-recipe'; recipeId: string }
+  | { action: 'expand-board'; dWidth: number; dHeight: number };
 
 export type Recipe = {
   id: string;

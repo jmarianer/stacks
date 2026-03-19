@@ -188,6 +188,12 @@ function executeRecipe(board: Board, stack: Stack, recipe: Recipe): void {
     } else if (result.action === 'weighted') {
       type = weightedRandom(result.cards);
     }
+    if (result.action === 'expand-board') {
+      board.width += result.dWidth;
+      board.height += result.dHeight;
+      for (const s of board.stacks) s.pos.x += result.dWidth / 2;
+      continue;
+    }
     if (!type || !isCardType(type)) continue;
     if (routeDest) {
       routeDest.cards.push(makeCardOfType(type));
@@ -236,8 +242,8 @@ const MILESTONES: Milestone[] = [
   {
     id: 'first-workbench',
     condition: (b) => b.stacks.some((s) => s.cards.some((c) => c.type === 'workbench')),
-    unlockRecipeIds: ['make-electronics', 'build-foundation'],
-    notificationCards: ['idea-electronics', 'idea-foundation'],
+    unlockRecipeIds: ['make-electronics', 'build-foundation', 'build-storage-crate'],
+    notificationCards: ['idea-electronics', 'idea-foundation', 'idea-storage-crate'],
   },
   {
     id: 'first-electronics',
