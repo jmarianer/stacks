@@ -1,6 +1,20 @@
 import { recipes } from '$lib/recipes';
-import { type Stack, type CardType, type Board, type CardData, type Clock, type SolFeedResult } from '$lib/cards';
-import { CARD_CATALOG, CARD_GROUPS, addCardToMatchingStack, makeCardOfType, makeTombstoneCard, makeStackFromCards } from '$lib/card-catalog';
+import {
+  type Stack,
+  type CardType,
+  type Board,
+  type CardData,
+  type Clock,
+  type SolFeedResult,
+} from '$lib/cards';
+import {
+  CARD_CATALOG,
+  CARD_GROUPS,
+  addCardToMatchingStack,
+  makeCardOfType,
+  makeTombstoneCard,
+  makeStackFromCards,
+} from '$lib/card-catalog';
 import type { Recipe } from '$lib/recipe-types';
 
 export const SOL_DURATION = 2 * 60 * 1000; // 2 minutes in ms

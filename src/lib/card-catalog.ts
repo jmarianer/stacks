@@ -1,4 +1,12 @@
-import { type CardData, type Stack, type Board, type ShopItem, type Clock, type UnitStats, hpMaxFromStats } from '$lib/cards';
+import {
+  type CardData,
+  type Stack,
+  type Board,
+  type ShopItem,
+  type Clock,
+  type UnitStats,
+  hpMaxFromStats,
+} from '$lib/cards';
 import { CARD_CATALOG, type CardType, type CardDef } from '$lib/card-defs';
 import type { Vec2 } from '$lib/utils/vec2';
 

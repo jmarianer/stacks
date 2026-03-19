@@ -36,7 +36,12 @@
   {onDrag}
   {onDragStart}
   {onDragEnd}
-  oncontextmenu={(e) => { if (onContextMenu) { e.preventDefault(); onContextMenu(e); } }}
+  oncontextmenu={(e) => {
+    if (onContextMenu) {
+      e.preventDefault();
+      onContextMenu(e);
+    }
+  }}
 >
   <div class="card-inner">
     <div class="title">{cardData.label ?? def.title}</div>

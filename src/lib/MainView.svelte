@@ -12,7 +12,16 @@
   } from '$lib/constants';
   import Draggable from './Draggable.svelte';
   import { addScaled } from '$lib/utils/vec2';
-  import { type Stack, type Board, type ShopItem, type CardType, type CardData, type Clock, type UnitStats, hpMaxFromStats } from '$lib/cards';
+  import {
+    type Stack,
+    type Board,
+    type ShopItem,
+    type CardType,
+    type CardData,
+    type Clock,
+    type UnitStats,
+    hpMaxFromStats,
+  } from '$lib/cards';
   import {
     CARD_CATALOG,
     initialBoards,
@@ -21,7 +30,14 @@
     addCardToMatchingStack,
   } from '$lib/card-catalog';
   import { tick as tickPhysics } from '$lib/physics';
-  import { tick as tickProgress, tickClock, SOL_DURATION, UNIT_FEED, getVirtualNow, setSpeed } from '$lib/progress';
+  import {
+    tick as tickProgress,
+    tickClock,
+    SOL_DURATION,
+    UNIT_FEED,
+    getVirtualNow,
+    setSpeed,
+  } from '$lib/progress';
   import { recipes } from '$lib/recipes';
   import type { RecipeResult } from '$lib/recipe-types';
 
@@ -100,8 +116,10 @@
     return currentBoard.stacks.findLast(
       (s) =>
         s.cards[0]?.type === 'foundation' &&
-        pos.x >= s.pos.x && pos.x <= s.pos.x + CARD_W &&
-        pos.y >= s.pos.y && pos.y <= s.pos.y + CARD_H,
+        pos.x >= s.pos.x &&
+        pos.x <= s.pos.x + CARD_W &&
+        pos.y >= s.pos.y &&
+        pos.y <= s.pos.y + CARD_H,
     );
   }
 
@@ -125,7 +143,10 @@
   function handleRoutingMouseDown(e: MouseEvent) {
     const pos = boardPosFromEvent(e);
     const stack = foundationStackAt(pos);
-    if (!stack) { routingFrom = null; return; }
+    if (!stack) {
+      routingFrom = null;
+      return;
+    }
     e.stopPropagation();
     const hasOutgoing = currentBoard.connections.some((c) => c.fromId === stack.id);
     if (hasOutgoing) {
@@ -151,7 +172,10 @@
         (c) => c.fromId === routingFrom!.id && c.toId === target.id,
       );
       if (!already) {
-        currentBoard.connections = [...currentBoard.connections, { fromId: routingFrom.id, toId: target.id }];
+        currentBoard.connections = [
+          ...currentBoard.connections,
+          { fromId: routingFrom.id, toId: target.id },
+        ];
       }
     }
     routingFrom = null;
@@ -288,8 +312,10 @@
 
     // Grid-snap stacks based on a foundation card
     if (dragging.cards[0]?.type === 'foundation') {
-      dragging.pos.x = Math.round(dragging.pos.x / (CARD_W + CARD_GAP)) * (CARD_W + CARD_GAP) + CARD_GAP;
-      dragging.pos.y = Math.round(dragging.pos.y / (CARD_H + CARD_GAP)) * (CARD_H + CARD_GAP) + CARD_GAP;
+      dragging.pos.x =
+        Math.round(dragging.pos.x / (CARD_W + CARD_GAP)) * (CARD_W + CARD_GAP) + CARD_GAP;
+      dragging.pos.y =
+        Math.round(dragging.pos.y / (CARD_H + CARD_GAP)) * (CARD_H + CARD_GAP) + CARD_GAP;
     }
 
     const target = stacks.find((s) => s.isDropTarget);
@@ -298,7 +324,10 @@
       if (teleportCard?.targetBoardIndex !== undefined) {
         const destIdx = teleportCard.targetBoardIndex;
         const dest = boards[destIdx];
-        const newStack = makeStackFromCards({ x: dest.width / 2, y: dest.height / 2 }, dragging.cards);
+        const newStack = makeStackFromCards(
+          { x: dest.width / 2, y: dest.height / 2 },
+          dragging.cards,
+        );
         dest.stacks = [...dest.stacks, newStack];
         currentBoard.stacks = stacks.filter((s) => s.id !== target.id && s.id !== dragging.id);
         currentBoardIndex = destIdx;
@@ -367,7 +396,8 @@
           const recipe = recipes.find((r) => r.id === recipeId);
           for (const disc of recipe?.discovers ?? []) {
             const target = boards.find((b) => b.name === disc.boardName);
-            const prereqMet = !disc.prerequisite || boards.find((b) => b.name === disc.prerequisite)?.discovered;
+            const prereqMet =
+              !disc.prerequisite || boards.find((b) => b.name === disc.prerequisite)?.discovered;
             if (target && !target.discovered && prereqMet && Math.random() * 100 < disc.chance) {
               target.discovered = true;
               createTeleportCard(boards.indexOf(target), board);
@@ -417,8 +447,13 @@
         {#if fromStack && toStack}
           {@const ep = connectionEndpoints(fromStack, toStack)}
           <line
-            x1={ep.x1} y1={ep.y1} x2={ep.x2} y2={ep.y2}
-            stroke="#00000080" stroke-width="0.5" opacity="0.8"
+            x1={ep.x1}
+            y1={ep.y1}
+            x2={ep.x2}
+            y2={ep.y2}
+            stroke="#00000080"
+            stroke-width="0.5"
+            opacity="0.8"
             marker-end="url(#arrowhead)"
           />
         {/if}
@@ -426,8 +461,14 @@
       {#if routingFrom && routingMouseBoard}
         {@const f = stackCenter(routingFrom)}
         <line
-          x1={f.x} y1={f.y} x2={routingMouseBoard.x} y2={routingMouseBoard.y}
-          stroke="#00000080" stroke-width="0.4" stroke-dasharray="2 2" opacity="0.6"
+          x1={f.x}
+          y1={f.y}
+          x2={routingMouseBoard.x}
+          y2={routingMouseBoard.y}
+          stroke="#00000080"
+          stroke-width="0.4"
+          stroke-dasharray="2 2"
+          opacity="0.6"
         />
       {/if}
     </svg>
@@ -435,12 +476,34 @@
     {#if isDraggingFoundation}
       {@const gx = CARD_W + CARD_GAP}
       {@const gy = CARD_H + CARD_GAP}
-      <svg class="foundation-grid" viewBox="0 0 {currentBoard.width} {currentBoard.height}" style="width:{currentBoard.width}vmin;height:{currentBoard.height}vmin;">
+      <svg
+        class="foundation-grid"
+        viewBox="0 0 {currentBoard.width} {currentBoard.height}"
+        style="width:{currentBoard.width}vmin;height:{currentBoard.height}vmin;"
+      >
         {#each Array.from({ length: Math.ceil(currentBoard.width / gx) - 1 }, (_, i) => (i + 1) * gx) as x (x)}
-          <line x1={x + CARD_GAP / 2} y1="0" x2={x + CARD_GAP / 2} y2={currentBoard.height} stroke="white" stroke-width="0.3" stroke-dasharray="1 1" opacity="0.25" />
+          <line
+            x1={x + CARD_GAP / 2}
+            y1="0"
+            x2={x + CARD_GAP / 2}
+            y2={currentBoard.height}
+            stroke="white"
+            stroke-width="0.3"
+            stroke-dasharray="1 1"
+            opacity="0.25"
+          />
         {/each}
         {#each Array.from({ length: Math.ceil(currentBoard.height / gy) - 1 }, (_, i) => (i + 1) * gy) as y (y)}
-          <line x1="0" y1={y + CARD_GAP / 2} x2={currentBoard.width} y2={y + CARD_GAP / 2} stroke="white" stroke-width="0.3" stroke-dasharray="1 1" opacity="0.25" />
+          <line
+            x1="0"
+            y1={y + CARD_GAP / 2}
+            x2={currentBoard.width}
+            y2={y + CARD_GAP / 2}
+            stroke="white"
+            stroke-width="0.3"
+            stroke-dasharray="1 1"
+            opacity="0.25"
+          />
         {/each}
       </svg>
     {/if}
@@ -457,7 +520,8 @@
           addScaled(stack.pos, { x: dx, y: dy }, 1 / (vmin * scale));
         }}
         onContextMenu={(e) => {
-          if (cardData.unitStats) statPanel = { card: cardData, stats: cardData.unitStats, x: e.clientX, y: e.clientY };
+          if (cardData.unitStats)
+            statPanel = { card: cardData, stats: cardData.unitStats, x: e.clientX, y: e.clientY };
         }}
       />
       {#if cardIndex === 0 && stack.activeRecipeId !== null}
@@ -494,9 +558,7 @@
             {/each}
           </div>
         {/each}
-        <button class="sol-continue" onclick={continueSol}
-          >Continue to Sol {clock.sol + 1}</button
-        >
+        <button class="sol-continue" onclick={continueSol}>Continue to Sol {clock.sol + 1}</button>
       </div>
     </div>
   {/if}
@@ -526,7 +588,10 @@
     <div class="stat-backdrop" onclick={() => (statPanel = null)}></div>
     <div
       class="stat-panel"
-      style="left: {Math.min(statPanel.x, window.innerWidth - 220)}px; top: {Math.min(statPanel.y, window.innerHeight - 320)}px;"
+      style="left: {Math.min(statPanel.x, window.innerWidth - 220)}px; top: {Math.min(
+        statPanel.y,
+        window.innerHeight - 320,
+      )}px;"
     >
       <div class="stat-header">
         <span class="stat-name">{CARD_CATALOG[statPanel.card.type].title}</span>
@@ -591,8 +656,8 @@
           <button
             class="location-btn"
             class:active={i === currentBoardIndex}
-            onclick={() => (currentBoardIndex = i)}
-          >{board.name}</button>
+            onclick={() => (currentBoardIndex = i)}>{board.name}</button
+          >
         {/if}
       {/each}
     </nav>
@@ -603,15 +668,15 @@
         class="speed-btn"
         class:active={clock.speed === 0 && !clock.endOfSol}
         onclick={() => setSpeed(clock, performance.now(), 0)}
-        disabled={clock.endOfSol}
-      >⏸</button>
+        disabled={clock.endOfSol}>⏸</button
+      >
       {#each [1, 2, 3] as s (s)}
         <button
           class="speed-btn"
           class:active={clock.speed === s && !clock.endOfSol}
           onclick={() => setSpeed(clock, performance.now(), s)}
-          disabled={clock.endOfSol}
-        >{s}×</button>
+          disabled={clock.endOfSol}>{s}×</button
+        >
       {/each}
     </div>
     <span class="sol-hud">Sol {clock.sol}</span>
@@ -624,7 +689,12 @@
     {#if boards.some((b, i) => i !== currentBoardIndex && b.discovered)}
       <button class="recipes-toggle" onclick={() => (showTeleport = !showTeleport)}>✈</button>
     {/if}
-    <button class="recipes-toggle" class:active={routingMode} onclick={() => (routingMode = !routingMode)} title="Routing mode (R)">⛓</button>
+    <button
+      class="recipes-toggle"
+      class:active={routingMode}
+      onclick={() => (routingMode = !routingMode)}
+      title="Routing mode (R)">⛓</button
+    >
     <div class="shop">
       {#each currentBoard.shop as item (item.id)}
         <button
@@ -1094,11 +1164,17 @@
       justify-content: space-between;
       align-items: baseline;
       margin-bottom: 0.2rem;
-      border-bottom: 1px solid rgba(255,255,255,0.15);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.15);
       padding-bottom: 0.4rem;
 
-      .stat-name { font-size: 1.3rem; color: #f4c430; }
-      .stat-level { font-size: 1rem; opacity: 0.6; }
+      .stat-name {
+        font-size: 1.3rem;
+        color: #f4c430;
+      }
+      .stat-level {
+        font-size: 1rem;
+        opacity: 0.6;
+      }
     }
 
     .stat-hp-row {
@@ -1107,11 +1183,15 @@
       gap: 0.4rem;
       margin-bottom: 0.3rem;
 
-      .stat-hp-label { font-size: 0.9rem; opacity: 0.7; width: 1.5rem; }
+      .stat-hp-label {
+        font-size: 0.9rem;
+        opacity: 0.7;
+        width: 1.5rem;
+      }
       .stat-hp-bar {
         flex: 1;
         height: 0.5rem;
-        background: rgba(255,255,255,0.15);
+        background: rgba(255, 255, 255, 0.15);
         border-radius: 0.25rem;
         overflow: hidden;
 
@@ -1121,7 +1201,11 @@
           border-radius: 0.25rem;
         }
       }
-      .stat-hp-nums { font-size: 0.85rem; opacity: 0.7; white-space: nowrap; }
+      .stat-hp-nums {
+        font-size: 0.85rem;
+        opacity: 0.7;
+        white-space: nowrap;
+      }
     }
 
     .stat-row {
@@ -1131,14 +1215,25 @@
       gap: 0.3rem;
       font-size: 0.9rem;
 
-      .stat-abbr { color: #80cbc4; font-size: 0.85rem; }
-      .stat-full { opacity: 0.75; }
-      .stat-val  { text-align: right; color: #f4c430; }
-      .stat-effect { opacity: 0.45; font-size: 0.8rem; }
+      .stat-abbr {
+        color: #80cbc4;
+        font-size: 0.85rem;
+      }
+      .stat-full {
+        opacity: 0.75;
+      }
+      .stat-val {
+        text-align: right;
+        color: #f4c430;
+      }
+      .stat-effect {
+        opacity: 0.45;
+        font-size: 0.8rem;
+      }
     }
   }
 
-:global .board {
+  :global .board {
     position: relative;
     background-color: #c9a96e;
     transform-origin: 0 0;
