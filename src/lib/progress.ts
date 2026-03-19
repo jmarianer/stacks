@@ -1,6 +1,6 @@
 import { recipes } from '$lib/recipes';
 import { type Stack, type CardType, type Board, type CardData, type Clock, type SolFeedResult } from '$lib/cards';
-import { CARD_CATALOG, CARD_GROUPS, addCardToMatchingStack } from '$lib/card-catalog';
+import { CARD_CATALOG, CARD_GROUPS, addCardToMatchingStack, makeCardOfType } from '$lib/card-catalog';
 import type { Recipe } from '$lib/recipe-types';
 
 export const SOL_DURATION = 2 * 60 * 1000; // 2 minutes in ms
@@ -169,6 +169,10 @@ function executeRecipe(board: Board, stack: Stack, recipe: Recipe): void {
   stack.progressStartTime = null;
   stack.activeRecipeId = null;
 
+  // Check for a routing connection from this stack to a destination foundation stack
+  const connection = board.connections.find((c) => c.fromId === stack.id);
+  const routeDest = connection ? stacks.find((s) => s.id === connection.toId) : null;
+
   let offset = 0;
   for (const result of recipe.results) {
     if (result.action === 'unlock-recipe') {
@@ -185,10 +189,14 @@ function executeRecipe(board: Board, stack: Stack, recipe: Recipe): void {
       type = weightedRandom(result.cards);
     }
     if (!type || !isCardType(type)) continue;
-    addCardToMatchingStack(stacks, type, {
-      x: stack.pos.x + offset * 2,
-      y: stack.pos.y + offset * 2,
-    });
+    if (routeDest) {
+      routeDest.cards.push(makeCardOfType(type));
+    } else {
+      addCardToMatchingStack(stacks, type, {
+        x: stack.pos.x + offset * 2,
+        y: stack.pos.y + offset * 2,
+      });
+    }
     offset++;
   }
 
