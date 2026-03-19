@@ -6,6 +6,7 @@ import {
   type CardData,
   type Clock,
   type SolFeedResult,
+  hpMaxFromStats,
 } from '$lib/cards';
 import {
   CARD_CATALOG,
@@ -217,6 +218,16 @@ function executeRecipe(board: Board, stack: Stack, recipe: Recipe): void {
       for (const s of board.stacks) s.pos.x += result.dWidth / 2;
       continue;
     }
+    if (result.action === 'train-stat') {
+      const unit = stack.cards.find((c) => c.unitStats);
+      if (unit?.unitStats) {
+        const oldHpMax = hpMaxFromStats(unit.unitStats);
+        unit.unitStats[result.stat] += result.amount;
+        const newHpMax = hpMaxFromStats(unit.unitStats);
+        unit.unitStats.hp = Math.min(unit.unitStats.hp + (newHpMax - oldHpMax), newHpMax);
+      }
+      continue;
+    }
     if (!type || !isCardType(type)) continue;
     if (routeDest) {
       routeDest.cards.push(makeCardOfType(type));
@@ -265,14 +276,14 @@ const MILESTONES: Milestone[] = [
   {
     id: 'first-workbench',
     condition: (b) => b.stacks.some((s) => s.cards.some((c) => c.type === 'workbench')),
-    unlockRecipeIds: ['make-electronics', 'build-foundation', 'build-storage-crate'],
-    notificationCards: ['idea-electronics', 'idea-foundation', 'idea-storage-crate'],
+    unlockRecipeIds: ['make-electronics', 'build-foundation', 'build-storage-crate', 'build-train-st', 'build-train-en'],
+    notificationCards: ['idea-electronics', 'idea-foundation', 'idea-storage-crate', 'idea-train-st', 'idea-train-en'],
   },
   {
     id: 'first-electronics',
     condition: (b) => b.stacks.some((s) => s.cards.some((c) => c.type === 'electronics')),
-    unlockRecipeIds: ['build-drill'],
-    notificationCards: ['idea-drill'],
+    unlockRecipeIds: ['build-drill', 'build-train-ag', 'build-refinery'],
+    notificationCards: ['idea-drill', 'idea-train-ag', 'idea-refinery'],
   },
   {
     id: 'first-drill',
@@ -283,14 +294,50 @@ const MILESTONES: Milestone[] = [
   {
     id: 'first-adv-workbench',
     condition: (b) => b.stacks.some((s) => s.cards.some((c) => c.type === 'adv-workbench')),
-    unlockRecipeIds: ['build-power-station', 'make-computronium'],
-    notificationCards: ['idea-power-station', 'idea-computronium'],
+    unlockRecipeIds: ['build-power-station', 'make-computronium', 'build-reactor'],
+    notificationCards: ['idea-power-station', 'idea-computronium', 'idea-reactor'],
   },
   {
     id: 'first-power-station',
     condition: (b) => b.stacks.some((s) => s.cards.some((c) => c.type === 'power-station')),
     unlockRecipeIds: ['build-cloning-chamber'],
     notificationCards: ['idea-cloning-chamber'],
+  },
+  {
+    id: 'first-cloning-chamber',
+    condition: (b) => b.stacks.some((s) => s.cards.some((c) => c.type === 'cloning-chamber')),
+    unlockRecipeIds: ['clone-astronaut'],
+    notificationCards: [],
+  },
+  {
+    id: 'first-computronium',
+    condition: (b) => b.stacks.some((s) => s.cards.some((c) => c.type === 'computronium')),
+    unlockRecipeIds: ['build-train-in'],
+    notificationCards: ['idea-train-in'],
+  },
+  {
+    id: 'first-refinery',
+    condition: (b) => b.stacks.some((s) => s.cards.some((c) => c.type === 'refinery')),
+    unlockRecipeIds: ['make-unobtainium'],
+    notificationCards: [],
+  },
+  {
+    id: 'first-reactor',
+    condition: (b) => b.stacks.some((s) => s.cards.some((c) => c.type === 'reactor')),
+    unlockRecipeIds: ['make-wishalloy'],
+    notificationCards: [],
+  },
+  {
+    id: 'first-unobtainium',
+    condition: (b) => b.stacks.some((s) => s.cards.some((c) => c.type === 'unobtainium')),
+    unlockRecipeIds: ['build-train-pe'],
+    notificationCards: ['idea-train-pe'],
+  },
+  {
+    id: 'first-wishalloy',
+    condition: (b) => b.stacks.some((s) => s.cards.some((c) => c.type === 'wishalloy')),
+    unlockRecipeIds: ['build-train-lk'],
+    notificationCards: ['idea-train-lk'],
   },
 ];
 

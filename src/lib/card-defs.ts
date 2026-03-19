@@ -123,8 +123,26 @@ export const CARD_CATALOG = {
   'power-flower': { title: 'Power Flower', image: 'power-flower.svg', color: '#FF4081', value: 5 },
   'drill-tres2b': { title: 'Tres-2b Drill', image: 'drill.svg', color: '#9C27B0', value: 5 },
   rover: { title: 'Rover', image: 'rover.svg', color: '#FF8F00', value: 5 },
-  foundation: { title: 'Foundation', image: 'foundation.svg', color: '#E91E63', value: 5 },
-  'idea-foundation': { title: 'Idea: Foundation', symbol: '💡', color: '#827717', value: 1 },
+  foundation:      { title: 'Foundation', image: 'foundation.svg', color: '#E91E63', value: 5 },
+  refinery:        { title: 'Refinery',   image: 'refinery.svg',  color: '#BF360C', value: 5 },
+  reactor:         { title: 'Reactor',    image: 'reactor.svg',   color: '#1B5E20', value: 5 },
+  // Training stations
+  'train-st': { title: 'Strength Station',     image: 'train-st.svg', color: '#B71C1C', value: 5 },
+  'train-ag': { title: 'Agility Station',      image: 'train-ag.svg', color: '#F57F17', value: 5 },
+  'train-en': { title: 'Endurance Station',    image: 'train-en.svg', color: '#1565C0', value: 5 },
+  'train-in': { title: 'Intelligence Station', image: 'train-in.svg', color: '#4527A0', value: 5 },
+  'train-lk': { title: 'Luck Station',         image: 'train-lk.svg', color: '#00695C', value: 5 },
+  'train-pe': { title: 'Perception Station',   image: 'train-pe.svg', color: '#558B2F', value: 5 },
+  // Idea cards
+  'idea-foundation':  { title: 'Idea: Foundation',         symbol: '💡', color: '#827717', value: 1 },
+  'idea-refinery':    { title: 'Idea: Refinery',           symbol: '💡', color: '#827717', value: 1 },
+  'idea-reactor':     { title: 'Idea: Reactor',            symbol: '💡', color: '#827717', value: 1 },
+  'idea-train-st':    { title: 'Idea: Strength Station',   symbol: '💡', color: '#827717', value: 1 },
+  'idea-train-ag':    { title: 'Idea: Agility Station',    symbol: '💡', color: '#827717', value: 1 },
+  'idea-train-en':    { title: 'Idea: Endurance Station',  symbol: '💡', color: '#827717', value: 1 },
+  'idea-train-in':    { title: 'Idea: Intel. Station',     symbol: '💡', color: '#827717', value: 1 },
+  'idea-train-lk':    { title: 'Idea: Luck Station',       symbol: '💡', color: '#827717', value: 1 },
+  'idea-train-pe':    { title: 'Idea: Perception Station', symbol: '💡', color: '#827717', value: 1 },
   tombstone: { title: 'Tombstone', symbol: '🪦', color: '#546E7A' },
 } satisfies Record<string, CardDef>;
 

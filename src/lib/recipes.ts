@@ -390,4 +390,196 @@ export const recipes: Recipe[] = [
     ],
     results: [{ action: 'card', card: 'energy-cell' }],
   },
+
+  // --- Refinery & Reactor ---
+  {
+    id: 'build-refinery',
+    label: 'Refinery',
+    time: 5000,
+    ingredients: [
+      { match: 'plasteel',     consumed: true, count: 3 },
+      { match: 'electronics',  consumed: true },
+      { match: 'energy-cell',  consumed: true },
+      { match: 'people',       consumed: false },
+    ],
+    results: [{ action: 'card', card: 'refinery' }],
+  },
+  {
+    id: 'build-reactor',
+    label: 'Reactor',
+    time: 5000,
+    ingredients: [
+      { match: 'computronium', consumed: true },
+      { match: 'plasteel',     consumed: true },
+      { match: 'nanocarbon',   consumed: true },
+      { match: 'people',       consumed: false },
+    ],
+    results: [{ action: 'card', card: 'reactor' }],
+  },
+
+  // --- Advanced resources ---
+  {
+    id: 'make-unobtainium',
+    label: 'Unobtainium',
+    time: 5000,
+    ingredients: [
+      { match: 'refinery', consumed: false },
+      { match: 'helium3',  consumed: true, count: 3 },
+    ],
+    results: [{ action: 'card', card: 'unobtainium' }],
+  },
+  {
+    id: 'make-wishalloy',
+    label: 'Wishalloy',
+    time: 5000,
+    ingredients: [
+      { match: 'reactor',      consumed: false },
+      { match: 'unobtainium',  consumed: true },
+      { match: 'computronium', consumed: true },
+    ],
+    results: [{ action: 'card', card: 'wishalloy' }],
+  },
+
+  // --- Build training stations ---
+  {
+    id: 'build-train-st',
+    label: 'Strength Station',
+    time: 10000,
+    ingredients: [
+      { match: 'nanocarbon', consumed: true, count: 4 },
+      { match: 'plasteel',   consumed: true },
+      { match: 'people',     consumed: false },
+    ],
+    results: [{ action: 'card', card: 'train-st' }],
+  },
+  {
+    id: 'build-train-ag',
+    label: 'Agility Station',
+    time: 10000,
+    ingredients: [
+      { match: 'nanocarbon',  consumed: true, count: 4 },
+      { match: 'electronics', consumed: true },
+      { match: 'people',      consumed: false },
+    ],
+    results: [{ action: 'card', card: 'train-ag' }],
+  },
+  {
+    id: 'build-train-en',
+    label: 'Endurance Station',
+    time: 10000,
+    ingredients: [
+      { match: 'nanocarbon', consumed: true, count: 4 },
+      { match: 'biomass',    consumed: true },
+      { match: 'people',     consumed: false },
+    ],
+    results: [{ action: 'card', card: 'train-en' }],
+  },
+  {
+    id: 'build-train-in',
+    label: 'Intelligence Station',
+    time: 10000,
+    ingredients: [
+      { match: 'nanocarbon',  consumed: true, count: 4 },
+      { match: 'computronium', consumed: true },
+      { match: 'people',       consumed: false },
+    ],
+    results: [{ action: 'card', card: 'train-in' }],
+  },
+  {
+    id: 'build-train-lk',
+    label: 'Luck Station',
+    time: 10000,
+    ingredients: [
+      { match: 'nanocarbon', consumed: true, count: 4 },
+      { match: 'wishalloy',  consumed: true },
+      { match: 'people',     consumed: false },
+    ],
+    results: [{ action: 'card', card: 'train-lk' }],
+  },
+  {
+    id: 'build-train-pe',
+    label: 'Perception Station',
+    time: 10000,
+    ingredients: [
+      { match: 'nanocarbon',  consumed: true, count: 4 },
+      { match: 'unobtainium', consumed: true },
+      { match: 'people',      consumed: false },
+    ],
+    results: [{ action: 'card', card: 'train-pe' }],
+  },
+
+  // --- Use training stations ---
+  {
+    id: 'use-train-st',
+    label: 'Train Strength',
+    time: 2000,
+    ingredients: [
+      { match: 'train-st', consumed: false },
+      { match: 'people',   consumed: false },
+    ],
+    results: [{ action: 'train-stat', stat: 'st', amount: 1 }],
+  },
+  {
+    id: 'use-train-ag',
+    label: 'Train Agility',
+    time: 2000,
+    ingredients: [
+      { match: 'train-ag', consumed: false },
+      { match: 'people',   consumed: false },
+    ],
+    results: [{ action: 'train-stat', stat: 'ag', amount: 1 }],
+  },
+  {
+    id: 'use-train-en',
+    label: 'Train Endurance',
+    time: 2000,
+    ingredients: [
+      { match: 'train-en', consumed: false },
+      { match: 'people',   consumed: false },
+    ],
+    results: [{ action: 'train-stat', stat: 'en', amount: 1 }],
+  },
+  {
+    id: 'use-train-in',
+    label: 'Train Intelligence',
+    time: 2000,
+    ingredients: [
+      { match: 'train-in', consumed: false },
+      { match: 'people',   consumed: false },
+    ],
+    results: [{ action: 'train-stat', stat: 'in', amount: 1 }],
+  },
+  {
+    id: 'use-train-lk',
+    label: 'Train Luck',
+    time: 2000,
+    ingredients: [
+      { match: 'train-lk', consumed: false },
+      { match: 'people',   consumed: false },
+    ],
+    results: [{ action: 'train-stat', stat: 'lk', amount: 1 }],
+  },
+  {
+    id: 'use-train-pe',
+    label: 'Train Perception',
+    time: 2000,
+    ingredients: [
+      { match: 'train-pe', consumed: false },
+      { match: 'people',   consumed: false },
+    ],
+    results: [{ action: 'train-stat', stat: 'pe', amount: 1 }],
+  },
+
+  // --- Cloning ---
+  {
+    id: 'clone-astronaut',
+    label: 'Clone Astronaut',
+    time: 10000,
+    ingredients: [
+      { match: 'cloning-chamber', consumed: false },
+      { match: 'astronaut',       consumed: false },
+      { match: 'biomass',         consumed: true, count: 2 },
+    ],
+    results: [{ action: 'card', card: 'astronaut' }],
+  },
 ] satisfies Recipe[];

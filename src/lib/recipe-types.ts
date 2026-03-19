@@ -4,7 +4,8 @@ export type RecipeResult =
   | { action: 'card'; card: string; chance?: number }
   | { action: 'weighted'; cards: Record<string, number> }
   | { action: 'unlock-recipe'; recipeId: string }
-  | { action: 'expand-board'; dWidth: number; dHeight: number };
+  | { action: 'expand-board'; dWidth: number; dHeight: number }
+  | { action: 'train-stat'; stat: 'en' | 'st' | 'pe' | 'in' | 'ag' | 'lk'; amount: number };
 
 export type Recipe = {
   id: string;
