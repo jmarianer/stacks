@@ -180,10 +180,7 @@ function executeRecipe(board: Board, stack: Stack, recipe: Recipe): void {
   }
 
   // Save tombstone before it's consumed (needed for revive-unit result)
-  let savedTombstone: CardData | null = null;
-  for (const idx of consumed) {
-    if (stack.cards[idx].type === 'tombstone') savedTombstone = stack.cards[idx];
-  }
+  const savedTombstone = Array.from(consumed, (i) => stack.cards[i]).find((c) => c.type === 'tombstone') ?? null;
 
   const fullyConsumed = new Set<number>();
   for (const idx of consumed) {
