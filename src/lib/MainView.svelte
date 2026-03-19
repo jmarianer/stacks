@@ -185,6 +185,8 @@
     if (e.key === '2') setSpeed(clock, performance.now(), 2);
     if (e.key === '3') setSpeed(clock, performance.now(), 3);
     if (e.key === '4' && !clock.endOfSol) setSpeed(clock, performance.now(), 0);
+    if (e.key === 'q' || e.key === 'Q') showRecipes = !showRecipes;
+    if (e.key === 't' || e.key === 'T') showTeleport = !showTeleport;
     if (e.key === 'r' || e.key === 'R') routingMode = !routingMode;
     if (e.key === 'Backspace') {
       const stack = stackAtMouse();
