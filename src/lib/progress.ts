@@ -1,6 +1,6 @@
 import { recipes } from '$lib/recipes';
 import { type Stack, type CardType, type Board, type CardData, type Clock, type SolFeedResult } from '$lib/cards';
-import { CARD_CATALOG, CARD_GROUPS, addCardToMatchingStack, makeCardOfType } from '$lib/card-catalog';
+import { CARD_CATALOG, CARD_GROUPS, addCardToMatchingStack, makeCardOfType, makeTombstoneCard, makeStackFromCards } from '$lib/card-catalog';
 import type { Recipe } from '$lib/recipe-types';
 
 export const SOL_DURATION = 2 * 60 * 1000; // 2 minutes in ms
@@ -71,11 +71,20 @@ function feedUnits(board: Board): SolFeedResult {
     }
   }
 
-  // Remove depleted cells and dead units; prune empty stacks
+  // Collect dead unit positions before removing them
+  const deadUnits: { card: CardData; pos: { x: number; y: number } }[] = [];
   for (const stack of board.stacks) {
+    for (const card of stack.cards) {
+      if (dead.has(card.id)) deadUnits.push({ card, pos: { ...stack.pos } });
+    }
     stack.cards = stack.cards.filter((c) => !depleted.has(c.id) && !dead.has(c.id));
   }
   board.stacks = board.stacks.filter((s) => s.cards.length > 0);
+
+  // Drop a tombstone at each dead unit's last position
+  for (const { card, pos } of deadUnits) {
+    board.stacks.push(makeStackFromCards(pos, [makeTombstoneCard(card)]));
+  }
 
   const deathTally = new Map<CardType, number>();
   for (const { card } of units) {

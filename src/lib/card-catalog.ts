@@ -33,6 +33,16 @@ export function makeCardOfType(type: CardType): CardData {
   };
 }
 
+export function makeTombstoneCard(fromCard: CardData): CardData {
+  return {
+    id: nextId++,
+    type: 'tombstone',
+    label: `† ${CARD_CATALOG[fromCard.type].title}`,
+    tombstoneOf: fromCard.type,
+    unitStats: fromCard.unitStats,
+  };
+}
+
 export function makeStack(pos: Vec2, types: CardType[]): Stack {
   return {
     id: nextId++,

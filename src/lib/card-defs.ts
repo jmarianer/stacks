@@ -66,6 +66,7 @@ export const CARD_CATALOG = {
   'rover':            { title: 'Rover',            image: 'rover.svg',            color: '#FF8F00', value: 5 },
   'foundation':       { title: 'Foundation',       image: 'foundation.svg',       color: '#E91E63', value: 5 },
   'idea-foundation':  { title: 'Idea: Foundation', symbol: '💡',                  color: '#827717', value: 1 },
+  'tombstone':        { title: 'Tombstone',        symbol: '🪦',                  color: '#546E7A' },
 } satisfies Record<string, CardDef>;
 
 export type CardType = keyof typeof CARD_CATALOG;

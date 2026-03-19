@@ -27,7 +27,9 @@ export type CardData = {
   energyRemaining?: number; // energy units remaining (energy cells only)
   label?: string; // overrides def.title for display (used by teleport cards)
   targetBoardIndex?: number; // set on teleport cards
-  unitStats?: UnitStats; // only on unit cards (astronaut, service-drone-1, etc.)
+  unitStats?: UnitStats; // present on living units and their tombstones
+  tombstoneOf?: CardType; // set on tombstone cards: the original unit type (for revival)
+  // inventory will be added to CardData when implemented
 };
 
 export type Stack = {

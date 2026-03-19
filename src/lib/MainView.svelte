@@ -456,9 +456,9 @@
         onDrag={(dx, dy) => {
           addScaled(stack.pos, { x: dx, y: dy }, 1 / (vmin * scale));
         }}
-        onContextMenu={cardData.unitStats ? (e) => {
-          statPanel = { card: cardData, stats: cardData.unitStats!, x: e.clientX, y: e.clientY };
-        } : undefined}
+        onContextMenu={(e) => {
+          if (cardData.unitStats) statPanel = { card: cardData, stats: cardData.unitStats, x: e.clientX, y: e.clientY };
+        }}
       />
       {#if cardIndex === 0 && stack.activeRecipeId !== null}
         {@const recipeLabel = recipes.find((r) => r.id === stack.activeRecipeId)?.label ?? ''}
