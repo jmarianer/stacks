@@ -570,6 +570,7 @@ export const recipes: Recipe[] = [
     id: 'use-train-st',
     label: 'Train Strength',
     time: 2000,
+    alwaysKnown: true,
     ingredients: [
       { match: 'train-st', consumed: false },
       { match: 'people',   consumed: false },
@@ -580,6 +581,7 @@ export const recipes: Recipe[] = [
     id: 'use-train-ag',
     label: 'Train Agility',
     time: 2000,
+    alwaysKnown: true,
     ingredients: [
       { match: 'train-ag', consumed: false },
       { match: 'people',   consumed: false },
@@ -590,6 +592,7 @@ export const recipes: Recipe[] = [
     id: 'use-train-en',
     label: 'Train Endurance',
     time: 2000,
+    alwaysKnown: true,
     ingredients: [
       { match: 'train-en', consumed: false },
       { match: 'people',   consumed: false },
@@ -600,6 +603,7 @@ export const recipes: Recipe[] = [
     id: 'use-train-in',
     label: 'Train Intelligence',
     time: 2000,
+    alwaysKnown: true,
     ingredients: [
       { match: 'train-in', consumed: false },
       { match: 'people',   consumed: false },
@@ -610,6 +614,7 @@ export const recipes: Recipe[] = [
     id: 'use-train-lk',
     label: 'Train Luck',
     time: 2000,
+    alwaysKnown: true,
     ingredients: [
       { match: 'train-lk', consumed: false },
       { match: 'people',   consumed: false },
@@ -620,6 +625,7 @@ export const recipes: Recipe[] = [
     id: 'use-train-pe',
     label: 'Train Perception',
     time: 2000,
+    alwaysKnown: true,
     ingredients: [
       { match: 'train-pe', consumed: false },
       { match: 'people',   consumed: false },
