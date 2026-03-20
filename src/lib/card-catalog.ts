@@ -28,10 +28,13 @@ let nextId = 1;
 
 export function makeCardOfType(type: CardType): CardData {
   const def: CardDef = CARD_CATALOG[type];
-  const defaults = UNIT_STAT_DEFAULTS[type];
-  const unitStats: UnitStats | undefined = defaults
-    ? { ...defaults, hp: hpMaxFromStats(defaults) }
-    : undefined;
+  let unitStats: UnitStats | undefined;
+  if (def.enemy) {
+    unitStats = { ...def.enemy.unitStats, level: 1, xp: 0 };
+  } else {
+    const defaults = UNIT_STAT_DEFAULTS[type];
+    if (defaults) unitStats = { ...defaults, hp: hpMaxFromStats(defaults) };
+  }
   return {
     id: nextId++,
     type,

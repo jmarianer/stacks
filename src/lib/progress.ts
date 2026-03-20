@@ -8,6 +8,7 @@ import {
   type SolFeedResult,
   hpMaxFromStats,
 } from '$lib/cards';
+import type { Vec2 } from '$lib/utils/vec2';
 import {
   CARD_CATALOG,
   CARD_GROUPS,
@@ -16,6 +17,7 @@ import {
   makeTombstoneCard,
   makeReviveCard,
   makeStackFromCards,
+  type CardDef,
 } from '$lib/card-catalog';
 import type { Recipe } from '$lib/recipe-types';
 
@@ -380,6 +382,106 @@ function checkMilestones(board: Board, clock: Clock): void {
   }
 }
 
+function nearestCombatant(
+  pos: Vec2,
+  units: Array<{ card: CardData; stack: Stack }>,
+): { card: CardData; stack: Stack } | null {
+  let best: { card: CardData; stack: Stack } | null = null;
+  let bestDist = Infinity;
+  for (const u of units) {
+    const dx = u.stack.pos.x - pos.x;
+    const dy = u.stack.pos.y - pos.y;
+    const d = dx * dx + dy * dy;
+    if (d < bestDist) { bestDist = d; best = u; }
+  }
+  return best;
+}
+
+function runCombat(board: Board, now: number): void {
+  const playerUnits: Array<{ card: CardData; stack: Stack }> = [];
+  const enemyUnits: Array<{ card: CardData; stack: Stack }> = [];
+
+  for (const stack of board.stacks) {
+    for (const card of stack.cards) {
+      if (!card.unitStats) continue;
+      const def = CARD_CATALOG[card.type] as CardDef;
+      if (def.enemy) enemyUnits.push({ card, stack });
+      else if (def.weapon) playerUnits.push({ card, stack });
+    }
+  }
+
+  if (playerUnits.length === 0 || enemyUnits.length === 0) return;
+
+  const dead = new Set<number>();
+
+  function tryAttack(
+    attacker: { card: CardData; stack: Stack },
+    targets: Array<{ card: CardData; stack: Stack }>,
+  ): void {
+    if (dead.has(attacker.card.id)) return;
+    const stats = attacker.card.unitStats!;
+    const def = CARD_CATALOG[attacker.card.type] as CardDef;
+    const weapon = def.enemy ? def.enemy.weapon : def.weapon;
+    if (!weapon) return;
+
+    const live = targets.filter((t) => !dead.has(t.card.id));
+    const target = nearestCombatant(attacker.stack.pos, live);
+    if (!target) return;
+
+    // Agility shortens attack interval: each AG above 1 = 10% faster
+    const effectiveInterval = (weapon.attackInterval * 1000) / (1 + Math.max(0, stats.ag - 1) * 0.1);
+    if (stats.lastAttackAt !== undefined && now - stats.lastAttackAt < effectiveInterval) return;
+
+    // Strength increases damage: each ST above 1 = +10%
+    let damage = weapon.damage * (1 + Math.max(0, stats.st - 1) * 0.1);
+
+    // Luck → crit: each LK above 1 = +2% crit chance (2× damage)
+    const critChance = Math.max(0, stats.lk - 1) * 2;
+    if (Math.random() * 100 < critChance) damage *= 2;
+
+    // Target PE → dodge: each PE above 1 = +3% dodge chance
+    const targetStats = target.card.unitStats!;
+    const dodgeChance = Math.max(0, targetStats.pe - 1) * 3;
+    stats.lastAttackAt = now;
+    if (Math.random() * 100 < dodgeChance) return;
+
+    // Resistance reduces damage (0–100%)
+    const resist = targetStats.resist?.[weapon.damageType] ?? 0;
+    targetStats.hp -= Math.max(1, damage * (1 - resist / 100));
+
+    if (targetStats.hp <= 0) dead.add(target.card.id);
+  }
+
+  for (const unit of playerUnits) tryAttack(unit, enemyUnits);
+  for (const enemy of enemyUnits) tryAttack(enemy, playerUnits);
+
+  if (dead.size === 0) return;
+
+  // Collect loot drops and dead player cards before mutating stacks
+  const lootDrops: Array<{ type: CardType; pos: Vec2 }> = [];
+  const deadPlayerCards: Array<{ card: CardData; pos: Vec2 }> = [];
+
+  for (const stack of board.stacks) {
+    for (const card of stack.cards) {
+      if (!dead.has(card.id)) continue;
+      const def = CARD_CATALOG[card.type] as CardDef;
+      if (def.enemy) {
+        const lootType = weightedRandom(def.enemy.loot);
+        if (isCardType(lootType)) lootDrops.push({ type: lootType, pos: { ...stack.pos } });
+      } else {
+        deadPlayerCards.push({ card, pos: { ...stack.pos } });
+      }
+    }
+    stack.cards = stack.cards.filter((c) => !dead.has(c.id));
+  }
+  board.stacks = board.stacks.filter((s) => s.cards.length > 0);
+
+  for (const { type, pos } of lootDrops) addCardToMatchingStack(board.stacks, type, pos);
+  for (const { card, pos } of deadPlayerCards) {
+    board.stacks.push(makeStackFromCards(pos, [makeTombstoneCard(card)]));
+  }
+}
+
 /** Returns the current virtual time, which advances at clock.speed per real ms. */
 export function getVirtualNow(clock: Clock, realNow: number): number {
   if (clock.vTimeAt === null || clock.speed === 0 || clock.endOfSol) return clock.vTime;
@@ -421,6 +523,7 @@ export function tick(board: Board, clock: Clock, realNow: number): string[] {
   const now = getVirtualNow(clock, realNow);
 
   checkMilestones(board, clock);
+  runCombat(board, now);
   const stacks = board.stacks;
   const toExecute: { stack: Stack; recipe: Recipe }[] = [];
 

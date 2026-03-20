@@ -120,6 +120,27 @@ export const CARD_CATALOG = {
     weapon: { damage: 3, damageType: 'energy', attackInterval: 3.0 },
   },
   'pet-alien-bug': { title: 'Pet Alien Bug', image: 'alien-bug.svg', color: '#8BC34A' },
+  // Enemies
+  'alien-bug': {
+    title: 'Alien Bug',
+    image: 'alien-bug.svg',
+    color: '#C62828',
+    enemy: {
+      unitStats: { en: 1, st: 1, pe: 2, in: 1, ag: 3, lk: 1, hp: 30 },
+      weapon: { damage: 4, damageType: 'impact', attackInterval: 1.2 },
+      loot: { biomass: 4, 'alien-parts': 1 },
+    },
+  },
+  bandit: {
+    title: 'Bandit',
+    symbol: '⚔️',
+    color: '#4E342E',
+    enemy: {
+      unitStats: { en: 2, st: 2, pe: 1, in: 1, ag: 1, lk: 1, hp: 70 },
+      weapon: { damage: 8, damageType: 'impact', attackInterval: 2.0 },
+      loot: { 'crust-chunk': 2, 'energy-cell': 1, plasteel: 1 },
+    },
+  },
   // Critters / wildlife
   cactus: { title: 'Cactus', image: 'cactus.svg', color: '#4CAF50', value: 1 },
   'alien-eggs': { title: 'Alien Eggs', image: 'alien-eggs.svg', color: '#CDDC39', value: 2 },
