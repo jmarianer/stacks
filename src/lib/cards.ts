@@ -2,6 +2,16 @@ import type { Vec2 } from '$lib/utils/vec2';
 import type { CardType } from '$lib/card-defs';
 export type { CardType } from '$lib/card-defs';
 
+export type DamageType = 'impact' | 'energy' | 'plasma' | 'acid';
+
+/** Weapon stats embedded in a unit's CardDef or a weapon CardDef. */
+export type WeaponStats = {
+  damage: number;
+  damageType: DamageType;
+  /** Seconds between attacks (before agility modifier). */
+  attackInterval: number;
+};
+
 export type UnitStats = {
   // Six core attributes (start at 1)
   en: number; // Endurance  → max HP per level
@@ -14,6 +24,10 @@ export type UnitStats = {
   hp: number;
   level: number;
   xp: number;
+  /** Last combat attack timestamp (vTime), for cooldown tracking. */
+  lastAttackAt?: number;
+  /** Damage resistances 0–100 (percentage reduction). */
+  resist?: Partial<Record<DamageType, number>>;
 };
 
 export function hpMaxFromStats(stats: Pick<UnitStats, 'en'>): number {

@@ -1,3 +1,15 @@
+import type { WeaponStats, UnitStats, DamageType } from '$lib/cards';
+export type { DamageType };
+
+export type EnemyDef = {
+  /** Base stats for this enemy type. */
+  unitStats: Omit<UnitStats, 'level' | 'xp' | 'lastAttackAt'>;
+  /** Built-in weapon. */
+  weapon: WeaponStats;
+  /** Loot: weighted map of CardType → relative weight. */
+  loot: Record<string, number>;
+};
+
 export type CardDef = {
   title: string;
   symbol?: string; // fallback emoji, used when no image is available
@@ -6,6 +18,10 @@ export type CardDef = {
   value?: number; // coin value; undefined = not sellable
   usesInitial?: number; // starting usesRemaining; undefined = single-use
   energyValueInitial?: number; // starting energy units (energy cells only)
+  /** Present on unit cards: built-in weapon (fists, claws, etc.) */
+  weapon?: WeaponStats;
+  /** Present on enemy cards only. */
+  enemy?: EnemyDef;
 };
 
 export const CARD_CATALOG = {
@@ -91,8 +107,18 @@ export const CARD_CATALOG = {
   // Teleport
   teleport: { title: 'Teleport', symbol: '⬡', color: '#00BCD4' },
   // Units
-  astronaut: { title: 'Astronaut', image: 'astronaut.svg', color: '#5C85B4' },
-  'service-drone-1': { title: 'Service Drone', image: 'service-drone-1.svg', color: '#546E7A' },
+  astronaut: {
+    title: 'Astronaut',
+    image: 'astronaut.svg',
+    color: '#5C85B4',
+    weapon: { damage: 5, damageType: 'impact', attackInterval: 2.0 },
+  },
+  'service-drone-1': {
+    title: 'Service Drone',
+    image: 'service-drone-1.svg',
+    color: '#546E7A',
+    weapon: { damage: 3, damageType: 'energy', attackInterval: 3.0 },
+  },
   'pet-alien-bug': { title: 'Pet Alien Bug', image: 'alien-bug.svg', color: '#8BC34A' },
   // Critters / wildlife
   cactus: { title: 'Cactus', image: 'cactus.svg', color: '#4CAF50', value: 1 },
