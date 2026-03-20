@@ -199,6 +199,48 @@ export const CARD_CATALOG = {
   'idea-train-lk':    { title: 'Idea: Luck Station',       symbol: '💡', color: '#827717', value: 1 },
   'idea-train-pe':    { title: 'Idea: Perception Station', symbol: '💡', color: '#827717', value: 1 },
   tombstone: { title: 'Tombstone', symbol: '🪦', color: '#546E7A' },
+  // Weapons — equip by placing in same stack as a unit
+  blaster: {
+    title: 'Blaster',
+    image: 'weapon-blaster.svg',
+    color: '#1565C0',
+    value: 8,
+    weapon: { damage: 10, damageType: 'energy', attackInterval: 1.5 },
+  },
+  bolter: {
+    title: 'Bolter',
+    image: 'weapon-bolter.svg',
+    color: '#546E7A',
+    value: 10,
+    weapon: { damage: 15, damageType: 'impact', attackInterval: 2.0 },
+  },
+  'bolter-heavy': {
+    title: 'Heavy Bolter',
+    image: 'weapon-bolter-heavy.svg',
+    color: '#37474F',
+    value: 15,
+    weapon: { damage: 25, damageType: 'impact', attackInterval: 3.0 },
+  },
+  minigun: {
+    title: 'Minigun',
+    image: 'weapon-minigun.svg',
+    color: '#FF6F00',
+    value: 20,
+    weapon: { damage: 8, damageType: 'impact', attackInterval: 0.5 },
+  },
+  'laser-cannon': {
+    title: 'Laser Cannon',
+    image: 'weapon-laser-cannon.svg',
+    color: '#00BCD4',
+    value: 25,
+    weapon: { damage: 40, damageType: 'energy', attackInterval: 4.0 },
+  },
+  // Idea cards for weapons
+  'idea-blaster':      { title: 'Idea: Blaster',       symbol: '💡', color: '#827717', value: 1 },
+  'idea-bolter':       { title: 'Idea: Bolter',        symbol: '💡', color: '#827717', value: 1 },
+  'idea-bolter-heavy': { title: 'Idea: Heavy Bolter',  symbol: '💡', color: '#827717', value: 1 },
+  'idea-minigun':      { title: 'Idea: Minigun',       symbol: '💡', color: '#827717', value: 1 },
+  'idea-laser-cannon': { title: 'Idea: Laser Cannon',  symbol: '💡', color: '#827717', value: 1 },
 } satisfies Record<string, CardDef>;
 
 export type CardType = keyof typeof CARD_CATALOG;

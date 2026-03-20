@@ -327,8 +327,8 @@ const MILESTONES: Milestone[] = [
   {
     id: 'first-electronics',
     condition: (b) => b.stacks.some((s) => s.cards.some((c) => c.type === 'electronics')),
-    unlockRecipeIds: ['build-drill', 'build-train-ag', 'build-refinery'],
-    notificationCards: ['idea-drill', 'idea-train-ag', 'idea-refinery'],
+    unlockRecipeIds: ['build-drill', 'build-train-ag', 'build-refinery', 'make-blaster', 'make-bolter'],
+    notificationCards: ['idea-drill', 'idea-train-ag', 'idea-refinery', 'idea-blaster', 'idea-bolter'],
   },
   {
     id: 'first-drill',
@@ -339,8 +339,8 @@ const MILESTONES: Milestone[] = [
   {
     id: 'first-adv-workbench',
     condition: (b) => b.stacks.some((s) => s.cards.some((c) => c.type === 'adv-workbench')),
-    unlockRecipeIds: ['build-power-station', 'make-computronium', 'build-reactor'],
-    notificationCards: ['idea-power-station', 'idea-computronium', 'idea-reactor'],
+    unlockRecipeIds: ['build-power-station', 'make-computronium', 'build-reactor', 'make-bolter-heavy', 'make-minigun'],
+    notificationCards: ['idea-power-station', 'idea-computronium', 'idea-reactor', 'idea-bolter-heavy', 'idea-minigun'],
   },
   {
     id: 'first-power-station',
@@ -363,8 +363,8 @@ const MILESTONES: Milestone[] = [
   {
     id: 'first-computronium',
     condition: (b) => b.stacks.some((s) => s.cards.some((c) => c.type === 'computronium')),
-    unlockRecipeIds: ['build-train-in'],
-    notificationCards: ['idea-train-in'],
+    unlockRecipeIds: ['build-train-in', 'make-laser-cannon'],
+    notificationCards: ['idea-train-in', 'idea-laser-cannon'],
   },
   {
     id: 'first-refinery',
@@ -406,6 +406,20 @@ function checkMilestones(board: Board, clock: Clock): void {
   }
 }
 
+/** Find the best weapon card in a unit's stack, or fall back to the unit's built-in weapon. */
+function getUnitWeapon(card: CardData, stack: Stack): import('$lib/cards').WeaponStats | undefined {
+  let best: import('$lib/cards').WeaponStats | undefined;
+  for (const c of stack.cards) {
+    if (c.id === card.id) continue;
+    const cDef = CARD_CATALOG[c.type] as CardDef;
+    if (cDef.weapon && !cDef.enemy && !c.unitStats) {
+      if (!best || cDef.weapon.damage > best.damage) best = cDef.weapon;
+    }
+  }
+  if (best) return best;
+  return (CARD_CATALOG[card.type] as CardDef).weapon;
+}
+
 function nearestCombatant(
   pos: Vec2,
   units: Array<{ card: CardData; stack: Stack }>,
@@ -445,7 +459,7 @@ function runCombat(board: Board, now: number): void {
     if (dead.has(attacker.card.id)) return;
     const stats = attacker.card.unitStats!;
     const def = CARD_CATALOG[attacker.card.type] as CardDef;
-    const weapon = def.enemy ? def.enemy.weapon : def.weapon;
+    const weapon = def.enemy ? def.enemy.weapon : getUnitWeapon(attacker.card, attacker.stack);
     if (!weapon) return;
 
     const live = targets.filter((t) => !dead.has(t.card.id));

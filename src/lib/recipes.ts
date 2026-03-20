@@ -646,6 +646,69 @@ export const recipes: Recipe[] = [
     results: [{ action: 'card', card: 'astronaut' }],
   },
 
+  // --- Weapons ---
+  {
+    id: 'make-blaster',
+    label: 'Make Blaster',
+    time: 8000,
+    ingredients: [
+      { match: 'workbench', consumed: false },
+      { match: 'electronics', consumed: true },
+      { match: 'plasteel', consumed: true, count: 2 },
+      { match: 'people', consumed: false },
+    ],
+    results: [{ action: 'card', card: 'blaster' }],
+  },
+  {
+    id: 'make-bolter',
+    label: 'Make Bolter',
+    time: 10000,
+    ingredients: [
+      { match: 'workbench', consumed: false },
+      { match: 'electronics', consumed: true },
+      { match: 'plasteel', consumed: true, count: 4 },
+      { match: 'people', consumed: false },
+    ],
+    results: [{ action: 'card', card: 'bolter' }],
+  },
+  {
+    id: 'make-bolter-heavy',
+    label: 'Make Heavy Bolter',
+    time: 15000,
+    ingredients: [
+      { match: 'adv-workbench', consumed: false },
+      { match: 'electronics', consumed: true, count: 2 },
+      { match: 'nanocarbon', consumed: true, count: 4 },
+      { match: 'people', consumed: false },
+    ],
+    results: [{ action: 'card', card: 'bolter-heavy' }],
+  },
+  {
+    id: 'make-minigun',
+    label: 'Make Minigun',
+    time: 20000,
+    ingredients: [
+      { match: 'adv-workbench', consumed: false },
+      { match: 'electronics', consumed: true, count: 3 },
+      { match: 'nanocarbon', consumed: true, count: 6 },
+      { match: 'people', consumed: false },
+    ],
+    results: [{ action: 'card', card: 'minigun' }],
+  },
+  {
+    id: 'make-laser-cannon',
+    label: 'Make Laser Cannon',
+    time: 30000,
+    ingredients: [
+      { match: 'adv-workbench', consumed: false },
+      { match: 'computronium', consumed: true },
+      { match: 'electronics', consumed: true, count: 4 },
+      { match: 'nanocarbon', consumed: true, count: 8 },
+      { match: 'people', consumed: false },
+    ],
+    results: [{ action: 'card', card: 'laser-cannon' }],
+  },
+
   // --- Invasions ---
   {
     id: 'invasion-alien-bugs-trigger',
