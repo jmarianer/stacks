@@ -104,6 +104,9 @@ export const CARD_CATALOG = {
   'uni-kit':  { title: 'Uni-Kit',  image: 'uni-kit.svg',  color: '#81C784', value: 5 },
   'idea-band-aid': { title: 'Idea: Band-Aid', symbol: '💡', color: '#827717', value: 1 },
   'idea-uni-kit':  { title: 'Idea: Uni-Kit',  symbol: '💡', color: '#827717', value: 1 },
+  // Invasions — countdown cards; progress bar = warning timer; on completion spawns enemies
+  'invasion-alien-bugs': { title: '⚠ Alien Invasion', symbol: '👾', color: '#B71C1C' },
+  'invasion-bandits':    { title: '⚠ Bandit Raid',    symbol: '⚔️', color: '#4E342E' },
   // Teleport
   teleport: { title: 'Teleport', symbol: '⬡', color: '#00BCD4' },
   // Units

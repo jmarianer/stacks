@@ -218,6 +218,18 @@ function executeRecipe(board: Board, stack: Stack, recipe: Recipe): void {
     } else if (result.action === 'weighted') {
       type = weightedRandom(result.cards);
     }
+    if (result.action === 'spawn-enemies') {
+      if (isCardType(result.enemyType)) {
+        for (let i = 0; i < result.count; i++) {
+          const pos = {
+            x: Math.random() * (board.width - 24) + 12,
+            y: Math.random() * (board.height - 24) + 12,
+          };
+          stacks.push(makeStackFromCards(pos, [makeCardOfType(result.enemyType)]));
+        }
+      }
+      continue;
+    }
     if (result.action === 'expand-board') {
       board.width += result.dWidth;
       board.height += result.dHeight;
@@ -285,6 +297,18 @@ const MILESTONES: Milestone[] = [
     condition: (_b, clock) => clock.sol >= 2,
     unlockRecipeIds: ['make-service-drone'],
     notificationCards: ['idea-service-drone'],
+  },
+  {
+    id: 'sol-4',
+    condition: (_b, clock) => clock.sol >= 4,
+    unlockRecipeIds: [],
+    notificationCards: ['invasion-alien-bugs'],
+  },
+  {
+    id: 'sol-7',
+    condition: (_b, clock) => clock.sol >= 7,
+    unlockRecipeIds: [],
+    notificationCards: ['invasion-bandits'],
   },
   {
     id: 'three-plasteel-sol-3',

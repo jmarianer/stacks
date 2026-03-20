@@ -7,7 +7,8 @@ export type RecipeResult =
   | { action: 'expand-board'; dWidth: number; dHeight: number }
   | { action: 'train-stat'; stat: 'en' | 'st' | 'pe' | 'in' | 'ag' | 'lk'; amount: number }
   | { action: 'heal-unit'; amount: number } // amount = HP restored; use Infinity for full heal
-  | { action: 'revive-unit' }; // restores unit from tombstone card in the stack
+  | { action: 'revive-unit' } // restores unit from tombstone card in the stack
+  | { action: 'spawn-enemies'; enemyType: string; count: number }; // spawns N enemies scattered on the board
 
 export type Recipe = {
   id: string;

@@ -645,4 +645,22 @@ export const recipes: Recipe[] = [
     ],
     results: [{ action: 'card', card: 'astronaut' }],
   },
+
+  // --- Invasions ---
+  {
+    id: 'invasion-alien-bugs-trigger',
+    label: 'Alien Invasion!',
+    time: 45000, // 45-second warning countdown
+    ingredients: [{ match: 'invasion-alien-bugs', consumed: true }],
+    results: [{ action: 'spawn-enemies', enemyType: 'alien-bug', count: 3 }],
+    alwaysKnown: true,
+  },
+  {
+    id: 'invasion-bandits-trigger',
+    label: 'Bandit Raid!',
+    time: 45000,
+    ingredients: [{ match: 'invasion-bandits', consumed: true }],
+    results: [{ action: 'spawn-enemies', enemyType: 'bandit', count: 2 }],
+    alwaysKnown: true,
+  },
 ] satisfies Recipe[];
