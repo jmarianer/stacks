@@ -1,4 +1,4 @@
-import type { WeaponStats, UnitStats, DamageType } from '$lib/cards';
+import type { WeaponStats, UnitStats, DamageType } from '$lib/types/cards';
 export type { DamageType };
 
 export type EnemyDef = {

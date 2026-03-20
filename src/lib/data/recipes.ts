@@ -1,4 +1,4 @@
-import type { Recipe } from '$lib/recipe-types';
+import type { Recipe } from '$lib/types/recipe-types';
 import { CARD_H, CARD_W } from './constants';
 
 export const recipes: Recipe[] = [

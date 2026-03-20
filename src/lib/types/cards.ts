@@ -1,6 +1,6 @@
 import type { Vec2 } from '$lib/utils/vec2';
-import type { CardType } from '$lib/card-defs';
-export type { CardType } from '$lib/card-defs';
+import type { CardType } from '$lib/data/card-defs';
+export type { CardType } from '$lib/data/card-defs';
 
 export type DamageType = 'impact' | 'energy' | 'plasma' | 'acid';
 

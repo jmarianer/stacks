@@ -6,8 +6,8 @@ import {
   type Clock,
   type UnitStats,
   hpMaxFromStats,
-} from '$lib/cards';
-import { CARD_CATALOG, type CardType, type CardDef } from '$lib/card-defs';
+} from '$lib/types/cards';
+import { CARD_CATALOG, type CardType, type CardDef } from '$lib/data/card-defs';
 import type { Vec2 } from '$lib/utils/vec2';
 
 export { CARD_CATALOG };

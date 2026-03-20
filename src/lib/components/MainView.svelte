@@ -1,7 +1,7 @@
 <script lang="ts">
-  // import SettingsDialog from '$lib/SettingsDialog.svelte';
+  // import SettingsDialog from '$lib/components/SettingsDialog.svelte';
   // let settingsDialog: SettingsDialog;
-  import Card from '$lib/Card.svelte';
+  import Card from '$lib/components/Card.svelte';
   import {
     STACK_CARD_OFFSET_Y,
     STACK_CARD_OFFSET_X,
@@ -9,7 +9,7 @@
     CARD_H,
     DROP_TARGET_INSET,
     CARD_GAP,
-  } from '$lib/constants';
+  } from '$lib/data/constants';
   import Draggable from './Draggable.svelte';
   import { addScaled } from '$lib/utils/vec2';
   import {
@@ -21,15 +21,15 @@
     type Clock,
     type UnitStats,
     hpMaxFromStats,
-  } from '$lib/cards';
+  } from '$lib/types/cards';
   import {
     CARD_CATALOG,
     initialBoards,
     makeClock,
     makeStackFromCards,
     addCardToMatchingStack,
-  } from '$lib/card-catalog';
-  import { tick as tickPhysics } from '$lib/physics';
+  } from '$lib/data/card-catalog';
+  import { tick as tickPhysics } from '$lib/behavior/physics';
   import {
     tick as tickProgress,
     tickClock,
@@ -37,9 +37,9 @@
     UNIT_FEED,
     getVirtualNow,
     setSpeed,
-  } from '$lib/progress';
-  import { recipes } from '$lib/recipes';
-  import type { RecipeResult } from '$lib/recipe-types';
+  } from '$lib/behavior/progress';
+  import { recipes } from '$lib/data/recipes';
+  import type { RecipeResult } from '$lib/types/recipe-types';
 
   let showRecipes = $state(false);
   let recipeSearch = $state('');
