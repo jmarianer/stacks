@@ -92,8 +92,8 @@ export const CARD_CATALOG = {
   'band-aid': { title: 'Band-Aid', image: 'band-aid.svg', color: '#E57373', value: 5 },
   'uni-kit':  { title: 'Uni-Kit',  image: 'uni-kit.svg',  color: '#81C784', value: 5 },
   // Invasions — countdown cards; progress bar = warning timer; on completion spawns enemies
-  'invasion-alien-bugs': { title: '⚠ Alien Invasion', symbol: '👾', color: '#B71C1C' },
-  'invasion-bandits':    { title: '⚠ Bandit Raid',    symbol: '⚔️', color: '#4E342E' },
+  'invasion-bacteria':    { title: '⚠ Bacteria Swarm',  image: 'invasion-bacteria.svg',    color: '#B71C1C' },
+  'invasion-space-mouse': { title: '⚠ Space Mouse Pack', image: 'invasion-space-mouse.svg', color: '#4E342E' },
   // Teleport
   teleport: { title: 'Teleport', symbol: '⬡', color: '#00BCD4' },
   // Units
@@ -114,24 +114,24 @@ export const CARD_CATALOG = {
   },
   'pet-alien-bug': { title: 'Pet Alien Bug', image: 'alien-bug.svg', color: '#8BC34A' },
   // Enemies
-  'alien-bug': {
-    title: 'Alien Bug',
-    image: 'alien-bug.svg',
-    color: '#C62828',
+  bacteria: {
+    title: 'Bacteria',
+    image: 'bacteria.svg',
+    color: '#558B2F',
     enemy: {
-      unitStats: { endurance: 1, strength: 1, perception: 2, intelligence: 1, agility: 3, luck: 1, health: 30 },
-      weapon: { damage: 4, damageType: 'impact', attackInterval: 1.2 },
-      loot: { biomass: 4, 'alien-parts': 1 },
+      unitStats: { endurance: 1, strength: 1, perception: 1, intelligence: 1, agility: 2, luck: 1, health: 16 },
+      weapon: { damage: 5, damageType: 'impact', attackInterval: 0.9 },
+      loot: { biomass: 4 },
     },
   },
-  bandit: {
-    title: 'Bandit',
-    symbol: '⚔️',
-    color: '#4E342E',
+  'space-mouse': {
+    title: 'Space Mouse',
+    image: 'space-mouse.svg',
+    color: '#795548',
     enemy: {
-      unitStats: { endurance: 2, strength: 2, perception: 1, intelligence: 1, agility: 1, luck: 1, health: 70 },
-      weapon: { damage: 8, damageType: 'impact', attackInterval: 2.0 },
-      loot: { 'crust-chunk': 2, 'energy-cell': 1, plasteel: 1 },
+      unitStats: { endurance: 2, strength: 1, perception: 2, intelligence: 1, agility: 2, luck: 1, health: 50 },
+      weapon: { damage: 3, damageType: 'impact', attackInterval: 1.2 },
+      loot: { biomass: 2, 'crust-chunk': 1 },
     },
   },
   // Critters / wildlife

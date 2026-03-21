@@ -302,13 +302,13 @@ const MILESTONES: Milestone[] = [
     id: 'sol-4',
     condition: (_b, clock) => clock.sol >= 4,
     unlockRecipeIds: [],
-    notificationCards: ['invasion-alien-bugs'],
+    notificationCards: ['invasion-bacteria'],
   },
   {
     id: 'sol-7',
     condition: (_b, clock) => clock.sol >= 7,
     unlockRecipeIds: [],
-    notificationCards: ['invasion-bandits'],
+    notificationCards: ['invasion-space-mouse'],
   },
   {
     id: 'three-plasteel-sol-3',

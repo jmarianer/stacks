@@ -332,7 +332,7 @@ export const recipes: Recipe[] = [
       { match: 'rover', consumed: false },
       { match: 'people', consumed: false },
     ],
-    results: [{ action: 'weighted', cards: { 'crust-chunk': 100, 'alien-bug': 20 } }],
+    results: [{ action: 'weighted', cards: { 'crust-chunk': 100, bacteria: 20 } }],
     discovers: [
       { boardName: 'Flowers', chance: 10 },
       { boardName: 'Desert', chance: 10, prerequisite: 'Flowers' },
@@ -711,19 +711,19 @@ export const recipes: Recipe[] = [
 
   // --- Invasions ---
   {
-    id: 'invasion-alien-bugs-trigger',
-    label: 'Alien Invasion!',
+    id: 'invasion-bacteria-trigger',
+    label: 'Bacteria Swarm!',
     time: 45000, // 45-second warning countdown
-    ingredients: [{ match: 'invasion-alien-bugs', consumed: true }],
-    results: [{ action: 'spawn-enemies', enemyType: 'alien-bug', count: 3 }],
+    ingredients: [{ match: 'invasion-bacteria', consumed: true }],
+    results: [{ action: 'spawn-enemies', enemyType: 'bacteria', count: 4 }],
     alwaysKnown: true,
   },
   {
-    id: 'invasion-bandits-trigger',
-    label: 'Bandit Raid!',
+    id: 'invasion-space-mouse-trigger',
+    label: 'Space Mouse Pack!',
     time: 45000,
-    ingredients: [{ match: 'invasion-bandits', consumed: true }],
-    results: [{ action: 'spawn-enemies', enemyType: 'bandit', count: 2 }],
+    ingredients: [{ match: 'invasion-space-mouse', consumed: true }],
+    results: [{ action: 'spawn-enemies', enemyType: 'space-mouse', count: 3 }],
     alwaysKnown: true,
   },
 ] satisfies Recipe[];
