@@ -49,7 +49,7 @@
       <img class="card-image" src="/cards/{def.image}" alt={def.title} draggable="false" />
     </div>
     <div class="footer">
-      {#if 'value' in def }
+      {#if 'value' in def}
         <div class="value">{def.value}</div>
       {/if}
       {#if cardData.energyRemaining !== undefined}

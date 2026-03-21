@@ -5,7 +5,11 @@ export type RecipeResult =
   | { action: 'weighted'; cards: Record<string, number> }
   | { action: 'unlock-recipe'; recipeId: string }
   | { action: 'expand-board'; dWidth: number; dHeight: number }
-  | { action: 'train-stat'; stat: 'endurance' | 'strength' | 'perception' | 'intelligence' | 'agility' | 'luck'; amount: number }
+  | {
+      action: 'train-stat';
+      stat: 'endurance' | 'strength' | 'perception' | 'intelligence' | 'agility' | 'luck';
+      amount: number;
+    }
   | { action: 'heal-unit'; amount: number } // amount = HP restored; use Infinity for full heal
   | { action: 'revive-unit' } // restores unit from tombstone card in the stack
   | { action: 'spawn-enemies'; enemyType: string; count: number }; // spawns N enemies scattered on the board

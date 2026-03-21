@@ -89,10 +89,18 @@ export const CARD_CATALOG = {
   idea: { title: 'Idea', image: 'idea.svg', color: '#827717', value: 1 },
   // Medical
   'band-aid': { title: 'Band-Aid', image: 'band-aid.svg', color: '#E57373', value: 5 },
-  'uni-kit':  { title: 'Uni-Kit',  image: 'uni-kit.svg',  color: '#81C784', value: 5 },
+  'uni-kit': { title: 'Uni-Kit', image: 'uni-kit.svg', color: '#81C784', value: 5 },
   // Invasions — countdown cards; progress bar = warning timer; on completion spawns enemies
-  'invasion-bacteria':    { title: '⚠ Bacteria Swarm',  image: 'invasion-bacteria.svg',    color: '#B71C1C' },
-  'invasion-space-mouse': { title: '⚠ Space Mouse Pack', image: 'invasion-space-mouse.svg', color: '#4E342E' },
+  'invasion-bacteria': {
+    title: '⚠ Bacteria Swarm',
+    image: 'invasion-bacteria.svg',
+    color: '#B71C1C',
+  },
+  'invasion-space-mouse': {
+    title: '⚠ Space Mouse Pack',
+    image: 'invasion-space-mouse.svg',
+    color: '#4E342E',
+  },
   // Teleport
   teleport: { title: 'Teleport', image: 'teleport.svg', color: '#00BCD4' },
   // Units
@@ -118,7 +126,15 @@ export const CARD_CATALOG = {
     image: 'bacteria.svg',
     color: '#558B2F',
     enemy: {
-      unitStats: { endurance: 1, strength: 1, perception: 1, intelligence: 1, agility: 2, luck: 1, health: 16 },
+      unitStats: {
+        endurance: 1,
+        strength: 1,
+        perception: 1,
+        intelligence: 1,
+        agility: 2,
+        luck: 1,
+        health: 16,
+      },
       weapon: { damage: 5, damageType: 'impact', attackInterval: 0.9 },
       loot: { biomass: 4 },
     },
@@ -128,7 +144,15 @@ export const CARD_CATALOG = {
     image: 'space-mouse.svg',
     color: '#795548',
     enemy: {
-      unitStats: { endurance: 2, strength: 1, perception: 2, intelligence: 1, agility: 2, luck: 1, health: 50 },
+      unitStats: {
+        endurance: 2,
+        strength: 1,
+        perception: 2,
+        intelligence: 1,
+        agility: 2,
+        luck: 1,
+        health: 50,
+      },
       weapon: { damage: 3, damageType: 'impact', attackInterval: 1.2 },
       loot: { biomass: 2, 'crust-chunk': 1 },
     },
@@ -167,16 +191,16 @@ export const CARD_CATALOG = {
   'power-flower': { title: 'Power Flower', image: 'power-flower.svg', color: '#FF4081', value: 5 },
   'drill-tres2b': { title: 'Tres-2b Drill', image: 'drill.svg', color: '#9C27B0', value: 5 },
   rover: { title: 'Rover', image: 'rover.svg', color: '#FF8F00', value: 5 },
-  foundation:      { title: 'Foundation', image: 'foundation.svg', color: '#E91E63', value: 5 },
-  refinery:        { title: 'Refinery',   image: 'refinery.svg',  color: '#BF360C', value: 5 },
-  reactor:         { title: 'Reactor',    image: 'reactor.svg',   color: '#1B5E20', value: 5 },
+  foundation: { title: 'Foundation', image: 'foundation.svg', color: '#E91E63', value: 5 },
+  refinery: { title: 'Refinery', image: 'refinery.svg', color: '#BF360C', value: 5 },
+  reactor: { title: 'Reactor', image: 'reactor.svg', color: '#1B5E20', value: 5 },
   // Training stations
-  'train-st': { title: 'Strength Station',     image: 'train-st.svg', color: '#B71C1C', value: 5 },
-  'train-ag': { title: 'Agility Station',      image: 'train-ag.svg', color: '#F57F17', value: 5 },
-  'train-en': { title: 'Endurance Station',    image: 'train-en.svg', color: '#1565C0', value: 5 },
+  'train-st': { title: 'Strength Station', image: 'train-st.svg', color: '#B71C1C', value: 5 },
+  'train-ag': { title: 'Agility Station', image: 'train-ag.svg', color: '#F57F17', value: 5 },
+  'train-en': { title: 'Endurance Station', image: 'train-en.svg', color: '#1565C0', value: 5 },
   'train-in': { title: 'Intelligence Station', image: 'train-in.svg', color: '#4527A0', value: 5 },
-  'train-lk': { title: 'Luck Station',         image: 'train-lk.svg', color: '#00695C', value: 5 },
-  'train-pe': { title: 'Perception Station',   image: 'train-pe.svg', color: '#558B2F', value: 5 },
+  'train-lk': { title: 'Luck Station', image: 'train-lk.svg', color: '#00695C', value: 5 },
+  'train-pe': { title: 'Perception Station', image: 'train-pe.svg', color: '#558B2F', value: 5 },
   tombstone: { title: 'Tombstone', image: 'tombstone.svg', color: '#546E7A' },
   // Weapons — equip by placing in same stack as a unit
   blaster: {

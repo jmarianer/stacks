@@ -1,4 +1,10 @@
-import { CARD_W, CARD_H, STACK_CARD_OFFSET_Y, STACK_CARD_OFFSET_X, CARD_GAP } from '$lib/data/constants';
+import {
+  CARD_W,
+  CARD_H,
+  STACK_CARD_OFFSET_Y,
+  STACK_CARD_OFFSET_X,
+  CARD_GAP,
+} from '$lib/data/constants';
 import type { Stack, Board } from '$lib/types/cards';
 import { type Vec2, sub, len, norm, addScaled } from '$lib/utils/vec2';
 import { rectCenter, rectExtend, type Rect } from '$lib/utils/rect';

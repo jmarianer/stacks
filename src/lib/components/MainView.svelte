@@ -211,7 +211,10 @@
       if (!stack) return;
       const sellable = stack.cards.filter((c) => 'value' in CARD_CATALOG[c.type]);
       if (sellable.length === 0) return;
-      currentBoard.currency += sellable.reduce((sum, c) => sum + (CARD_CATALOG[c.type] as { value: number }).value, 0);
+      currentBoard.currency += sellable.reduce(
+        (sum, c) => sum + (CARD_CATALOG[c.type] as { value: number }).value,
+        0,
+      );
       stack.cards = stack.cards.filter((c) => !('value' in CARD_CATALOG[c.type]));
       if (stack.cards.length === 0) {
         currentBoard.stacks = currentBoard.stacks.filter((s) => s.id !== stack.id);
@@ -692,7 +695,11 @@
           disabled={currentBoard.currency < item.price}
           onclick={() => buyCard(item)}
         >
-          <img class="shop-image" src="/cards/{CARD_CATALOG[item.cardType].image}" alt={item.label} />
+          <img
+            class="shop-image"
+            src="/cards/{CARD_CATALOG[item.cardType].image}"
+            alt={item.label}
+          />
           <span class="shop-price">${item.price}</span>
         </button>
       {/each}

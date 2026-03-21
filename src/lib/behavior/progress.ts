@@ -182,7 +182,8 @@ function executeRecipe(board: Board, stack: Stack, recipe: Recipe): void {
   }
 
   // Save tombstone before it's consumed (needed for revive-unit result)
-  const savedTombstone = Array.from(consumed, (i) => stack.cards[i]).find((c) => c.type === 'tombstone') ?? null;
+  const savedTombstone =
+    Array.from(consumed, (i) => stack.cards[i]).find((c) => c.type === 'tombstone') ?? null;
 
   const fullyConsumed = new Set<number>();
   for (const idx of consumed) {
@@ -321,13 +322,26 @@ const MILESTONES: Milestone[] = [
   {
     id: 'first-workbench',
     condition: (b) => b.stacks.some((s) => s.cards.some((c) => c.type === 'workbench')),
-    unlockRecipeIds: ['make-electronics', 'build-foundation', 'build-storage-crate', 'build-train-st', 'build-train-en', 'make-uni-kit'],
+    unlockRecipeIds: [
+      'make-electronics',
+      'build-foundation',
+      'build-storage-crate',
+      'build-train-st',
+      'build-train-en',
+      'make-uni-kit',
+    ],
     notificationCards: [],
   },
   {
     id: 'first-electronics',
     condition: (b) => b.stacks.some((s) => s.cards.some((c) => c.type === 'electronics')),
-    unlockRecipeIds: ['build-drill', 'build-train-ag', 'build-refinery', 'make-blaster', 'make-bolter'],
+    unlockRecipeIds: [
+      'build-drill',
+      'build-train-ag',
+      'build-refinery',
+      'make-blaster',
+      'make-bolter',
+    ],
     notificationCards: [],
   },
   {
@@ -339,7 +353,13 @@ const MILESTONES: Milestone[] = [
   {
     id: 'first-adv-workbench',
     condition: (b) => b.stacks.some((s) => s.cards.some((c) => c.type === 'adv-workbench')),
-    unlockRecipeIds: ['build-power-station', 'make-computronium', 'build-reactor', 'make-bolter-heavy', 'make-minigun'],
+    unlockRecipeIds: [
+      'build-power-station',
+      'make-computronium',
+      'build-reactor',
+      'make-bolter-heavy',
+      'make-minigun',
+    ],
     notificationCards: [],
   },
   {
@@ -399,10 +419,11 @@ function checkMilestones(board: Board, clock: Clock): void {
     board.firedMilestones.push(milestone.id);
     for (const id of milestone.unlockRecipeIds) {
       if (!board.knownRecipeIds.includes(id)) board.knownRecipeIds.push(id);
-      board.stacks.push(makeStackFromCards(
-        { x: board.width / 2, y: board.height / 2 },
-        [makeIdeaCard(`Idea: ${recipes.find((r) => r.id === id)?.label}`)],
-      ));
+      board.stacks.push(
+        makeStackFromCards({ x: board.width / 2, y: board.height / 2 }, [
+          makeIdeaCard(`Idea: ${recipes.find((r) => r.id === id)?.label}`),
+        ]),
+      );
     }
     for (const card of milestone.notificationCards) {
       addCardToMatchingStack(board.stacks, card, { x: board.width / 2, y: board.height / 2 });
@@ -411,7 +432,10 @@ function checkMilestones(board: Board, clock: Clock): void {
 }
 
 /** Find the best weapon card in a unit's stack, or fall back to the unit's built-in weapon. */
-function getUnitWeapon(card: CardData, stack: Stack): import('$lib/types/cards').WeaponStats | undefined {
+function getUnitWeapon(
+  card: CardData,
+  stack: Stack,
+): import('$lib/types/cards').WeaponStats | undefined {
   let best: import('$lib/types/cards').WeaponStats | undefined;
   for (const c of stack.cards) {
     if (c.id === card.id) continue;
@@ -434,7 +458,10 @@ function nearestCombatant(
     const dx = u.stack.pos.x - pos.x;
     const dy = u.stack.pos.y - pos.y;
     const d = dx * dx + dy * dy;
-    if (d < bestDist) { bestDist = d; best = u; }
+    if (d < bestDist) {
+      bestDist = d;
+      best = u;
+    }
   }
   return best;
 }
@@ -471,7 +498,8 @@ function runCombat(board: Board, now: number): void {
     if (!target) return;
 
     // Agility shortens attack interval: each point above 1 = 10% faster
-    const effectiveInterval = (weapon.attackInterval * 1000) / (1 + Math.max(0, stats.agility - 1) * 0.1);
+    const effectiveInterval =
+      (weapon.attackInterval * 1000) / (1 + Math.max(0, stats.agility - 1) * 0.1);
     if (stats.lastAttackAt !== undefined && now - stats.lastAttackAt < effectiveInterval) return;
 
     // Strength increases damage: each point above 1 = +10%
@@ -584,7 +612,10 @@ export function tick(board: Board, clock: Clock, realNow: number): string[] {
       stack.progress = 0;
     } else {
       // Intelligence speeds up crafting: each point above 1 gives +10% speed
-      const intel = stack.cards.reduce((best, c) => Math.max(best, c.unitStats?.intelligence ?? 0), 0);
+      const intel = stack.cards.reduce(
+        (best, c) => Math.max(best, c.unitStats?.intelligence ?? 0),
+        0,
+      );
       const effectiveTime = recipe.time / (intel > 0 ? 1 + (intel - 1) * 0.1 : 1);
       stack.progress = Math.min((now - stack.progressStartTime!) / effectiveTime, 1);
       if (stack.progress >= 1) toExecute.push({ stack, recipe });
