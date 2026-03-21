@@ -3,8 +3,8 @@ export type { DamageType };
 
 export type EnemyDef = {
   /** Base stats for this enemy type. */
-  unitStats: Omit<UnitStats, 'level' | 'lastAttackAt'>;
-  /** Built-in weapon. */
+  unitStats: Omit<UnitStats, 'lastAttackAt'>;
+  /** Enemies only have their built-in weapon. */
   weapon: WeaponStats;
   /** Loot: weighted map of CardType → relative weight. */
   loot: Record<string, number>;
