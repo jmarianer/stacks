@@ -16,10 +16,8 @@
 - Find the image for ideas in the old game and use it instead of the emoji
 
 ## Code quality
-- Constants should use vec2 where appropriate
 - Recipe discovery should be inside results as opposed to a separate field (?)
 - Enemy loot should be a recipe-results thing
-- CardDef should be a discriminated union type (with a type field: building, resource, player unit, enemy). Also symbol/image should be an either-or thing.
 - Reorganize card-defs, card-catalog and cards into the following files:
     - types/card-types and types/board-types for types ONLY
     - Utility functions for cards. Not sure where that goes
@@ -31,6 +29,10 @@ Files that can be considered Done (for now):
 - physics.ts
 - All components except MainView
 Please ask me before changing any of these files, even though you technically have permission to.
+
+Other things that I don't want to delete but Claude thinks are too persnickety:
+- Constants should use vec2 where appropriate
+- CardDef should be a discriminated union type (with a type field: building, resource, player unit, enemy).
 
 ## Other
 - Save/restore, slots and export/import

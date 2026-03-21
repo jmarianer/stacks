@@ -12,8 +12,7 @@ export type EnemyDef = {
 
 export type CardDef = {
   title: string;
-  symbol?: string; // fallback emoji, used when no image is available
-  image?: string; // path to SVG under /cards/
+  image: string; // path to SVG under /cards/
   color: string;
   value?: number; // coin value; undefined = not sellable
   usesInitial?: number; // starting usesRemaining; undefined = single-use
@@ -87,7 +86,7 @@ export const CARD_CATALOG = {
   unobtainium: { title: 'Unobtainium', image: 'unobtainium.svg', color: '#E91E63', value: 10 },
   wishalloy: { title: 'Wishalloy', image: 'wishalloy.svg', color: '#B8860B', value: 15 },
   // Idea — cosmetic notification card dropped when a milestone fires; label set dynamically
-  idea: { title: 'Idea', symbol: '💡', color: '#827717', value: 1 },
+  idea: { title: 'Idea', image: 'idea.svg', color: '#827717', value: 1 },
   // Medical
   'band-aid': { title: 'Band-Aid', image: 'band-aid.svg', color: '#E57373', value: 5 },
   'uni-kit':  { title: 'Uni-Kit',  image: 'uni-kit.svg',  color: '#81C784', value: 5 },
@@ -95,7 +94,7 @@ export const CARD_CATALOG = {
   'invasion-bacteria':    { title: '⚠ Bacteria Swarm',  image: 'invasion-bacteria.svg',    color: '#B71C1C' },
   'invasion-space-mouse': { title: '⚠ Space Mouse Pack', image: 'invasion-space-mouse.svg', color: '#4E342E' },
   // Teleport
-  teleport: { title: 'Teleport', symbol: '⬡', color: '#00BCD4' },
+  teleport: { title: 'Teleport', image: 'teleport.svg', color: '#00BCD4' },
   // Units
   astronaut: {
     title: 'Astronaut',
@@ -178,7 +177,7 @@ export const CARD_CATALOG = {
   'train-in': { title: 'Intelligence Station', image: 'train-in.svg', color: '#4527A0', value: 5 },
   'train-lk': { title: 'Luck Station',         image: 'train-lk.svg', color: '#00695C', value: 5 },
   'train-pe': { title: 'Perception Station',   image: 'train-pe.svg', color: '#558B2F', value: 5 },
-  tombstone: { title: 'Tombstone', symbol: '🪦', color: '#546E7A' },
+  tombstone: { title: 'Tombstone', image: 'tombstone.svg', color: '#546E7A' },
   // Weapons — equip by placing in same stack as a unit
   blaster: {
     title: 'Blaster',

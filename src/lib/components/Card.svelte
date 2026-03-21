@@ -46,11 +46,7 @@
   <div class="card-inner">
     <div class="title">{cardData.label ?? def.title}</div>
     <div class="image">
-      {#if def.image}
-        <img class="card-image" src="/cards/{def.image}" alt={def.title} draggable="false" />
-      {:else}
-        {def.symbol}
-      {/if}
+      <img class="card-image" src="/cards/{def.image}" alt={def.title} draggable="false" />
     </div>
     <div class="footer">
       {#if def.value !== undefined}
@@ -121,7 +117,6 @@
   }
 
   .image {
-    font-size: 10vmin; /* for symbol fallback */
     flex: 1;
     display: flex;
     align-items: center;

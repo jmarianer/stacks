@@ -57,7 +57,6 @@ export type ShopItem = {
   id: number;
   cardType: CardType;
   price: number;
-  symbol: string;
   label: string;
   color: string;
 };

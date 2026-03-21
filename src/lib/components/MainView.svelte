@@ -694,7 +694,7 @@
           disabled={currentBoard.currency < item.price}
           onclick={() => buyCard(item)}
         >
-          <span class="shop-symbol" style="color: {item.color}">{item.symbol}</span>
+          <img class="shop-image" src="/cards/{CARD_CATALOG[item.cardType].image}" alt={item.label} />
           <span class="shop-price">${item.price}</span>
         </button>
       {/each}
@@ -953,8 +953,10 @@
         cursor: default;
       }
 
-      .shop-symbol {
-        font-size: 1.5rem;
+      .shop-image {
+        width: 1.5rem;
+        height: 1.5rem;
+        object-fit: contain;
       }
     }
   }
