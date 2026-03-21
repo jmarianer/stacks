@@ -28,6 +28,11 @@
     - Constant for initial board goes under data
     - Anything else, ask me.
 
+Files that can be considered Done:
+- physics.ts
+- All components except MainView
+Please ask me before changing any of these files, even though you technically have permission to.
+
 ## Other
 - Save/restore, slots and export/import
 
