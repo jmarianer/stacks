@@ -209,10 +209,10 @@
     if (e.key === 'Backspace') {
       const stack = stackAtMouse();
       if (!stack) return;
-      const sellable = stack.cards.filter((c) => CARD_CATALOG[c.type].value !== undefined);
+      const sellable = stack.cards.filter((c) => 'value' in CARD_CATALOG[c.type]);
       if (sellable.length === 0) return;
-      currentBoard.currency += sellable.reduce((sum, c) => sum + CARD_CATALOG[c.type].value!, 0);
-      stack.cards = stack.cards.filter((c) => CARD_CATALOG[c.type].value === undefined);
+      currentBoard.currency += sellable.reduce((sum, c) => sum + (CARD_CATALOG[c.type] as { value: number }).value, 0);
+      stack.cards = stack.cards.filter((c) => !('value' in CARD_CATALOG[c.type]));
       if (stack.cards.length === 0) {
         currentBoard.stacks = currentBoard.stacks.filter((s) => s.id !== stack.id);
       }
@@ -229,6 +229,10 @@
   }
 
   let solProgress = $state(0);
+  let boards = $state<Board[]>(initialBoards);
+  let clock = $state<Clock>(makeClock());
+  let currentBoardIndex = $state(0);
+  const currentBoard = $derived(boards[currentBoardIndex]);
 
   const energyAvailable = $derived(
     currentBoard.stacks
@@ -241,11 +245,6 @@
       .flatMap((s) => s.cards)
       .reduce((sum, c) => sum + (UNIT_FEED[c.type]?.cost ?? 0), 0),
   );
-
-  let boards = $state<Board[]>(initialBoards);
-  let clock = $state<Clock>(makeClock());
-  let currentBoardIndex = $state(0);
-  const currentBoard = $derived(boards[currentBoardIndex]);
 
   // Flat list of all cards with their stack and index, keyed by cardData.id.
   // Using a flat {#each} preserves Draggable component instances when cards
