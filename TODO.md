@@ -13,6 +13,7 @@
 - All dialogs should use the same template as the settings dialog
 - Ideas should show what the recipe is on mouseover.
 - Music/SFX
+- Find the image for ideas in the old game and use it instead of the emoji
 
 ## Code quality
 - Constants should use vec2 where appropriate
@@ -27,7 +28,7 @@
     - Constant for initial board goes under data
     - Anything else, ask me.
 
-Files that can be considered Done:
+Files that can be considered Done (for now):
 - physics.ts
 - All components except MainView
 Please ask me before changing any of these files, even though you technically have permission to.
