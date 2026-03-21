@@ -1,49 +1,39 @@
 # Stacks TODO list
 
 ## Combat
-Chunk A: Combat types & data model
-
-Add DamageType union (impact, energy, plasma, acid)
-Add `resist?: Partial<Record<DamageType, number>>` to UnitStats
-Add weapon stats to CardDef (or a new WeaponDef): damage, damageType, attackInterval
-Built-in weapon for astronaut (fists = 5 impact, slow)
-
-Chunk B: Enemy cards
-
-alien-bug, bandit, etc. card types with unitStats (hp, st, ag, pe + resist)
-Loot drop definition per enemy type (e.g. biomass, alien-parts)
-Enemy combat tick in progress.ts — board-level: each enemy targets nearest player unit, exchanges damage each tick
-
-
-Chunk C: Invasion cards
-invasion-alien card type — acts like a countdown (uses the existing sol/progress system)
-When countdown expires, removes itself and spawns N enemy cards at random board positions
-Visual: shows countdown on card face
-
-
-Chunk D: Weapons
-Weapon card types (e.g. laser-pistol, plasma-rifle)
-Units equip a weapon by having it in their stack. Equipping a weapon is like a recipe except that the end result is that the weapon disappears from the stack and is merged into the unit card.
-Unit's effective weapon = selected weapon (can select in the stat panel) or fists fallback
-
-
-Chunk E: Bosses (TBD)
-
+- Weapons get equipped into inventory (as opposed to being on the stack)
+- One weapon is selected from the inventory and is then used.
+- Max inventory slots depends on the unit type (astronaut, cyborg, battle-bot)
+- Add boss fights later
 
 ## QoL
 - Sorter – like a foundation except can have multiple "outputs" and decides where to go based on card type (e.g., drill -> sorter -> plasteel goes one way, helium goes the other)
+
+## UI
 - All dialogs should use the same template as the settings dialog
-- Ideas should show what the recipe is on mouseover. Also we should get rid of the idea cards in favor of an idea card template, otherwise we just have duplication everywhere.
-
-
-
-- Card animations when a card is created?
-- Save/restore, slots and export/import
+- Ideas should show what the recipe is on mouseover.
 - Music/SFX
 
+## Code quality
+- Idea cards should not have card definitions, and instead be created on the fly like teleport cards are.
+- Constants should use vec2 where appropriate
+- Recipe discovery should be inside results as opposed to a separate field (?)
+- Enemy loot should be a recipe-results thing
+- CardDef should be a discriminated union type (with a type field: building, resource, player unit, enemy). Also symbol/image should be an either-or thing.
+- Instead of UNIT_STAT_DEFAULTS, the default/base stats should be in the card def (for a player unit) as they are for an enemy. Ditto CARD_GROUPS
+- Reorganize card-defs, card-catalog and cards into the following files:
+    - types/card-types and types/board-types for types ONLY
+    - Utility functions for cards. Not sure where that goes
+    - Constant for card catalog goes under data
+    - Constant for initial board goes under data
+    - Anything else, ask me.
+
+## Other
+- Save/restore, slots and export/import
 
 
 
+# Old stuff that needs to be merged
 Health & Leveling
 Base 100 HP, scales as hp_base + level × hp_per_level where hp_per_level comes from Endurance
 Astronauts have AllowLevelUp — they gain levels through play
