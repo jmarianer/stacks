@@ -18,6 +18,10 @@ export type CardDef = {
   value?: number; // coin value; undefined = not sellable
   usesInitial?: number; // starting usesRemaining; undefined = single-use
   energyValueInitial?: number; // starting energy units (energy cells only)
+  /** Present on player unit cards: initial stats (health computed from endurance). */
+  unitStats?: Omit<UnitStats, 'health' | 'lastAttackAt'>;
+  /** Recipe ingredient groups this card belongs to (e.g. 'people'). */
+  groups?: string[];
   /** Present on unit cards: built-in weapon (fists, claws, etc.) */
   weapon?: WeaponStats;
   /** Present on enemy cards only. */
@@ -97,12 +101,15 @@ export const CARD_CATALOG = {
     title: 'Astronaut',
     image: 'astronaut.svg',
     color: '#5C85B4',
+    unitStats: { endurance: 1, strength: 1, perception: 1, intelligence: 1, agility: 1, luck: 1 },
+    groups: ['people'],
     weapon: { damage: 5, damageType: 'impact', attackInterval: 2.0 },
   },
   'service-drone-1': {
     title: 'Service Drone',
     image: 'service-drone-1.svg',
     color: '#546E7A',
+    groups: ['people'],
     weapon: { damage: 3, damageType: 'energy', attackInterval: 3.0 },
   },
   'pet-alien-bug': { title: 'Pet Alien Bug', image: 'alien-bug.svg', color: '#8BC34A' },

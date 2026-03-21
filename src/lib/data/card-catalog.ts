@@ -13,17 +13,6 @@ import type { Vec2 } from '$lib/utils/vec2';
 export { CARD_CATALOG };
 export type { CardDef };
 
-/** Groups a card type belongs to, used for recipe ingredient matching. */
-export const CARD_GROUPS: Partial<Record<CardType, string[]>> = {
-  astronaut: ['people'],
-  'service-drone-1': ['people'],
-};
-
-/** Initial unit stats per card type. Only types listed here get unitStats. */
-const UNIT_STAT_DEFAULTS: Partial<Record<CardType, Omit<UnitStats, 'health'>>> = {
-  astronaut: { endurance: 1, strength: 1, perception: 1, intelligence: 1, agility: 1, luck: 1 },
-};
-
 let nextId = 1;
 
 export function makeCardOfType(type: CardType): CardData {
@@ -31,9 +20,8 @@ export function makeCardOfType(type: CardType): CardData {
   let unitStats: UnitStats | undefined;
   if (def.enemy) {
     unitStats = { ...def.enemy.unitStats };
-  } else {
-    const defaults = UNIT_STAT_DEFAULTS[type];
-    if (defaults) unitStats = { ...defaults, health: hpMaxFromStats(defaults) };
+  } else if (def.unitStats) {
+    unitStats = { ...def.unitStats, health: hpMaxFromStats(def.unitStats) };
   }
   return {
     id: nextId++,

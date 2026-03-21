@@ -11,7 +11,6 @@ import {
 import type { Vec2 } from '$lib/utils/vec2';
 import {
   CARD_CATALOG,
-  CARD_GROUPS,
   addCardToMatchingStack,
   makeCardOfType,
   makeIdeaCard,
@@ -120,7 +119,7 @@ function isCardType(s: string): s is CardType {
 
 function cardMatchesIngredient(type: CardType, match: string): boolean {
   if (type === match) return true;
-  return CARD_GROUPS[type]?.includes(match) ?? false;
+  return (CARD_CATALOG[type] as CardDef).groups?.includes(match) ?? false;
 }
 
 function matchRecipe(stack: Stack, knownRecipeIds: string[]): Recipe | null {

@@ -20,7 +20,6 @@
 - Recipe discovery should be inside results as opposed to a separate field (?)
 - Enemy loot should be a recipe-results thing
 - CardDef should be a discriminated union type (with a type field: building, resource, player unit, enemy). Also symbol/image should be an either-or thing.
-- Instead of UNIT_STAT_DEFAULTS, the default/base stats should be in the card def (for a player unit) as they are for an enemy. Ditto CARD_GROUPS
 - Reorganize card-defs, card-catalog and cards into the following files:
     - types/card-types and types/board-types for types ONLY
     - Utility functions for cards. Not sure where that goes
