@@ -20,8 +20,8 @@ export const CARD_GROUPS: Partial<Record<CardType, string[]>> = {
 };
 
 /** Initial unit stats per card type. Only types listed here get unitStats. */
-const UNIT_STAT_DEFAULTS: Partial<Record<CardType, Omit<UnitStats, 'hp'>>> = {
-  astronaut: { en: 1, st: 1, pe: 1, in: 1, ag: 1, lk: 1, level: 1, xp: 0 },
+const UNIT_STAT_DEFAULTS: Partial<Record<CardType, Omit<UnitStats, 'health'>>> = {
+  astronaut: { endurance: 1, strength: 1, perception: 1, intelligence: 1, agility: 1, luck: 1 },
 };
 
 let nextId = 1;
@@ -30,10 +30,10 @@ export function makeCardOfType(type: CardType): CardData {
   const def: CardDef = CARD_CATALOG[type];
   let unitStats: UnitStats | undefined;
   if (def.enemy) {
-    unitStats = { ...def.enemy.unitStats, level: 1, xp: 0 };
+    unitStats = { ...def.enemy.unitStats };
   } else {
     const defaults = UNIT_STAT_DEFAULTS[type];
-    if (defaults) unitStats = { ...defaults, hp: hpMaxFromStats(defaults) };
+    if (defaults) unitStats = { ...defaults, health: hpMaxFromStats(defaults) };
   }
   return {
     id: nextId++,

@@ -131,13 +131,6 @@
     const f = stackCenter(from);
     const t = stackCenter(to);
     return { x1: f.x, y1: f.y, x2: t.x, y2: t.y };
-    // const dx = t.x - f.x;
-    // const dy = t.y - f.y;
-    // const dist = Math.sqrt(dx * dx + dy * dy) || 1;
-    // const nx = dx / dist;
-    // const ny = dy / dist;
-    // const r = Math.min(CARD_W, CARD_H) / 2;
-    // return { x1: f.x + nx * r, y1: f.y + ny * r, x2: t.x - nx * (r + 2), y2: t.y - ny * (r + 2) };
   }
 
   function handleRoutingMouseDown(e: MouseEvent) {
@@ -577,12 +570,12 @@
   {#if statPanel}
     {@const s = statPanel.stats}
     {@const ATTRS: { key: keyof typeof s; label: string; effect: string }[] = [
-      { key: 'en', label: 'Endurance',    effect: '+10 HP / level' },
-      { key: 'st', label: 'Strength',     effect: 'Damage & knockdown' },
-      { key: 'pe', label: 'Perception',   effect: 'Accuracy & range' },
-      { key: 'in', label: 'Intelligence', effect: 'Crafting speed' },
-      { key: 'ag', label: 'Agility',      effect: 'Rate of fire' },
-      { key: 'lk', label: 'Luck',         effect: 'Critical hits' },
+      { key: 'endurance',    label: 'Endurance',    effect: '+10 HP / level' },
+      { key: 'strength',     label: 'Strength',     effect: 'Damage & knockdown' },
+      { key: 'perception',   label: 'Perception',   effect: 'Accuracy & range' },
+      { key: 'intelligence', label: 'Intelligence', effect: 'Crafting speed' },
+      { key: 'agility',      label: 'Agility',      effect: 'Rate of fire' },
+      { key: 'luck',         label: 'Luck',         effect: 'Critical hits' },
     ]}
     <!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
     <div class="stat-backdrop" onclick={() => (statPanel = null)}></div>
@@ -595,14 +588,13 @@
     >
       <div class="stat-header">
         <span class="stat-name">{CARD_CATALOG[statPanel.card.type].title}</span>
-        <span class="stat-level">Lv. {s.level}</span>
       </div>
       <div class="stat-hp-row">
         <span class="stat-hp-label">HP</span>
         <div class="stat-hp-bar">
-          <div class="stat-hp-fill" style="width: {(s.hp / hpMaxFromStats(s)) * 100}%"></div>
+          <div class="stat-hp-fill" style="width: {(s.health / hpMaxFromStats(s)) * 100}%"></div>
         </div>
-        <span class="stat-hp-nums">{s.hp}/{hpMaxFromStats(s)}</span>
+        <span class="stat-hp-nums">{s.health}/{hpMaxFromStats(s)}</span>
       </div>
       {#each ATTRS as attr (attr.key)}
         <div class="stat-row">

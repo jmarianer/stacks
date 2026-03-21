@@ -13,25 +13,21 @@ export type WeaponStats = {
 };
 
 export type UnitStats = {
-  // Six core attributes (start at 1)
-  en: number; // Endurance  → max HP per level
-  st: number; // Strength   → damage & knockdown
-  pe: number; // Perception → accuracy & range
-  in: number; // Intelligence → crafting speed
-  ag: number; // Agility    → rate of fire
-  lk: number; // Luck       → crit chance
-  // Tracked
-  hp: number;
-  level: number;
-  xp: number;
+  endurance: number;
+  strength: number;
+  perception: number;
+  intelligence: number;
+  agility: number;
+  luck: number;
+  health: number;
   /** Last combat attack timestamp (vTime), for cooldown tracking. */
   lastAttackAt?: number;
   /** Damage resistances 0–100 (percentage reduction). */
   resist?: Partial<Record<DamageType, number>>;
 };
 
-export function hpMaxFromStats(stats: Pick<UnitStats, 'en'>): number {
-  return 50 + stats.en * 10;
+export function hpMaxFromStats(stats: Pick<UnitStats, 'endurance'>): number {
+  return 50 + stats.endurance * 10;
 }
 
 export type CardData = {

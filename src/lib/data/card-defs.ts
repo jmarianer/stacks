@@ -3,7 +3,7 @@ export type { DamageType };
 
 export type EnemyDef = {
   /** Base stats for this enemy type. */
-  unitStats: Omit<UnitStats, 'level' | 'xp' | 'lastAttackAt'>;
+  unitStats: Omit<UnitStats, 'level' | 'lastAttackAt'>;
   /** Built-in weapon. */
   weapon: WeaponStats;
   /** Loot: weighted map of CardType → relative weight. */
@@ -129,7 +129,7 @@ export const CARD_CATALOG = {
     image: 'alien-bug.svg',
     color: '#C62828',
     enemy: {
-      unitStats: { en: 1, st: 1, pe: 2, in: 1, ag: 3, lk: 1, hp: 30 },
+      unitStats: { endurance: 1, strength: 1, perception: 2, intelligence: 1, agility: 3, luck: 1, health: 30 },
       weapon: { damage: 4, damageType: 'impact', attackInterval: 1.2 },
       loot: { biomass: 4, 'alien-parts': 1 },
     },
@@ -139,7 +139,7 @@ export const CARD_CATALOG = {
     symbol: '⚔️',
     color: '#4E342E',
     enemy: {
-      unitStats: { en: 2, st: 2, pe: 1, in: 1, ag: 1, lk: 1, hp: 70 },
+      unitStats: { endurance: 2, strength: 2, perception: 1, intelligence: 1, agility: 1, luck: 1, health: 70 },
       weapon: { damage: 8, damageType: 'impact', attackInterval: 2.0 },
       loot: { 'crust-chunk': 2, 'energy-cell': 1, plasteel: 1 },
     },

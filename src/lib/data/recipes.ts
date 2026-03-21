@@ -575,7 +575,7 @@ export const recipes: Recipe[] = [
       { match: 'train-st', consumed: false },
       { match: 'people',   consumed: false },
     ],
-    results: [{ action: 'train-stat', stat: 'st', amount: 1 }],
+    results: [{ action: 'train-stat', stat: 'strength', amount: 1 }],
   },
   {
     id: 'use-train-ag',
@@ -586,7 +586,7 @@ export const recipes: Recipe[] = [
       { match: 'train-ag', consumed: false },
       { match: 'people',   consumed: false },
     ],
-    results: [{ action: 'train-stat', stat: 'ag', amount: 1 }],
+    results: [{ action: 'train-stat', stat: 'agility', amount: 1 }],
   },
   {
     id: 'use-train-en',
@@ -597,7 +597,7 @@ export const recipes: Recipe[] = [
       { match: 'train-en', consumed: false },
       { match: 'people',   consumed: false },
     ],
-    results: [{ action: 'train-stat', stat: 'en', amount: 1 }],
+    results: [{ action: 'train-stat', stat: 'endurance', amount: 1 }],
   },
   {
     id: 'use-train-in',
@@ -608,7 +608,7 @@ export const recipes: Recipe[] = [
       { match: 'train-in', consumed: false },
       { match: 'people',   consumed: false },
     ],
-    results: [{ action: 'train-stat', stat: 'in', amount: 1 }],
+    results: [{ action: 'train-stat', stat: 'intelligence', amount: 1 }],
   },
   {
     id: 'use-train-lk',
@@ -619,7 +619,7 @@ export const recipes: Recipe[] = [
       { match: 'train-lk', consumed: false },
       { match: 'people',   consumed: false },
     ],
-    results: [{ action: 'train-stat', stat: 'lk', amount: 1 }],
+    results: [{ action: 'train-stat', stat: 'luck', amount: 1 }],
   },
   {
     id: 'use-train-pe',
@@ -630,7 +630,7 @@ export const recipes: Recipe[] = [
       { match: 'train-pe', consumed: false },
       { match: 'people',   consumed: false },
     ],
-    results: [{ action: 'train-stat', stat: 'pe', amount: 1 }],
+    results: [{ action: 'train-stat', stat: 'perception', amount: 1 }],
   },
 
   // --- Cloning ---

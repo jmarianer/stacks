@@ -240,7 +240,7 @@ function executeRecipe(board: Board, stack: Stack, recipe: Recipe): void {
       const unit = stack.cards.find((c) => c.unitStats);
       if (unit?.unitStats) {
         const max = hpMaxFromStats(unit.unitStats);
-        unit.unitStats.hp = Math.min(unit.unitStats.hp + result.amount, max);
+        unit.unitStats.health = Math.min(unit.unitStats.health + result.amount, max);
       }
       continue;
     }
@@ -257,7 +257,7 @@ function executeRecipe(board: Board, stack: Stack, recipe: Recipe): void {
         const oldHpMax = hpMaxFromStats(unit.unitStats);
         unit.unitStats[result.stat] += result.amount;
         const newHpMax = hpMaxFromStats(unit.unitStats);
-        unit.unitStats.hp = Math.min(unit.unitStats.hp + (newHpMax - oldHpMax), newHpMax);
+        unit.unitStats.health = Math.min(unit.unitStats.health + (newHpMax - oldHpMax), newHpMax);
       }
       continue;
     }
@@ -466,28 +466,28 @@ function runCombat(board: Board, now: number): void {
     const target = nearestCombatant(attacker.stack.pos, live);
     if (!target) return;
 
-    // Agility shortens attack interval: each AG above 1 = 10% faster
-    const effectiveInterval = (weapon.attackInterval * 1000) / (1 + Math.max(0, stats.ag - 1) * 0.1);
+    // Agility shortens attack interval: each point above 1 = 10% faster
+    const effectiveInterval = (weapon.attackInterval * 1000) / (1 + Math.max(0, stats.agility - 1) * 0.1);
     if (stats.lastAttackAt !== undefined && now - stats.lastAttackAt < effectiveInterval) return;
 
-    // Strength increases damage: each ST above 1 = +10%
-    let damage = weapon.damage * (1 + Math.max(0, stats.st - 1) * 0.1);
+    // Strength increases damage: each point above 1 = +10%
+    let damage = weapon.damage * (1 + Math.max(0, stats.strength - 1) * 0.1);
 
-    // Luck → crit: each LK above 1 = +2% crit chance (2× damage)
-    const critChance = Math.max(0, stats.lk - 1) * 2;
+    // Luck → crit: each point above 1 = +2% crit chance (2× damage)
+    const critChance = Math.max(0, stats.luck - 1) * 2;
     if (Math.random() * 100 < critChance) damage *= 2;
 
-    // Target PE → dodge: each PE above 1 = +3% dodge chance
+    // Target perception → dodge: each point above 1 = +3% dodge chance
     const targetStats = target.card.unitStats!;
-    const dodgeChance = Math.max(0, targetStats.pe - 1) * 3;
+    const dodgeChance = Math.max(0, targetStats.perception - 1) * 3;
     stats.lastAttackAt = now;
     if (Math.random() * 100 < dodgeChance) return;
 
     // Resistance reduces damage (0–100%)
     const resist = targetStats.resist?.[weapon.damageType] ?? 0;
-    targetStats.hp -= Math.max(1, damage * (1 - resist / 100));
+    targetStats.health -= Math.max(1, damage * (1 - resist / 100));
 
-    if (targetStats.hp <= 0) dead.add(target.card.id);
+    if (targetStats.health <= 0) dead.add(target.card.id);
   }
 
   for (const unit of playerUnits) tryAttack(unit, enemyUnits);
@@ -580,7 +580,7 @@ export function tick(board: Board, clock: Clock, realNow: number): string[] {
       stack.progress = 0;
     } else {
       // Intelligence speeds up crafting: each point above 1 gives +10% speed
-      const intel = stack.cards.reduce((best, c) => Math.max(best, c.unitStats?.in ?? 0), 0);
+      const intel = stack.cards.reduce((best, c) => Math.max(best, c.unitStats?.intelligence ?? 0), 0);
       const effectiveTime = recipe.time / (intel > 0 ? 1 + (intel - 1) * 0.1 : 1);
       stack.progress = Math.min((now - stack.progressStartTime!) / effectiveTime, 1);
       if (stack.progress >= 1) toExecute.push({ stack, recipe });
