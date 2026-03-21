@@ -82,28 +82,11 @@ export const CARD_CATALOG = {
   snowballs: { title: 'Snowballs', image: 'snowballs.svg', color: '#4FC3F7', value: 1 },
   unobtainium: { title: 'Unobtainium', image: 'unobtainium.svg', color: '#E91E63', value: 10 },
   wishalloy: { title: 'Wishalloy', image: 'wishalloy.svg', color: '#B8860B', value: 15 },
-  // Ideas — cosmetic notification cards dropped when a milestone unlocks a recipe; sellable for $1
-  'idea-workbench': { title: 'Idea: Workbench', symbol: '💡', color: '#827717', value: 1 },
-  'idea-service-drone': { title: 'Idea: Drone', symbol: '💡', color: '#827717', value: 1 },
-  'idea-solar-panel': { title: 'Idea: Solar Panel', symbol: '💡', color: '#827717', value: 1 },
-  'idea-electronics': { title: 'Idea: Electronics', symbol: '💡', color: '#827717', value: 1 },
-  'idea-drill': { title: 'Idea: Drill', symbol: '💡', color: '#827717', value: 1 },
-  'idea-adv-workbench': { title: 'Idea: Adv. Workbench', symbol: '💡', color: '#827717', value: 1 },
-  'idea-rover': { title: 'Idea: Rover', symbol: '💡', color: '#827717', value: 1 },
-  'idea-computronium': { title: 'Idea: Computronium', symbol: '💡', color: '#827717', value: 1 },
-  'idea-power-station': { title: 'Idea: Power Station', symbol: '💡', color: '#827717', value: 1 },
-  'idea-cloning-chamber': {
-    title: 'Idea: Cloning Chamber',
-    symbol: '💡',
-    color: '#827717',
-    value: 1,
-  },
-  'idea-storage-crate': { title: 'Idea: Storage Crate', symbol: '💡', color: '#827717', value: 1 },
+  // Idea — cosmetic notification card dropped when a milestone fires; label set dynamically
+  idea: { title: 'Idea', symbol: '💡', color: '#827717', value: 1 },
   // Medical
   'band-aid': { title: 'Band-Aid', image: 'band-aid.svg', color: '#E57373', value: 5 },
   'uni-kit':  { title: 'Uni-Kit',  image: 'uni-kit.svg',  color: '#81C784', value: 5 },
-  'idea-band-aid': { title: 'Idea: Band-Aid', symbol: '💡', color: '#827717', value: 1 },
-  'idea-uni-kit':  { title: 'Idea: Uni-Kit',  symbol: '💡', color: '#827717', value: 1 },
   // Invasions — countdown cards; progress bar = warning timer; on completion spawns enemies
   'invasion-alien-bugs': { title: '⚠ Alien Invasion', symbol: '👾', color: '#B71C1C' },
   'invasion-bandits':    { title: '⚠ Bandit Raid',    symbol: '⚔️', color: '#4E342E' },
@@ -188,16 +171,6 @@ export const CARD_CATALOG = {
   'train-in': { title: 'Intelligence Station', image: 'train-in.svg', color: '#4527A0', value: 5 },
   'train-lk': { title: 'Luck Station',         image: 'train-lk.svg', color: '#00695C', value: 5 },
   'train-pe': { title: 'Perception Station',   image: 'train-pe.svg', color: '#558B2F', value: 5 },
-  // Idea cards
-  'idea-foundation':  { title: 'Idea: Foundation',         symbol: '💡', color: '#827717', value: 1 },
-  'idea-refinery':    { title: 'Idea: Refinery',           symbol: '💡', color: '#827717', value: 1 },
-  'idea-reactor':     { title: 'Idea: Reactor',            symbol: '💡', color: '#827717', value: 1 },
-  'idea-train-st':    { title: 'Idea: Strength Station',   symbol: '💡', color: '#827717', value: 1 },
-  'idea-train-ag':    { title: 'Idea: Agility Station',    symbol: '💡', color: '#827717', value: 1 },
-  'idea-train-en':    { title: 'Idea: Endurance Station',  symbol: '💡', color: '#827717', value: 1 },
-  'idea-train-in':    { title: 'Idea: Intel. Station',     symbol: '💡', color: '#827717', value: 1 },
-  'idea-train-lk':    { title: 'Idea: Luck Station',       symbol: '💡', color: '#827717', value: 1 },
-  'idea-train-pe':    { title: 'Idea: Perception Station', symbol: '💡', color: '#827717', value: 1 },
   tombstone: { title: 'Tombstone', symbol: '🪦', color: '#546E7A' },
   // Weapons — equip by placing in same stack as a unit
   blaster: {
@@ -235,12 +208,6 @@ export const CARD_CATALOG = {
     value: 25,
     weapon: { damage: 40, damageType: 'energy', attackInterval: 4.0 },
   },
-  // Idea cards for weapons
-  'idea-blaster':      { title: 'Idea: Blaster',       symbol: '💡', color: '#827717', value: 1 },
-  'idea-bolter':       { title: 'Idea: Bolter',        symbol: '💡', color: '#827717', value: 1 },
-  'idea-bolter-heavy': { title: 'Idea: Heavy Bolter',  symbol: '💡', color: '#827717', value: 1 },
-  'idea-minigun':      { title: 'Idea: Minigun',       symbol: '💡', color: '#827717', value: 1 },
-  'idea-laser-cannon': { title: 'Idea: Laser Cannon',  symbol: '💡', color: '#827717', value: 1 },
 } satisfies Record<string, CardDef>;
 
 export type CardType = keyof typeof CARD_CATALOG;
