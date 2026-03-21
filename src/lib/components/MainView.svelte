@@ -577,8 +577,7 @@
       { key: 'agility',      label: 'Agility',      effect: 'Rate of fire' },
       { key: 'luck',         label: 'Luck',         effect: 'Critical hits' },
     ]}
-    <!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
-    <div class="stat-backdrop" onclick={() => (statPanel = null)}></div>
+    <button class="stat-backdrop" onclick={() => (statPanel = null)} aria-label="Close"></button>
     <div
       class="stat-panel"
       style="left: {Math.min(statPanel.x, window.innerWidth - 220)}px; top: {Math.min(
@@ -746,11 +745,6 @@
       font-size: 2.5rem;
       color: #f4c430;
       letter-spacing: 0.05em;
-    }
-
-    .sol-feed {
-      font-size: 1.4rem;
-      color: #ccc;
     }
 
     .sol-board-section {
@@ -1137,6 +1131,10 @@
     position: fixed;
     inset: 0;
     z-index: 19;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: default;
   }
 
   .stat-panel {
@@ -1164,10 +1162,6 @@
       .stat-name {
         font-size: 1.3rem;
         color: #f4c430;
-      }
-      .stat-level {
-        font-size: 1rem;
-        opacity: 0.6;
       }
     }
 
