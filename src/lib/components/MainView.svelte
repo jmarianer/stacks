@@ -14,8 +14,12 @@
   import { addScaled } from '$lib/utils/vec2';
   import type { Stack, Board, ShopItem, CardData, Clock } from '$lib/types/board-types';
   import Hud from './Hud.svelte';
-  import { type UnitStats, hpMaxFromStats } from '$lib/types/card-types';
-  import { CARD_CATALOG, type CardType } from '$lib/data/card-defs';
+  import TeleportPanel from './TeleportPanel.svelte';
+  import RecipesPanel from './RecipesPanel.svelte';
+  import StatPanel from './StatPanel.svelte';
+  import LocationNav from './LocationNav.svelte';
+  import type { UnitStats } from '$lib/types/card-types';
+  import { CARD_CATALOG } from '$lib/data/card-defs';
   import { initialBoards } from '$lib/data/initial-boards';
   import { makeClock, makeStackFromCards, addCardToMatchingStack } from '$lib/utils/card-factories';
   import { tick as tickPhysics } from '$lib/behavior/physics';
@@ -27,42 +31,13 @@
     setSpeed,
   } from '$lib/behavior/progress';
   import { recipes } from '$lib/data/recipes';
-  import type { RecipeResult } from '$lib/types/recipe-types';
 
   let showRecipes = $state(false);
-  let recipeSearch = $state('');
   let showTeleport = $state(false);
   let statPanel = $state<{ card: CardData; stats: UnitStats; x: number; y: number } | null>(null);
   let routingMode = $state(false);
   let routingFrom = $state<Stack | null>(null);
   let routingMouseBoard = $state<{ x: number; y: number } | null>(null);
-
-  function ingredientLabel(match: string): string {
-    if (match === 'people') return 'Person';
-    const def = CARD_CATALOG[match as CardType];
-    return def ? def.title : match;
-  }
-
-  function resultLabel(result: RecipeResult): string {
-    if (result.action === 'card') {
-      const def = CARD_CATALOG[result.card as CardType];
-      const name = def ? def.title : result.card;
-      return result.chance !== undefined ? `${name} (${result.chance}%)` : name;
-    }
-    if (result.action === 'weighted') {
-      return Object.keys(result.cards)
-        .map((k) => {
-          const d = CARD_CATALOG[k as CardType];
-          return d ? d.title : k;
-        })
-        .join(' / ');
-    }
-    if (result.action === 'unlock-recipe') {
-      const r = recipes.find((rec) => rec.id === result.recipeId);
-      return `Unlocks: ${r?.label ?? result.recipeId}`;
-    }
-    return '';
-  }
 
   let scale = $state(1);
   let translate = $state({ x: 0, y: 0 });
@@ -546,102 +521,22 @@
     </div>
   {/if}
   {#if showTeleport}
-    <div class="teleport-panel">
-      <div class="teleport-title">Teleport To…</div>
-      {#each boards as board, i (board.name)}
-        {#if i !== currentBoardIndex && board.discovered}
-          <button class="teleport-dest" onclick={() => createTeleportCard(i)}>
-            {board.name}
-          </button>
-        {/if}
-      {/each}
-    </div>
+    <TeleportPanel {boards} {currentBoardIndex} onTeleport={createTeleportCard} />
   {/if}
   {#if statPanel}
-    {@const s = statPanel.stats}
-    {@const ATTRS: { key: keyof typeof s; label: string; effect: string }[] = [
-      { key: 'endurance',    label: 'Endurance',    effect: '+10 HP / level' },
-      { key: 'strength',     label: 'Strength',     effect: 'Damage & knockdown' },
-      { key: 'perception',   label: 'Perception',   effect: 'Accuracy & range' },
-      { key: 'intelligence', label: 'Intelligence', effect: 'Crafting speed' },
-      { key: 'agility',      label: 'Agility',      effect: 'Rate of fire' },
-      { key: 'luck',         label: 'Luck',         effect: 'Critical hits' },
-    ]}
-    <button class="stat-backdrop" onclick={() => (statPanel = null)} aria-label="Close"></button>
-    <div
-      class="stat-panel"
-      style="left: {Math.min(statPanel.x, window.innerWidth - 220)}px; top: {Math.min(
-        statPanel.y,
-        window.innerHeight - 320,
-      )}px;"
-    >
-      <div class="stat-header">
-        <span class="stat-name">{CARD_CATALOG[statPanel.card.type].title}</span>
-      </div>
-      <div class="stat-hp-row">
-        <span class="stat-hp-label">HP</span>
-        <div class="stat-hp-bar">
-          <div class="stat-hp-fill" style="width: {(s.health / hpMaxFromStats(s)) * 100}%"></div>
-        </div>
-        <span class="stat-hp-nums">{s.health}/{hpMaxFromStats(s)}</span>
-      </div>
-      {#each ATTRS as attr (attr.key)}
-        <div class="stat-row">
-          <span class="stat-abbr">{attr.key.toUpperCase()}</span>
-          <span class="stat-full">{attr.label}</span>
-          <span class="stat-val">{s[attr.key]}</span>
-          <span class="stat-effect">{attr.effect}</span>
-        </div>
-      {/each}
-    </div>
+    <StatPanel
+      card={statPanel.card}
+      stats={statPanel.stats}
+      x={statPanel.x}
+      y={statPanel.y}
+      onClose={() => (statPanel = null)}
+    />
   {/if}
-
   {#if showRecipes}
-    <div class="recipes-panel">
-      <div class="recipes-title">Known Recipes</div>
-      <input class="recipe-search" type="search" placeholder="Search…" bind:value={recipeSearch} />
-      {#each currentBoard.knownRecipeIds as id (id)}
-        {@const recipe = recipes.find((r) => r.id === id)}
-        {#if recipe && recipe.label.toLowerCase().includes(recipeSearch.toLowerCase())}
-          <div class="recipe-entry">
-            <div class="recipe-name">
-              {recipe.label}
-              <span class="recipe-time">{recipe.time / 1000}s</span>
-            </div>
-            <div class="recipe-ingredients">
-              {#each recipe.ingredients as ing, i (ing)}
-                {#if i > 0}<span class="sep">+</span>{/if}
-                <span class="ingredient" class:reusable={!ing.consumed}>
-                  {#if ing.count && ing.count > 1}{ing.count}×{/if}{ingredientLabel(
-                    ing.match,
-                  )}{#if !ing.consumed}
-                    ↺{/if}
-                </span>
-              {/each}
-            </div>
-            <div class="recipe-results">
-              {#each recipe.results as result, i (result)}
-                {#if i > 0}<span class="sep">·</span>{/if}
-                <span class="result">{resultLabel(result)}</span>
-              {/each}
-            </div>
-          </div>
-        {/if}
-      {/each}
-    </div>
+    <RecipesPanel knownRecipeIds={currentBoard.knownRecipeIds} />
   {/if}
   {#if boards.filter((b) => b.discovered).length > 1}
-    <nav class="location-nav">
-      {#each boards as board, i (board.name)}
-        {#if board.discovered}
-          <button
-            class="location-btn"
-            class:active={i === currentBoardIndex}
-            onclick={() => (currentBoardIndex = i)}>{board.name}</button
-          >
-        {/if}
-      {/each}
-    </nav>
+    <LocationNav {boards} bind:currentBoardIndex />
   {/if}
   <Hud
     {clock}
@@ -739,189 +634,6 @@
     }
   }
 
-  .location-nav {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    display: flex;
-    gap: 0.25rem;
-    padding: 0.4rem 1rem;
-    background: rgba(0, 0, 0, 0.4);
-    z-index: 5;
-    pointer-events: all;
-
-    .location-btn {
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      border-radius: 0.4rem;
-      color: white;
-      font-family: 'BigNoodleTitling', sans-serif;
-      font-size: 1.1rem;
-      padding: 0.2rem 0.75rem;
-      cursor: pointer;
-      opacity: 0.7;
-
-      &:hover {
-        background: rgba(255, 255, 255, 0.2);
-        opacity: 1;
-      }
-
-      &.active {
-        background: rgba(244, 196, 48, 0.2);
-        border-color: #f4c430;
-        color: #f4c430;
-        opacity: 1;
-      }
-    }
-  }
-
-
-  .teleport-panel {
-    position: absolute;
-    top: 3.5rem;
-    right: 6rem;
-    background: rgba(10, 10, 20, 0.92);
-    border: 1px solid rgba(0, 188, 212, 0.4);
-    border-radius: 0.5rem;
-    padding: 0.75rem 1rem;
-    font-family: 'BigNoodleTitling', sans-serif;
-    color: white;
-    font-size: 1.1rem;
-    min-width: 12rem;
-    z-index: 5;
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
-
-    .teleport-title {
-      font-size: 1.3rem;
-      color: #00bcd4;
-      margin-bottom: 0.25rem;
-      letter-spacing: 0.05em;
-    }
-
-    .teleport-dest {
-      background: rgba(0, 188, 212, 0.1);
-      border: 1px solid rgba(0, 188, 212, 0.3);
-      border-radius: 0.4rem;
-      color: white;
-      font-family: 'BigNoodleTitling', sans-serif;
-      font-size: 1.1rem;
-      padding: 0.3rem 0.75rem;
-      text-align: left;
-      cursor: pointer;
-
-      &:hover {
-        background: rgba(0, 188, 212, 0.25);
-        border-color: #00bcd4;
-      }
-    }
-  }
-
-  .recipes-panel {
-    position: absolute;
-    top: 3.5rem;
-    right: 1rem;
-    background: rgba(10, 10, 20, 0.92);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 0.5rem;
-    padding: 0.75rem 1rem;
-    font-family: 'BigNoodleTitling', sans-serif;
-    color: white;
-    font-size: 1.1rem;
-    min-width: 16rem;
-    max-height: calc(100vh - 5rem);
-    overflow-y: auto;
-    z-index: 5;
-    display: flex;
-    flex-direction: column;
-    gap: 0.6rem;
-
-    .recipes-title {
-      font-size: 1.3rem;
-      color: #f4c430;
-      margin-bottom: 0.1rem;
-      letter-spacing: 0.05em;
-    }
-
-    .recipe-search {
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      border-radius: 0.3rem;
-      color: white;
-      font-family: 'BigNoodleTitling', sans-serif;
-      font-size: 1rem;
-      padding: 0.25rem 0.5rem;
-      width: 100%;
-      box-sizing: border-box;
-
-      &::placeholder {
-        opacity: 0.4;
-      }
-      &:focus {
-        outline: none;
-        border-color: rgba(255, 255, 255, 0.4);
-      }
-    }
-
-    .recipe-entry {
-      display: flex;
-      flex-direction: column;
-      gap: 0.15rem;
-      padding-bottom: 0.5rem;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-
-      &:last-child {
-        border-bottom: none;
-        padding-bottom: 0;
-      }
-
-      .recipe-name {
-        font-size: 1.1rem;
-        color: #e0e0e0;
-        display: flex;
-        justify-content: space-between;
-        gap: 0.5rem;
-      }
-
-      .recipe-time {
-        opacity: 0.5;
-        font-size: 0.95rem;
-      }
-
-      .recipe-ingredients,
-      .recipe-results {
-        font-size: 0.9rem;
-        display: flex;
-        flex-wrap: wrap;
-        align-items: center;
-        gap: 0.2rem;
-      }
-
-      .recipe-results::before {
-        content: '→';
-        opacity: 0.5;
-        margin-right: 0.1rem;
-      }
-
-      .ingredient {
-        color: #aaa;
-        &.reusable {
-          color: #80cbc4;
-        }
-      }
-
-      .result {
-        color: #a5d6a7;
-      }
-
-      .sep {
-        opacity: 0.4;
-      }
-    }
-  }
-
   .foundation-grid {
     position: absolute;
     top: 0;
@@ -947,100 +659,6 @@
     right: 0;
     cursor: crosshair;
     z-index: 5;
-  }
-
-  .stat-backdrop {
-    position: fixed;
-    inset: 0;
-    z-index: 19;
-    background: none;
-    border: none;
-    padding: 0;
-    cursor: default;
-  }
-
-  .stat-panel {
-    position: fixed;
-    z-index: 20;
-    background: rgba(10, 10, 20, 0.95);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 0.5rem;
-    padding: 0.75rem 1rem;
-    font-family: 'BigNoodleTitling', sans-serif;
-    color: white;
-    min-width: 200px;
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
-
-    .stat-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      margin-bottom: 0.2rem;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.15);
-      padding-bottom: 0.4rem;
-
-      .stat-name {
-        font-size: 1.3rem;
-        color: #f4c430;
-      }
-    }
-
-    .stat-hp-row {
-      display: flex;
-      align-items: center;
-      gap: 0.4rem;
-      margin-bottom: 0.3rem;
-
-      .stat-hp-label {
-        font-size: 0.9rem;
-        opacity: 0.7;
-        width: 1.5rem;
-      }
-      .stat-hp-bar {
-        flex: 1;
-        height: 0.5rem;
-        background: rgba(255, 255, 255, 0.15);
-        border-radius: 0.25rem;
-        overflow: hidden;
-
-        .stat-hp-fill {
-          height: 100%;
-          background: #4caf50;
-          border-radius: 0.25rem;
-        }
-      }
-      .stat-hp-nums {
-        font-size: 0.85rem;
-        opacity: 0.7;
-        white-space: nowrap;
-      }
-    }
-
-    .stat-row {
-      display: grid;
-      grid-template-columns: 2rem 6rem 1.5rem 1fr;
-      align-items: center;
-      gap: 0.3rem;
-      font-size: 0.9rem;
-
-      .stat-abbr {
-        color: #80cbc4;
-        font-size: 0.85rem;
-      }
-      .stat-full {
-        opacity: 0.75;
-      }
-      .stat-val {
-        text-align: right;
-        color: #f4c430;
-      }
-      .stat-effect {
-        opacity: 0.45;
-        font-size: 0.8rem;
-      }
-    }
   }
 
   :global .board {
