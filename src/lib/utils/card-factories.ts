@@ -30,7 +30,7 @@ export function makeIdeaCard(label: string): CardData {
 export function makeReviveCard(tombstone: CardData): CardData {
   const unitType = tombstone.tombstoneOf ?? 'astronaut';
   const card = makeCardOfType(unitType);
-  if (tombstone.unitStats) card.unitStats = { ...tombstone.unitStats };
+  if (tombstone.unitStats) card.unitStats = { ...tombstone.unitStats, health: hpMaxFromStats(tombstone.unitStats) };
   return card;
 }
 
