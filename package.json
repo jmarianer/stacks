@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "start": "BROWSER=open vite dev --open",
-    "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json && prettier --check . && eslint .",
+    "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json && tsc --noEmit && prettier --check . && eslint .",
     "format": "prettier --write .",
     "test": "npm run test:unit -- --run && npm run test:e2e",
     "test:unit": "vitest",

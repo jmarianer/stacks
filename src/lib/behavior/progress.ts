@@ -1,5 +1,12 @@
 import { recipes } from '$lib/data/recipes';
-import type { Stack, CardType, Board, CardData, Clock, SolFeedResult } from '$lib/types/board-types';
+import type {
+  Stack,
+  CardType,
+  Board,
+  CardData,
+  Clock,
+  SolFeedResult,
+} from '$lib/types/board-types';
 import { hpMaxFromStats, type WeaponStats, type CardDef } from '$lib/types/card-types';
 import type { Vec2 } from '$lib/utils/vec2';
 import { CARD_CATALOG } from '$lib/data/card-defs';
@@ -424,10 +431,7 @@ function checkMilestones(board: Board, clock: Clock): void {
 }
 
 /** Find the best weapon card in a unit's stack, or fall back to the unit's built-in weapon. */
-function getUnitWeapon(
-  card: CardData,
-  stack: Stack,
-): WeaponStats | undefined {
+function getUnitWeapon(card: CardData, stack: Stack): WeaponStats | undefined {
   let best: WeaponStats | undefined;
   for (const c of stack.cards) {
     if (c.id === card.id) continue;
