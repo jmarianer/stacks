@@ -20,7 +20,6 @@
 
 ## Code quality
 
-- Recipe discovery should be inside results as opposed to a separate field (?)
 - Enemy loot should be a recipe-results thing
 
 Files that can be considered Done (for now):

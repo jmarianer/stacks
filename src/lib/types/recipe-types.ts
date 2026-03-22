@@ -12,7 +12,8 @@ export type RecipeResult =
     }
   | { action: 'heal-unit'; amount: number } // amount = HP restored; use Infinity for full heal
   | { action: 'revive-unit' } // restores unit from tombstone card in the stack
-  | { action: 'spawn-enemies'; enemyType: string; count: number }; // spawns N enemies scattered on the board
+  | { action: 'spawn-enemies'; enemyType: string; count: number } // spawns N enemies scattered on the board
+  | { action: 'discover-board'; boardName: string; chance: number; prerequisite?: string }; // reveals a board location
 
 export type Recipe = {
   id: string;
@@ -21,5 +22,4 @@ export type Recipe = {
   ingredients: RecipeIngredient[];
   results: RecipeResult[];
   alwaysKnown?: boolean; // fires even if not in board.knownRecipeIds
-  discovers?: { boardName: string; chance: number; prerequisite?: string }[]; // locations this recipe can reveal; prerequisite is a board name that must already be discovered
 };

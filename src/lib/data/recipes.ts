@@ -162,8 +162,10 @@ export const recipes: Recipe[] = [
       { match: 'drill', consumed: false },
       { match: 'people', consumed: false },
     ],
-    results: [{ action: 'weighted', cards: { plasteel: 60, helium3: 40 } }],
-    discovers: [{ boardName: 'Alien Eggs', chance: 10 }],
+    results: [
+      { action: 'weighted', cards: { plasteel: 60, helium3: 40 } },
+      { action: 'discover-board', boardName: 'Alien Eggs', chance: 10 },
+    ],
   },
 
   // --- Advanced workbench ---
@@ -332,10 +334,10 @@ export const recipes: Recipe[] = [
       { match: 'rover', consumed: false },
       { match: 'people', consumed: false },
     ],
-    results: [{ action: 'weighted', cards: { 'crust-chunk': 100, bacteria: 20 } }],
-    discovers: [
-      { boardName: 'Flowers', chance: 10 },
-      { boardName: 'Desert', chance: 10, prerequisite: 'Flowers' },
+    results: [
+      { action: 'weighted', cards: { 'crust-chunk': 100, bacteria: 20 } },
+      { action: 'discover-board', boardName: 'Flowers', chance: 10 },
+      { action: 'discover-board', boardName: 'Desert', chance: 10, prerequisite: 'Flowers' },
     ],
   },
 

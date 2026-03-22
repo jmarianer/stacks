@@ -153,7 +153,7 @@ function weightedRandom(cards: Record<string, number>): string {
   return Object.keys(cards)[0];
 }
 
-function executeRecipe(board: Board, stack: Stack, recipe: Recipe): void {
+function executeRecipe(board: Board, boards: Board[], stack: Stack, recipe: Recipe): void {
   const stacks = board.stacks;
   const consumed = new Set<number>();
   for (const ing of recipe.ingredients) {
@@ -204,6 +204,17 @@ function executeRecipe(board: Board, stack: Stack, recipe: Recipe): void {
       type = result.card;
     } else if (result.action === 'weighted') {
       type = weightedRandom(result.cards);
+    }
+    if (result.action === 'discover-board') {
+      const target = boards.find((b) => b.name === result.boardName);
+      const prereqMet =
+        !result.prerequisite || boards.find((b) => b.name === result.prerequisite)?.discovered;
+      if (target && !target.discovered && prereqMet && Math.random() * 100 < result.chance) {
+        target.discovered = true;
+        const card = makeTeleportCard(boards.indexOf(target), target.name);
+        stacks.push(makeStackFromCards({ x: board.width / 2, y: board.height / 2 }, [card]));
+      }
+      continue;
     }
     if (result.action === 'spawn-enemies') {
       if (isCardType(result.enemyType)) {
@@ -473,16 +484,6 @@ export function tick(board: Board, boards: Board[], clock: Clock, realNow: numbe
   }
 
   for (const { stack, recipe } of toExecute) {
-    executeRecipe(board, stack, recipe);
-    for (const disc of recipe.discovers ?? []) {
-      const target = boards.find((b) => b.name === disc.boardName);
-      const prereqMet =
-        !disc.prerequisite || boards.find((b) => b.name === disc.prerequisite)?.discovered;
-      if (target && !target.discovered && prereqMet && Math.random() * 100 < disc.chance) {
-        target.discovered = true;
-        const card = makeTeleportCard(boards.indexOf(target), target.name);
-        board.stacks.push(makeStackFromCards({ x: board.width / 2, y: board.height / 2 }, [card]));
-      }
-    }
+    executeRecipe(board, boards, stack, recipe);
   }
 }
