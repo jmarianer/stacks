@@ -12,9 +12,9 @@
   } from '$lib/data/constants';
   import Draggable from './Draggable.svelte';
   import { addScaled } from '$lib/utils/vec2';
-  import type { Stack, Board, ShopItem, CardType, CardData, Clock } from '$lib/types/board-types';
+  import type { Stack, Board, ShopItem, CardData, Clock } from '$lib/types/board-types';
   import { type UnitStats, hpMaxFromStats } from '$lib/types/card-types';
-  import { CARD_CATALOG } from '$lib/data/card-defs';
+  import { CARD_CATALOG, type CardType } from '$lib/data/card-defs';
   import { initialBoards } from '$lib/data/initial-boards';
   import { makeClock, makeStackFromCards, addCardToMatchingStack } from '$lib/utils/card-factories';
   import { tick as tickPhysics } from '$lib/behavior/physics';

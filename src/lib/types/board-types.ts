@@ -1,7 +1,6 @@
 import type { Vec2 } from '$lib/utils/vec2';
 import type { CardType } from '$lib/data/card-defs';
 import type { UnitStats } from '$lib/types/card-types';
-export type { CardType } from '$lib/data/card-defs';
 
 export type CardData = {
   id: number;

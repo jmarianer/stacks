@@ -1,7 +1,6 @@
 import { recipes } from '$lib/data/recipes';
 import type {
   Stack,
-  CardType,
   Board,
   CardData,
   Clock,
@@ -9,7 +8,7 @@ import type {
 } from '$lib/types/board-types';
 import { hpMaxFromStats, type WeaponStats, type CardDef } from '$lib/types/card-types';
 import type { Vec2 } from '$lib/utils/vec2';
-import { CARD_CATALOG } from '$lib/data/card-defs';
+import { CARD_CATALOG, type CardType } from '$lib/data/card-defs';
 import {
   addCardToMatchingStack,
   makeCardOfType,
