@@ -22,7 +22,6 @@
     tick as tickProgress,
     tickClock,
     SOL_DURATION,
-    UNIT_FEED,
     getVirtualNow,
     setSpeed,
   } from '$lib/behavior/progress';
@@ -234,7 +233,7 @@
   const energyNeeded = $derived(
     currentBoard.stacks
       .flatMap((s) => s.cards)
-      .reduce((sum, c) => sum + (UNIT_FEED[c.type]?.cost ?? 0), 0),
+      .reduce((sum, c) => sum + (CARD_CATALOG[c.type].feed?.cost ?? 0), 0),
   );
 
   // Flat list of all cards with their stack and index, keyed by cardData.id.

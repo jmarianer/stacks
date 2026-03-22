@@ -16,12 +16,6 @@ import type { Recipe } from '$lib/types/recipe-types';
 
 export const SOL_DURATION = 2 * 60 * 1000; // 2 minutes in ms
 
-// Lower priority number = fed first
-export const UNIT_FEED: Partial<Record<CardType, { cost: number; priority: number }>> = {
-  astronaut: { cost: 2, priority: 2 },
-  'service-drone-1': { cost: 1, priority: 6 },
-};
-
 function feedUnits(board: Board): SolFeedResult {
   // Tally available energy
   let energyPool = 0;
@@ -32,17 +26,15 @@ function feedUnits(board: Board): SolFeedResult {
   }
 
   // Collect units sorted by priority (lower = fed first)
-  const units: { card: CardData; cost: number }[] = [];
+  const units: { card: CardData; cost: number, priority: number }[] = [];
   for (const stack of board.stacks) {
     for (const card of stack.cards) {
-      const feed = UNIT_FEED[card.type];
-      if (feed) units.push({ card, cost: feed.cost });
+      const feed = (CARD_CATALOG[card.type] as CardDef).feed;
+      if (feed) units.push({ card, ...feed });
     }
   }
   units.sort((a, b) => {
-    const pa = UNIT_FEED[a.card.type]!.priority;
-    const pb = UNIT_FEED[b.card.type]!.priority;
-    return pa - pb;
+    return a.priority - b.priority;
   });
 
   // Feed in priority order; starved units die

@@ -50,4 +50,6 @@ export type CardDef = {
   weapon?: WeaponStats;
   /** Present on enemy cards only. */
   enemy?: EnemyDef;
+  /** Energy feed requirement per sol. Lower priority = fed first. */
+  feed?: { cost: number; priority: number };
 };

@@ -84,6 +84,7 @@ export const CARD_CATALOG: Record<string, CardDef> = {
     unitStats: { endurance: 1, strength: 1, perception: 1, intelligence: 1, agility: 1, luck: 1 },
     groups: ['people'],
     weapon: { damage: 5, damageType: 'impact', attackInterval: 2.0 },
+    feed: { cost: 2, priority: 2 },
   },
   'service-drone-1': {
     title: 'Service Drone',
@@ -91,6 +92,7 @@ export const CARD_CATALOG: Record<string, CardDef> = {
     color: '#546E7A',
     groups: ['people'],
     weapon: { damage: 3, damageType: 'energy', attackInterval: 3.0 },
+    feed: { cost: 1, priority: 6 },
   },
   'pet-alien-bug': { title: 'Pet Alien Bug', image: 'alien-bug.svg', color: '#8BC34A' },
   // Enemies
