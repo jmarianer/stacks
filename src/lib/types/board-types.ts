@@ -1,34 +1,7 @@
 import type { Vec2 } from '$lib/utils/vec2';
 import type { CardType } from '$lib/data/card-defs';
+import type { UnitStats } from '$lib/types/card-types';
 export type { CardType } from '$lib/data/card-defs';
-
-export type DamageType = 'impact' | 'energy' | 'plasma' | 'acid';
-
-/** Weapon stats embedded in a unit's CardDef or a weapon CardDef. */
-export type WeaponStats = {
-  damage: number;
-  damageType: DamageType;
-  /** Seconds between attacks (before agility modifier). */
-  attackInterval: number;
-};
-
-export type UnitStats = {
-  endurance: number;
-  strength: number;
-  perception: number;
-  intelligence: number;
-  agility: number;
-  luck: number;
-  health: number;
-  /** Last combat attack timestamp (vTime), for cooldown tracking. */
-  lastAttackAt?: number;
-  /** Damage resistances 0–100 (percentage reduction). */
-  resist?: Partial<Record<DamageType, number>>;
-};
-
-export function hpMaxFromStats(stats: Pick<UnitStats, 'endurance'>): number {
-  return 50 + stats.endurance * 10;
-}
 
 export type CardData = {
   id: number;
@@ -39,7 +12,6 @@ export type CardData = {
   targetBoardIndex?: number; // set on teleport cards
   unitStats?: UnitStats; // present on living units and their tombstones
   tombstoneOf?: CardType; // set on tombstone cards: the original unit type (for revival)
-  // inventory will be added to CardData when implemented
 };
 
 export type Stack = {

@@ -1,31 +1,6 @@
-import type { WeaponStats, UnitStats, DamageType } from '$lib/types/cards';
-export type { DamageType };
-
-export type EnemyDef = {
-  /** Base stats for this enemy type. */
-  unitStats: Omit<UnitStats, 'lastAttackAt'>;
-  /** Enemies only have their built-in weapon. */
-  weapon: WeaponStats;
-  /** Loot: weighted map of CardType → relative weight. */
-  loot: Record<string, number>;
-};
-
-export type CardDef = {
-  title: string;
-  image: string; // path to SVG under /cards/
-  color: string;
-  value?: number; // coin value; undefined = not sellable
-  usesInitial?: number; // starting usesRemaining; undefined = single-use
-  energyValueInitial?: number; // starting energy units (energy cells only)
-  /** Present on player unit cards: initial stats (health computed from endurance). */
-  unitStats?: Omit<UnitStats, 'health' | 'lastAttackAt'>;
-  /** Recipe ingredient groups this card belongs to (e.g. 'people'). */
-  groups?: string[];
-  /** Present on unit cards: built-in weapon (fists, claws, etc.) */
-  weapon?: WeaponStats;
-  /** Present on enemy cards only. */
-  enemy?: EnemyDef;
-};
+import type { CardDef } from '$lib/types/card-types';
+// TODO remove export type and import directly instead.
+export type { CardDef, EnemyDef, DamageType, WeaponStats, UnitStats } from '$lib/types/card-types';
 
 export const CARD_CATALOG = {
   // Resources

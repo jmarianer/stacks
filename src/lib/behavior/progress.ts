@@ -1,24 +1,16 @@
 import { recipes } from '$lib/data/recipes';
-import {
-  type Stack,
-  type CardType,
-  type Board,
-  type CardData,
-  type Clock,
-  type SolFeedResult,
-  hpMaxFromStats,
-} from '$lib/types/cards';
+import type { Stack, CardType, Board, CardData, Clock, SolFeedResult } from '$lib/types/board-types';
+import { hpMaxFromStats, type WeaponStats } from '$lib/types/card-types';
 import type { Vec2 } from '$lib/utils/vec2';
+import { CARD_CATALOG, type CardDef } from '$lib/data/card-defs';
 import {
-  CARD_CATALOG,
   addCardToMatchingStack,
   makeCardOfType,
   makeIdeaCard,
   makeTombstoneCard,
   makeReviveCard,
   makeStackFromCards,
-  type CardDef,
-} from '$lib/data/card-catalog';
+} from '$lib/utils/card-factories';
 import type { Recipe } from '$lib/types/recipe-types';
 
 export const SOL_DURATION = 2 * 60 * 1000; // 2 minutes in ms
@@ -435,8 +427,8 @@ function checkMilestones(board: Board, clock: Clock): void {
 function getUnitWeapon(
   card: CardData,
   stack: Stack,
-): import('$lib/types/cards').WeaponStats | undefined {
-  let best: import('$lib/types/cards').WeaponStats | undefined;
+): WeaponStats | undefined {
+  let best: WeaponStats | undefined;
   for (const c of stack.cards) {
     if (c.id === card.id) continue;
     const cDef = CARD_CATALOG[c.type] as CardDef;

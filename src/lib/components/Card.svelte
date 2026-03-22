@@ -1,8 +1,8 @@
 <script lang="ts">
   import Draggable, { type DragProps } from './Draggable.svelte';
   import { CARD_W, CARD_H } from '$lib/data/constants';
-  import { CARD_CATALOG } from '$lib/data/card-catalog';
-  import type { CardData } from '$lib/types/cards';
+  import { CARD_CATALOG } from '$lib/data/card-defs';
+  import type { CardData } from '$lib/types/board-types';
 
   let {
     cardData,
