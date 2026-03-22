@@ -26,6 +26,10 @@ export function makeIdeaCard(label: string): CardData {
   return { id: nextId++, type: 'idea', label };
 }
 
+export function makeTeleportCard(targetBoardIndex: number, targetBoardName: string): CardData {
+  return { id: nextId++, type: 'teleport', label: `→ ${targetBoardName}`, targetBoardIndex };
+}
+
 /** Restore the unit that died — creates a card of the original type with the tombstone's saved stats. */
 export function makeReviveCard(tombstone: CardData): CardData {
   const unitType = tombstone.tombstoneOf ?? 'astronaut';

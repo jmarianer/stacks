@@ -21,7 +21,7 @@
   import type { UnitStats } from '$lib/types/card-types';
   import { CARD_CATALOG } from '$lib/data/card-defs';
   import { initialBoards } from '$lib/data/initial-boards';
-  import { makeClock, makeStackFromCards, addCardToMatchingStack } from '$lib/utils/card-factories';
+  import { makeClock, makeStackFromCards, addCardToMatchingStack, makeTeleportCard } from '$lib/utils/card-factories';
   import { tick as tickPhysics } from '$lib/behavior/physics';
   import {
     tick as tickProgress,
@@ -249,15 +249,8 @@
     }
   }
 
-  let nextCardId = $state(1_000_000); // high enough to not collide with catalog IDs
-
   function createTeleportCard(targetBoardIndex: number, onBoard: Board = currentBoard) {
-    const card: CardData = {
-      id: nextCardId++,
-      type: 'teleport',
-      label: `→ ${boards[targetBoardIndex].name}`,
-      targetBoardIndex,
-    };
+    const card = makeTeleportCard(targetBoardIndex, boards[targetBoardIndex].name);
     const stack = makeStackFromCards({ x: onBoard.width / 2, y: onBoard.height / 2 }, [card]);
     onBoard.stacks = [...onBoard.stacks, stack];
     showTeleport = false;
@@ -349,19 +342,7 @@
       tickClock(clock, boards, now);
       for (const board of boards) {
         tickPhysics(board);
-        const executedRecipeIds = tickProgress(board, clock, now);
-        for (const recipeId of executedRecipeIds) {
-          const recipe = recipes.find((r) => r.id === recipeId);
-          for (const disc of recipe?.discovers ?? []) {
-            const target = boards.find((b) => b.name === disc.boardName);
-            const prereqMet =
-              !disc.prerequisite || boards.find((b) => b.name === disc.prerequisite)?.discovered;
-            if (target && !target.discovered && prereqMet && Math.random() * 100 < disc.chance) {
-              target.discovered = true;
-              createTeleportCard(boards.indexOf(target), board);
-            }
-          }
-        }
+        tickProgress(board, boards, clock, now);
       }
       if (clock.solStartTime !== null && !clock.endOfSol) {
         const vNow = getVirtualNow(clock, now);

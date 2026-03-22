@@ -11,6 +11,7 @@ import {
   makeTombstoneCard,
   makeReviveCard,
   makeStackFromCards,
+  makeTeleportCard,
 } from '$lib/utils/card-factories';
 import type { Recipe } from '$lib/types/recipe-types';
 
@@ -435,9 +436,9 @@ export function tickClock(clock: Clock, boards: Board[], realNow: number): void 
 }
 
 /** Advance recipe progress on a single board. */
-export function tick(board: Board, clock: Clock, realNow: number): string[] {
-  if (clock.endOfSol) return [];
-  if (clock.speed === 0) return [];
+export function tick(board: Board, boards: Board[], clock: Clock, realNow: number): void {
+  if (clock.endOfSol) return;
+  if (clock.speed === 0) return;
 
   const now = getVirtualNow(clock, realNow);
 
@@ -471,10 +472,17 @@ export function tick(board: Board, clock: Clock, realNow: number): string[] {
     }
   }
 
-  const executedRecipeIds: string[] = [];
   for (const { stack, recipe } of toExecute) {
     executeRecipe(board, stack, recipe);
-    executedRecipeIds.push(recipe.id);
+    for (const disc of recipe.discovers ?? []) {
+      const target = boards.find((b) => b.name === disc.boardName);
+      const prereqMet =
+        !disc.prerequisite || boards.find((b) => b.name === disc.prerequisite)?.discovered;
+      if (target && !target.discovered && prereqMet && Math.random() * 100 < disc.chance) {
+        target.discovered = true;
+        const card = makeTeleportCard(boards.indexOf(target), target.name);
+        board.stacks.push(makeStackFromCards({ x: board.width / 2, y: board.height / 2 }, [card]));
+      }
+    }
   }
-  return executedRecipeIds;
 }
