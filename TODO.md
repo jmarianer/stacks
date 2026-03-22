@@ -22,12 +22,6 @@
 
 - Recipe discovery should be inside results as opposed to a separate field (?)
 - Enemy loot should be a recipe-results thing
-- Reorganize card-defs, card-catalog and cards into the following files:
-  - types/card-types and types/board-types for types ONLY
-  - Utility functions for cards. Not sure where that goes
-  - Constant for card catalog goes under data
-  - Constant for initial board goes under data
-  - Anything else, ask me.
 
 Files that can be considered Done (for now):
 
