@@ -281,7 +281,7 @@ type Milestone = {
   id: string;
   condition: (board: Board, clock: Clock) => boolean;
   unlockRecipeIds: string[];
-  notificationCards: CardType[]; // real cards dropped (e.g. invasion warnings)
+  createCards: CardType[]; // real cards dropped (e.g. invasion warnings)
 };
 
 const MILESTONES: Milestone[] = [
@@ -289,25 +289,25 @@ const MILESTONES: Milestone[] = [
     id: 'first-plasteel',
     condition: (b) => b.stacks.some((s) => s.cards.some((c) => c.type === 'plasteel')),
     unlockRecipeIds: ['build-solar-panel'],
-    notificationCards: [],
+    createCards: [],
   },
   {
     id: 'sol-2',
     condition: (_b, clock) => clock.sol >= 2,
     unlockRecipeIds: ['make-service-drone'],
-    notificationCards: [],
+    createCards: [],
   },
   {
     id: 'sol-4',
     condition: (_b, clock) => clock.sol >= 4,
     unlockRecipeIds: [],
-    notificationCards: ['invasion-bacteria'],
+    createCards: ['invasion-bacteria'],
   },
   {
     id: 'sol-7',
     condition: (_b, clock) => clock.sol >= 7,
     unlockRecipeIds: [],
-    notificationCards: ['invasion-space-mouse'],
+    createCards: ['invasion-space-mouse'],
   },
   {
     id: 'three-plasteel-sol-3',
@@ -315,7 +315,7 @@ const MILESTONES: Milestone[] = [
       clock.sol >= 3 &&
       b.stacks.flatMap((s) => s.cards).filter((c) => c.type === 'plasteel').length >= 3,
     unlockRecipeIds: ['build-workbench'],
-    notificationCards: [],
+    createCards: [],
   },
   {
     id: 'first-workbench',
@@ -328,7 +328,7 @@ const MILESTONES: Milestone[] = [
       'build-train-en',
       'make-uni-kit',
     ],
-    notificationCards: [],
+    createCards: [],
   },
   {
     id: 'first-electronics',
@@ -340,13 +340,13 @@ const MILESTONES: Milestone[] = [
       'make-blaster',
       'make-bolter',
     ],
-    notificationCards: [],
+    createCards: [],
   },
   {
     id: 'first-drill',
     condition: (b) => b.stacks.some((s) => s.cards.some((c) => c.type === 'drill')),
     unlockRecipeIds: ['build-adv-workbench', 'build-rover'],
-    notificationCards: [],
+    createCards: [],
   },
   {
     id: 'first-adv-workbench',
@@ -358,55 +358,55 @@ const MILESTONES: Milestone[] = [
       'make-bolter-heavy',
       'make-minigun',
     ],
-    notificationCards: [],
+    createCards: [],
   },
   {
     id: 'first-power-station',
     condition: (b) => b.stacks.some((s) => s.cards.some((c) => c.type === 'power-station')),
     unlockRecipeIds: ['build-cloning-chamber'],
-    notificationCards: [],
+    createCards: [],
   },
   {
     id: 'first-uni-kit',
     condition: (b) => b.stacks.some((s) => s.cards.some((c) => c.type === 'uni-kit')),
     unlockRecipeIds: ['revive-entity'],
-    notificationCards: [],
+    createCards: [],
   },
   {
     id: 'first-cloning-chamber',
     condition: (b) => b.stacks.some((s) => s.cards.some((c) => c.type === 'cloning-chamber')),
     unlockRecipeIds: ['clone-astronaut'],
-    notificationCards: [],
+    createCards: [],
   },
   {
     id: 'first-computronium',
     condition: (b) => b.stacks.some((s) => s.cards.some((c) => c.type === 'computronium')),
     unlockRecipeIds: ['build-train-in', 'make-laser-cannon'],
-    notificationCards: [],
+    createCards: [],
   },
   {
     id: 'first-refinery',
     condition: (b) => b.stacks.some((s) => s.cards.some((c) => c.type === 'refinery')),
     unlockRecipeIds: ['make-unobtainium'],
-    notificationCards: [],
+    createCards: [],
   },
   {
     id: 'first-reactor',
     condition: (b) => b.stacks.some((s) => s.cards.some((c) => c.type === 'reactor')),
     unlockRecipeIds: ['make-wishalloy'],
-    notificationCards: [],
+    createCards: [],
   },
   {
     id: 'first-unobtainium',
     condition: (b) => b.stacks.some((s) => s.cards.some((c) => c.type === 'unobtainium')),
     unlockRecipeIds: ['build-train-pe'],
-    notificationCards: [],
+    createCards: [],
   },
   {
     id: 'first-wishalloy',
     condition: (b) => b.stacks.some((s) => s.cards.some((c) => c.type === 'wishalloy')),
     unlockRecipeIds: ['build-train-lk'],
-    notificationCards: [],
+    createCards: [],
   },
 ];
 
@@ -423,7 +423,7 @@ function checkMilestones(board: Board, clock: Clock): void {
         ]),
       );
     }
-    for (const card of milestone.notificationCards) {
+    for (const card of milestone.createCards) {
       addCardToMatchingStack(board.stacks, card, { x: board.width / 2, y: board.height / 2 });
     }
   }
