@@ -1,8 +1,6 @@
 import type { CardDef } from '$lib/types/card-types';
-// TODO remove export type and import directly instead.
-export type { CardDef, EnemyDef, DamageType, WeaponStats, UnitStats } from '$lib/types/card-types';
 
-export const CARD_CATALOG = {
+export const CARD_CATALOG: Record<string, CardDef> = {
   // Resources
   'alien-parts': { title: 'Alien Parts', image: 'alien-parts.svg', color: '#69F0AE', value: 15 },
   biomass: { title: 'Biomass', image: 'biomass.svg', color: '#4A7C3F', value: 1 },
@@ -213,6 +211,6 @@ export const CARD_CATALOG = {
     value: 25,
     weapon: { damage: 40, damageType: 'energy', attackInterval: 4.0 },
   },
-} satisfies Record<string, CardDef>;
+};
 
 export type CardType = keyof typeof CARD_CATALOG;
