@@ -29,8 +29,7 @@
   } from '$lib/utils/card-factories';
   import { tick as tickPhysics } from '$lib/behavior/physics';
   import { tick as tickProgress } from '$lib/behavior/progress';
-  import { tickClock, getVirtualNow, setSpeed } from '$lib/behavior/clock';
-  import { SOL_DURATION } from '$lib/data/constants';
+  import { tickClock, setSpeed, getSolProgress } from '$lib/behavior/clock';
   import { recipes } from '$lib/data/recipes';
 
   let showRecipes = $state(false);
@@ -195,7 +194,6 @@
     clock.solStartTime = clock.vTime;
   }
 
-  let solProgress = $state(0);
   let boards = $state<Board[]>(initialBoards);
   let clock = $state<Clock>(makeClock());
   let currentBoardIndex = $state(0);
@@ -344,10 +342,6 @@
       for (const board of boards) {
         tickPhysics(board);
         tickProgress(board, boards, clock, now);
-      }
-      if (clock.solStartTime !== null && !clock.endOfSol) {
-        const vNow = getVirtualNow(clock, now);
-        solProgress = Math.min((vNow - clock.solStartTime) / SOL_DURATION, 1);
       }
       rafId = requestAnimationFrame(loop);
     }
@@ -522,7 +516,7 @@
   {/if}
   <Hud
     {clock}
-    {solProgress}
+    solProgress={getSolProgress(clock, Date.now())}
     currency={currentBoard.currency}
     {energyAvailable}
     {energyNeeded}
