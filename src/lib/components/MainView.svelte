@@ -158,14 +158,13 @@
     if (e.key === ' ') {
       e.preventDefault();
       if (!clock.endOfSol) {
-        const now = performance.now();
-        setSpeed(clock, now, clock.speed === 0 ? clock.lastActiveSpeed : 0);
+        setSpeed(clock, clock.speed === 0 ? clock.lastActiveSpeed : 0);
       }
     }
-    if (e.key === '1') setSpeed(clock, performance.now(), 1);
-    if (e.key === '2') setSpeed(clock, performance.now(), 2);
-    if (e.key === '3') setSpeed(clock, performance.now(), 3);
-    if (e.key === '4' && !clock.endOfSol) setSpeed(clock, performance.now(), 0);
+    if (e.key === '1') setSpeed(clock, 1);
+    if (e.key === '2') setSpeed(clock, 2);
+    if (e.key === '3') setSpeed(clock, 3);
+    if (e.key === '4' && !clock.endOfSol) setSpeed(clock, 0);
     if (e.key === 'q' || e.key === 'Q') showRecipes = !showRecipes;
     if (e.key === 't' || e.key === 'T') showTeleport = !showTeleport;
     if (e.key === 'r' || e.key === 'R') routingMode = !routingMode;

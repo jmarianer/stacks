@@ -27,7 +27,7 @@
     showTeleport: boolean;
     routingMode: boolean;
     onBuyCard: (item: ShopItem) => void;
-    onSetSpeed: (clock: Clock, now: number, speed: number) => void;
+    onSetSpeed: (clock: Clock, speed: number) => void;
   } = $props();
 </script>
 
@@ -36,14 +36,14 @@
     <button
       class="speed-btn"
       class:active={clock.speed === 0 && !clock.endOfSol}
-      onclick={() => onSetSpeed(clock, performance.now(), 0)}
+      onclick={() => onSetSpeed(clock, 0)}
       disabled={clock.endOfSol}>⏸</button
     >
     {#each [1, 2, 3] as s (s)}
       <button
         class="speed-btn"
         class:active={clock.speed === s && !clock.endOfSol}
-        onclick={() => onSetSpeed(clock, performance.now(), s)}
+        onclick={() => onSetSpeed(clock, s)}
         disabled={clock.endOfSol}>{s}×</button
       >
     {/each}

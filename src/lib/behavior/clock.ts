@@ -93,7 +93,8 @@ export function getVirtualNow(clock: Clock, realNow: number): number {
 }
 
 /** Change speed (0=pause, 1/2/3=active). Syncs virtual clock before switching. */
-export function setSpeed(clock: Clock, realNow: number, newSpeed: number): void {
+export function setSpeed(clock: Clock, newSpeed: number): void {
+  const realNow = performance.now();
   clock.vTime = getVirtualNow(clock, realNow);
   clock.vTimeAt = realNow;
   if (newSpeed > 0) clock.lastActiveSpeed = newSpeed;
