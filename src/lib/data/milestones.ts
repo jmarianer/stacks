@@ -2,31 +2,25 @@ import type { Milestone } from '$lib/types/milestone-types';
 
 export const MILESTONES: Milestone[] = [
   {
-    id: 'first-plasteel',
+    id: 'solar-panel',
     condition: (b) => b.stacks.some((s) => s.cards.some((c) => c.type === 'plasteel')),
     unlockRecipeIds: ['build-solar-panel'],
     createCards: [],
   },
   {
-    id: 'sol-2',
+    id: 'service-drone',
     condition: (_b, clock) => clock.sol >= 2,
     unlockRecipeIds: ['make-service-drone'],
     createCards: [],
   },
   {
-    id: 'sol-4',
-    condition: (_b, clock) => clock.sol >= 4,
+    id: 'bacteria-invasion',
+    condition: (_b, clock) => clock.sol >= 7,
     unlockRecipeIds: [],
     createCards: ['invasion-bacteria'],
   },
   {
-    id: 'sol-7',
-    condition: (_b, clock) => clock.sol >= 7,
-    unlockRecipeIds: [],
-    createCards: ['invasion-space-mouse'],
-  },
-  {
-    id: 'three-plasteel-sol-3',
+    id: 'workbench',
     condition: (b, clock) =>
       clock.sol >= 3 &&
       b.stacks.flatMap((s) => s.cards).filter((c) => c.type === 'plasteel').length >= 3,
