@@ -28,13 +28,9 @@
     makeTeleportCard,
   } from '$lib/utils/card-factories';
   import { tick as tickPhysics } from '$lib/behavior/physics';
-  import {
-    tick as tickProgress,
-    tickClock,
-    SOL_DURATION,
-    getVirtualNow,
-    setSpeed,
-  } from '$lib/behavior/progress';
+  import { tick as tickProgress } from '$lib/behavior/progress';
+  import { tickClock, getVirtualNow, setSpeed } from '$lib/behavior/clock';
+  import { SOL_DURATION } from '$lib/data/constants';
   import { recipes } from '$lib/data/recipes';
 
   let showRecipes = $state(false);

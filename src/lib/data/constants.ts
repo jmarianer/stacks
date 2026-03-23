@@ -1,3 +1,4 @@
+export const SOL_DURATION = 2 * 60 * 1000; // 2 minutes in ms
 export const CARD_W = 20;
 export const CARD_H = 28;
 export const STACK_CARD_OFFSET_Y = 4;
