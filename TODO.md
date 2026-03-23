@@ -1,11 +1,45 @@
 # Stacks TODO list
 
-## Combat
+## Unit inventory
 
 - Weapons get equipped into inventory (as opposed to being on the stack)
-- One weapon is selected from the inventory and is then used.
-- Max inventory slots depends on the unit type (astronaut, cyborg, battle-bot)
-- Add boss fights later
+- One weapon is selected from the inventory and is then used. (For the moment we can assume the last one equipped is selected; we'll add selection UI later)
+- Max inventory slots depends on the unit type (astronaut=3, cyborg=4, battle-bot=5)
+
+- Rather than act on the unit immediately, band-aids and uni-kits are equipped in special slots. We can look at the old game to see how many slots of each type any given unit has. Since all bandaids and all unikits are identical we just need a number in each unit.
+
+## Combat UI
+
+In combat mode, every unit that is participating has an overlay with a health bar, cooldown and other stats as makes sense.
+
+## Combat
+
+These are the actions taken by each type of unit in the old game
+
+### Astronaut (player)
+
+HP ≤ 50% and has a potion → use healing item
+HP ≤ 90%, regen not active, and has berries → use regen item
+HP < 25% → rush away from closest enemy (500 ms)
+HP < 50% → move away from closest enemy (500 ms)
+Enemy in weapon range → attack closest enemy (1000 ms)
+Any enemy on aggro list → move towards closest enemy (500 ms)
+Can patrol → patrol (500 ms)
+Otherwise → do nothing (1000 ms)
+
+(remember that potion = bandaid and berries = unikit, or maybe it's the other way around I don't remember)
+
+
+### Bacteria (hostile, 16 HP, regenerates 2 HP/tick)
+
+Enemy in weapon range → attack closest enemy (1000 ms)
+Any enemy on aggro list → move towards closest enemy (500 ms)
+Can patrol → patrol (500 ms)
+Otherwise → do nothing (1000 ms)
+Straightforward aggressor; no retreat behaviour.
+
+
+Let's implement all of those except "patrol".
 
 ## QoL
 
