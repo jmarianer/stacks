@@ -1,3 +1,5 @@
+import type { RecipeResult } from '$lib/types/recipe-types';
+
 export type DamageType = 'impact' | 'energy' | 'plasma' | 'acid';
 
 /** Weapon stats embedded in a unit's CardDef or a weapon CardDef. */
@@ -31,8 +33,8 @@ export type EnemyDef = {
   unitStats: Omit<UnitStats, 'lastAttackAt'>;
   /** Enemies only have their built-in weapon. */
   weapon: WeaponStats;
-  /** Loot: weighted map of CardType → relative weight. */
-  loot: Record<string, number>;
+  /** Loot dropped on death, processed as recipe results. */
+  loot: RecipeResult[];
 };
 
 export type CardDef = {

@@ -111,7 +111,7 @@ export const CARD_CATALOG: Record<string, CardDef> = {
         health: 16,
       },
       weapon: { damage: 5, damageType: 'impact', attackInterval: 0.9 },
-      loot: { biomass: 4 },
+      loot: [{ action: 'card', card: 'biomass' }],
     },
   },
   'space-mouse': {
@@ -129,7 +129,7 @@ export const CARD_CATALOG: Record<string, CardDef> = {
         health: 50,
       },
       weapon: { damage: 3, damageType: 'impact', attackInterval: 1.2 },
-      loot: { biomass: 2, 'crust-chunk': 1 },
+      loot: [{ action: 'weighted', cards: { biomass: 2, 'crust-chunk': 1 } }],
     },
   },
   // Critters / wildlife

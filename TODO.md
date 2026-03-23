@@ -20,8 +20,6 @@
 
 ## Code quality
 
-- Enemy loot should be a recipe-results thing
-
 Files that can be considered Done (for now):
 
 - physics.ts

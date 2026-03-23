@@ -408,7 +408,7 @@ function runCombat(board: Board, now: number): void {
   if (dead.size === 0) return;
 
   // Collect loot drops and dead player cards before mutating stacks
-  const lootDrops: Array<{ type: CardType; pos: Vec2 }> = [];
+  const lootEntries: Array<{ results: RecipeResult[]; pos: Vec2 }> = [];
   const deadPlayerCards: Array<{ card: CardData; pos: Vec2 }> = [];
 
   for (const stack of board.stacks) {
@@ -416,8 +416,7 @@ function runCombat(board: Board, now: number): void {
       if (!dead.has(card.id)) continue;
       const def = CARD_CATALOG[card.type] as CardDef;
       if (def.enemy) {
-        const lootType = weightedRandom(def.enemy.loot);
-        if (isCardType(lootType)) lootDrops.push({ type: lootType, pos: { ...stack.pos } });
+        lootEntries.push({ results: def.enemy.loot, pos: { ...stack.pos } });
       } else {
         deadPlayerCards.push({ card, pos: { ...stack.pos } });
       }
@@ -426,7 +425,9 @@ function runCombat(board: Board, now: number): void {
   }
   board.stacks = board.stacks.filter((s) => s.cards.length > 0);
 
-  for (const { type, pos } of lootDrops) addCardToMatchingStack(board.stacks, type, pos);
+  for (const { results, pos } of lootEntries) {
+    applyResults(results, board, [], makeStackFromCards(pos, []), null, null);
+  }
   for (const { card, pos } of deadPlayerCards) {
     board.stacks.push(makeStackFromCards(pos, [makeTombstoneCard(card)]));
   }
