@@ -2,6 +2,7 @@ import { recipes } from '$lib/data/recipes';
 import { MILESTONES } from '$lib/data/milestones';
 import type { Stack, Board, CardData, Clock, SolFeedResult } from '$lib/types/board-types';
 import { hpMaxFromStats, type WeaponStats, type CardDef } from '$lib/types/card-types';
+import type { RecipeResult } from '$lib/types/recipe-types';
 import type { Vec2 } from '$lib/utils/vec2';
 import { CARD_CATALOG, type CardType } from '$lib/data/card-defs';
 import {
@@ -153,57 +154,40 @@ function weightedRandom(cards: Record<string, number>): string {
   return Object.keys(cards)[0];
 }
 
-function executeRecipe(board: Board, boards: Board[], stack: Stack, recipe: Recipe): void {
+function dropCard(type: string, stacks: Stack[], pos: Vec2, routeDest: Stack | null | undefined): void {
+  if (!isCardType(type)) return;
+  if (routeDest) {
+    routeDest.cards.push(makeCardOfType(type));
+  } else {
+    addCardToMatchingStack(stacks, type, pos);
+  }
+}
+
+function applyResults(
+  results: RecipeResult[],
+  board: Board,
+  boards: Board[],
+  stack: Stack,
+  routeDest: Stack | null,
+  savedTombstone: CardData | null,
+): void {
   const stacks = board.stacks;
-  const consumed = new Set<number>();
-  for (const ing of recipe.ingredients) {
-    if (!ing.consumed) continue;
-    let need = ing.count ?? 1;
-    for (let i = 0; i < stack.cards.length && need > 0; i++) {
-      if (!consumed.has(i) && cardMatchesIngredient(stack.cards[i].type, ing.match)) {
-        consumed.add(i);
-        need--;
-      }
-    }
-  }
-
-  // Save tombstone before it's consumed (needed for revive-unit result)
-  const savedTombstone =
-    Array.from(consumed, (i) => stack.cards[i]).find((c) => c.type === 'tombstone') ?? null;
-
-  const fullyConsumed = new Set<number>();
-  for (const idx of consumed) {
-    const card = stack.cards[idx];
-    if (card.usesRemaining !== undefined) {
-      card.usesRemaining -= 1;
-      if (card.usesRemaining <= 0) fullyConsumed.add(idx);
-    } else {
-      fullyConsumed.add(idx);
-    }
-  }
-  stack.cards = stack.cards.filter((_, i) => !fullyConsumed.has(i));
-  stack.progress = 0;
-  stack.progressStartTime = null;
-  stack.activeRecipeId = null;
-
-  // Check for a routing connection from this stack to a destination foundation stack
-  const connection = board.connections.find((c) => c.fromId === stack.id);
-  const routeDest = connection ? stacks.find((s) => s.id === connection.toId) : null;
-
-  let offset = 0;
-  for (const result of recipe.results) {
+  const dropPos = { x: stack.pos.x + 2, y: stack.pos.y + 2 };
+  for (const result of results) {
     if (result.action === 'unlock-recipe') {
       if (!board.knownRecipeIds.includes(result.recipeId)) {
         board.knownRecipeIds.push(result.recipeId);
       }
       continue;
     }
-    let type: string | null = null;
     if (result.action === 'card') {
       if (result.chance !== undefined && Math.random() * 100 > result.chance) continue;
-      type = result.card;
-    } else if (result.action === 'weighted') {
-      type = weightedRandom(result.cards);
+      dropCard(result.card, stacks, dropPos, routeDest);
+      continue;
+    }
+    if (result.action === 'weighted') {
+      dropCard(weightedRandom(result.cards), stacks, dropPos, routeDest);
+      continue;
     }
     if (result.action === 'discover-board') {
       const target = boards.find((b) => b.name === result.boardName);
@@ -259,17 +243,47 @@ function executeRecipe(board: Board, boards: Board[], stack: Stack, recipe: Reci
       }
       continue;
     }
-    if (!type || !isCardType(type)) continue;
-    if (routeDest) {
-      routeDest.cards.push(makeCardOfType(type));
-    } else {
-      addCardToMatchingStack(stacks, type, {
-        x: stack.pos.x + offset * 2,
-        y: stack.pos.y + offset * 2,
-      });
-    }
-    offset++;
   }
+}
+
+function executeRecipe(board: Board, boards: Board[], stack: Stack, recipe: Recipe): void {
+  const stacks = board.stacks;
+  const consumed = new Set<number>();
+  for (const ing of recipe.ingredients) {
+    if (!ing.consumed) continue;
+    let need = ing.count ?? 1;
+    for (let i = 0; i < stack.cards.length && need > 0; i++) {
+      if (!consumed.has(i) && cardMatchesIngredient(stack.cards[i].type, ing.match)) {
+        consumed.add(i);
+        need--;
+      }
+    }
+  }
+
+  // Save tombstone before it's consumed (needed for revive-unit result)
+  const savedTombstone =
+    Array.from(consumed, (i) => stack.cards[i]).find((c) => c.type === 'tombstone') ?? null;
+
+  const fullyConsumed = new Set<number>();
+  for (const idx of consumed) {
+    const card = stack.cards[idx];
+    if (card.usesRemaining !== undefined) {
+      card.usesRemaining -= 1;
+      if (card.usesRemaining <= 0) fullyConsumed.add(idx);
+    } else {
+      fullyConsumed.add(idx);
+    }
+  }
+  stack.cards = stack.cards.filter((_, i) => !fullyConsumed.has(i));
+  stack.progress = 0;
+  stack.progressStartTime = null;
+  stack.activeRecipeId = null;
+
+  // Check for a routing connection from this stack to a destination foundation stack
+  const connection = board.connections.find((c) => c.fromId === stack.id);
+  const routeDest = connection ? (stacks.find((s) => s.id === connection.toId) ?? null) : null;
+
+  applyResults(recipe.results, board, boards, stack, routeDest, savedTombstone);
 
   if (stack.cards.length === 0) {
     stacks.splice(stacks.indexOf(stack), 1);
