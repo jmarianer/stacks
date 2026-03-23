@@ -28,7 +28,7 @@ function feedUnits(board: Board): SolFeedResult {
   }
 
   // Collect units sorted by priority (lower = fed first)
-  const units: { card: CardData; cost: number, priority: number }[] = [];
+  const units: { card: CardData; cost: number; priority: number }[] = [];
   for (const stack of board.stacks) {
     for (const card of stack.cards) {
       const feed = (CARD_CATALOG[card.type] as CardDef).feed;
@@ -154,7 +154,12 @@ function weightedRandom(cards: Record<string, number>): string {
   return Object.keys(cards)[0];
 }
 
-function dropCard(type: string, stacks: Stack[], pos: Vec2, routeDest: Stack | null | undefined): void {
+function dropCard(
+  type: string,
+  stacks: Stack[],
+  pos: Vec2,
+  routeDest: Stack | null | undefined,
+): void {
   if (!isCardType(type)) return;
   if (routeDest) {
     routeDest.cards.push(makeCardOfType(type));

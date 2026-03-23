@@ -21,7 +21,12 @@
   import type { UnitStats } from '$lib/types/card-types';
   import { CARD_CATALOG } from '$lib/data/card-defs';
   import { initialBoards } from '$lib/data/initial-boards';
-  import { makeClock, makeStackFromCards, addCardToMatchingStack, makeTeleportCard } from '$lib/utils/card-factories';
+  import {
+    makeClock,
+    makeStackFromCards,
+    addCardToMatchingStack,
+    makeTeleportCard,
+  } from '$lib/utils/card-factories';
   import { tick as tickPhysics } from '$lib/behavior/physics';
   import {
     tick as tickProgress,

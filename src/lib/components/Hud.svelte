@@ -66,16 +66,8 @@
   >
   <div class="shop">
     {#each shop as item (item.id)}
-      <button
-        class="shop-item"
-        disabled={currency < item.price}
-        onclick={() => onBuyCard(item)}
-      >
-        <img
-          class="shop-image"
-          src="/cards/{CARD_CATALOG[item.cardType].image}"
-          alt={item.label}
-        />
+      <button class="shop-item" disabled={currency < item.price} onclick={() => onBuyCard(item)}>
+        <img class="shop-image" src="/cards/{CARD_CATALOG[item.cardType].image}" alt={item.label} />
         <span class="shop-price">${item.price}</span>
       </button>
     {/each}

@@ -4,12 +4,12 @@
   import type { CardData } from '$lib/types/board-types';
 
   const ATTRS: { key: keyof UnitStats; label: string; effect: string }[] = [
-    { key: 'endurance',    label: 'Endurance',    effect: '+10 HP / level' },
-    { key: 'strength',     label: 'Strength',     effect: 'Damage & knockdown' },
-    { key: 'perception',   label: 'Perception',   effect: 'Accuracy & range' },
+    { key: 'endurance', label: 'Endurance', effect: '+10 HP / level' },
+    { key: 'strength', label: 'Strength', effect: 'Damage & knockdown' },
+    { key: 'perception', label: 'Perception', effect: 'Accuracy & range' },
     { key: 'intelligence', label: 'Intelligence', effect: 'Crafting speed' },
-    { key: 'agility',      label: 'Agility',      effect: 'Rate of fire' },
-    { key: 'luck',         label: 'Luck',         effect: 'Critical hits' },
+    { key: 'agility', label: 'Agility', effect: 'Rate of fire' },
+    { key: 'luck', label: 'Luck', effect: 'Critical hits' },
   ];
 
   let {
@@ -30,7 +30,10 @@
 <button class="stat-backdrop" onclick={onClose} aria-label="Close"></button>
 <div
   class="stat-panel"
-  style="left: {Math.min(x, window.innerWidth - 220)}px; top: {Math.min(y, window.innerHeight - 320)}px;"
+  style="left: {Math.min(x, window.innerWidth - 220)}px; top: {Math.min(
+    y,
+    window.innerHeight - 320,
+  )}px;"
 >
   <div class="stat-header">
     <span class="stat-name">{CARD_CATALOG[card.type].title}</span>
@@ -38,7 +41,10 @@
   <div class="stat-hp-row">
     <span class="stat-hp-label">HP</span>
     <div class="stat-hp-bar">
-      <div class="stat-hp-fill" style="width: {(stats.health / hpMaxFromStats(stats)) * 100}%"></div>
+      <div
+        class="stat-hp-fill"
+        style="width: {(stats.health / hpMaxFromStats(stats)) * 100}%"
+      ></div>
     </div>
     <span class="stat-hp-nums">{stats.health}/{hpMaxFromStats(stats)}</span>
   </div>
