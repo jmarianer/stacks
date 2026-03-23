@@ -138,7 +138,6 @@ function applyResults(
   boards: Board[],
   stack: Stack,
   routeDest: Stack | null,
-  savedTombstone: CardData | null,
   consumedCards: CardData[] = [],
 ): void {
   const stacks = board.stacks;
@@ -197,6 +196,7 @@ function applyResults(
       continue;
     }
     if (result.action === 'revive-unit') {
+      const savedTombstone = consumedCards.find((c) => c.type === 'tombstone') ?? null;
       if (savedTombstone) {
         const revived = makeReviveCard(savedTombstone);
         stacks.push(makeStackFromCards({ x: stack.pos.x + 2, y: stack.pos.y + 2 }, [revived]));
@@ -250,7 +250,6 @@ function executeRecipe(board: Board, boards: Board[], stack: Stack, recipe: Reci
 
   // Save consumed card data before removal (needed for revive-unit and equip-weapon results)
   const consumedCards = Array.from(consumed, (i) => stack.cards[i]);
-  const savedTombstone = consumedCards.find((c) => c.type === 'tombstone') ?? null;
 
   const fullyConsumed = new Set<number>();
   for (const idx of consumed) {
@@ -271,7 +270,7 @@ function executeRecipe(board: Board, boards: Board[], stack: Stack, recipe: Reci
   const connection = board.connections.find((c) => c.fromId === stack.id);
   const routeDest = connection ? (stacks.find((s) => s.id === connection.toId) ?? null) : null;
 
-  applyResults(recipe.results, board, boards, stack, routeDest, savedTombstone, consumedCards);
+  applyResults(recipe.results, board, boards, stack, routeDest, consumedCards);
 
   if (stack.cards.length === 0) {
     stacks.splice(stacks.indexOf(stack), 1);
@@ -405,7 +404,7 @@ function runCombat(board: Board, now: number): void {
   board.stacks = board.stacks.filter((s) => s.cards.length > 0);
 
   for (const { results, pos } of lootEntries) {
-    applyResults(results, board, [], makeStackFromCards(pos, []), null, null);
+    applyResults(results, board, [], makeStackFromCards(pos, []), null);
   }
   for (const { card, pos } of deadPlayerCards) {
     board.stacks.push(makeStackFromCards(pos, [makeTombstoneCard(card)]));
