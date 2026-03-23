@@ -2,16 +2,30 @@
 
 ## Unit inventory
 
-- Weapons get equipped into inventory (as opposed to being on the stack)
-- One weapon is selected from the inventory and is then used. (For the moment we can assume the last one equipped is selected; we'll add selection UI later)
-- Max inventory slots depends on the unit type (astronaut=3, cyborg=4, battle-bot=5)
-- Service drone doesn't participate in combat and cannot equip weapons.
+Only astronaut and cyborg have inventory (battle-bot will too, once added). Service drone has no inventory and doesn't participate in combat.
 
-- Rather than act on the unit immediately, band-aids and uni-kits are equipped in special slots. The total number is something like "sum of all stats / 10" for bandaids and "sum of all stats / 5" for unikits. Since all bandaids and all unikits are identical we just need a number in each unit. Again service drone doesn't count for this as it doesn't participate in combat nor have stats.
+### Weapons
 
-(remember that potion = bandaid = heal, and berries = unikit = regen)
+Equipping: drop a weapon card onto a unit's stack — triggers a 1-second recipe that moves it into the unit's weapon inventory.
 
-All equipped items and heals stay in the tombstone when a unit dies.
+- Max weapon slots: astronaut=3, cyborg=4
+- Slots fill in order; equipping when full does nothing
+- The most recently equipped weapon is the active one (selection UI is future work)
+
+### Healing items (band-aids and uni-kits)
+
+Equipping: same as weapons — drop onto the stack, 1-second recipe, moved into inventory.
+
+- Band-aids (heal): max = floor(statSum / 10 + 1) → base stats (sum=6) = 1 slot
+- Uni-kits (regen): max = floor(statSum / 5 + 1) → base stats (sum=6) = 2 slots
+- Since all band-aids are identical and all uni-kits are identical, we just store a count for each
+- Equipping when at max does nothing
+
+(potion = band-aid = heal; berry = uni-kit = regen)
+
+### Death
+
+All equipped weapons and healing item counts carry over into the tombstone. Both `CardData` for units and tombstones will need to gain `inventory` and heal count fields.
 
 ## Combat UI
 
