@@ -5,12 +5,17 @@
 - Weapons get equipped into inventory (as opposed to being on the stack)
 - One weapon is selected from the inventory and is then used. (For the moment we can assume the last one equipped is selected; we'll add selection UI later)
 - Max inventory slots depends on the unit type (astronaut=3, cyborg=4, battle-bot=5)
+- Service drone doesn't participate in combat and cannot equip weapons.
 
-- Rather than act on the unit immediately, band-aids and uni-kits are equipped in special slots. We can look at the old game to see how many slots of each type any given unit has. Since all bandaids and all unikits are identical we just need a number in each unit.
+- Rather than act on the unit immediately, band-aids and uni-kits are equipped in special slots. The total number is something like "sum of all stats / 10" for bandaids and "sum of all stats / 5" for unikits. Since all bandaids and all unikits are identical we just need a number in each unit. Again service drone doesn't count for this as it doesn't participate in combat nor have stats.
+
+(remember that potion = bandaid = heal, and berries = unikit = regen)
+
+All equipped items and heals stay in the tombstone when a unit dies.
 
 ## Combat UI
 
-In combat mode, every unit that is participating has an overlay with a health bar, cooldown and other stats as makes sense.
+Whenever enemies are present, every player and enemy unit has an overlay with a health bar, cooldown and other stats as makes sense. (We'll need to decide exactly what that means, maybe "current weapon" and/or "heal/regen count")
 
 ## Combat
 
@@ -27,7 +32,7 @@ Any enemy on aggro list → move towards closest enemy (500 ms)
 Can patrol → patrol (500 ms)
 Otherwise → do nothing (1000 ms)
 
-(remember that potion = bandaid and berries = unikit, or maybe it's the other way around I don't remember)
+
 
 
 ### Bacteria (hostile, 16 HP, regenerates 2 HP/tick)
@@ -39,7 +44,9 @@ Otherwise → do nothing (1000 ms)
 Straightforward aggressor; no retreat behaviour.
 
 
-Let's implement all of those except "patrol".
+Ignoring space mouse for the time being. I suggest we implement all of those except "patrol", and remove the "rush vs. move" distinction (i.e. treat both as "flee", so that the astronaut becomes "move away if HP < 50%"). Aggro = "enemies on the same board" for the moment, I think.
+
+Player units that started combat atop stacks should return to their stacks (and resume recipes) when combat is over (i.e. no more enemies). Player units that were loose can stay where they were. I suggest using stack IDs for that; if the stack was split, the unit goes to whatever stack retains the old ID. If the stack no longer exists it stays where it is.
 
 ## QoL
 
