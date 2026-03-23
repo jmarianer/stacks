@@ -418,25 +418,36 @@ export const recipes: Recipe[] = [
   },
   {
     id: 'use-band-aid',
-    label: 'Apply Band-Aid',
+    label: 'Stock Band-Aid',
     time: 1000,
     alwaysKnown: true,
     ingredients: [
       { match: 'band-aid', consumed: true },
       { match: 'people', consumed: false },
     ],
-    results: [{ action: 'heal-unit', amount: 25 }],
+    results: [{ action: 'equip-band-aid' }],
   },
   {
     id: 'use-uni-kit',
-    label: 'Apply Uni-Kit',
+    label: 'Stock Uni-Kit',
     time: 1000,
     alwaysKnown: true,
     ingredients: [
       { match: 'uni-kit', consumed: true },
       { match: 'people', consumed: false },
     ],
-    results: [{ action: 'heal-unit', amount: Infinity }],
+    results: [{ action: 'equip-uni-kit' }],
+  },
+  {
+    id: 'equip-weapon',
+    label: 'Equip Weapon',
+    time: 1000,
+    alwaysKnown: true,
+    ingredients: [
+      { match: 'weapon', consumed: true },
+      { match: 'people', consumed: false },
+    ],
+    results: [{ action: 'equip-weapon' }],
   },
   {
     id: 'revive-entity',

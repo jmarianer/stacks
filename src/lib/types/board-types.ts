@@ -11,6 +11,9 @@ export type CardData = {
   targetBoardIndex?: number; // set on teleport cards
   unitStats?: UnitStats; // present on living units and their tombstones
   tombstoneOf?: CardType; // set on tombstone cards: the original unit type (for revival)
+  weaponInventory?: CardType[]; // equipped weapons; last entry = active weapon
+  bandAids?: number; // stocked band-aids (heal)
+  uniKits?: number; // stocked uni-kits (regen)
 };
 
 export type Stack = {

@@ -37,6 +37,9 @@ export function makeReviveCard(tombstone: CardData): CardData {
   if (tombstone.unitStats) {
     card.unitStats = { ...tombstone.unitStats, health: hpMaxFromStats(tombstone.unitStats) };
   }
+  if (tombstone.weaponInventory) card.weaponInventory = [...tombstone.weaponInventory];
+  if (tombstone.bandAids !== undefined) card.bandAids = tombstone.bandAids;
+  if (tombstone.uniKits !== undefined) card.uniKits = tombstone.uniKits;
   return card;
 }
 
@@ -47,6 +50,9 @@ export function makeTombstoneCard(fromCard: CardData): CardData {
     label: `† ${CARD_CATALOG[fromCard.type].title}`,
     tombstoneOf: fromCard.type,
     unitStats: fromCard.unitStats,
+    ...(fromCard.weaponInventory ? { weaponInventory: [...fromCard.weaponInventory] } : {}),
+    ...(fromCard.bandAids !== undefined ? { bandAids: fromCard.bandAids } : {}),
+    ...(fromCard.uniKits !== undefined ? { uniKits: fromCard.uniKits } : {}),
   };
 }
 

@@ -1,32 +1,5 @@
 # Stacks TODO list
 
-## Unit inventory
-
-Only astronaut and cyborg have inventory (battle-bot will too, once added). Service drone has no inventory and doesn't participate in combat.
-
-### Weapons
-
-Equipping: drop a weapon card onto a unit's stack — triggers a 1-second recipe that moves it into the unit's weapon inventory.
-
-- Max weapon slots: astronaut=3, cyborg=4
-- Slots fill in order; equipping when full does nothing
-- The most recently equipped weapon is the active one (selection UI is future work)
-
-### Healing items (band-aids and uni-kits)
-
-Equipping: same as weapons — drop onto the stack, 1-second recipe, moved into inventory.
-
-- Band-aids (heal): max = floor(statSum / 10 + 1) → base stats (sum=6) = 1 slot
-- Uni-kits (regen): max = floor(statSum / 5 + 1) → base stats (sum=6) = 2 slots
-- Since all band-aids are identical and all uni-kits are identical, we just store a count for each
-- Equipping when at max does nothing
-
-(potion = band-aid = heal; berry = uni-kit = regen)
-
-### Death
-
-All equipped weapons and healing item counts carry over into the tombstone. Both `CardData` for units and tombstones will need to gain `inventory` and heal count fields.
-
 ## Combat UI
 
 Whenever enemies are present, every player and enemy unit has an overlay with a health bar, cooldown and other stats as makes sense. (We'll need to decide exactly what that means, maybe "current weapon" and/or "heal/regen count")

@@ -46,7 +46,7 @@ export type CardDef = {
   energyValueInitial?: number; // starting energy units (energy cells only)
   /** Present on player unit cards: initial stats (health computed from endurance). */
   unitStats?: Omit<UnitStats, 'health' | 'lastAttackAt'>;
-  /** Recipe ingredient groups this card belongs to (e.g. 'people'). */
+  /** Recipe ingredient groups this card belongs to (e.g. 'people', 'weapon'). */
   groups?: string[];
   /** Present on unit cards: built-in weapon (fists, claws, etc.) */
   weapon?: WeaponStats;
@@ -54,4 +54,6 @@ export type CardDef = {
   enemy?: EnemyDef;
   /** Energy feed requirement per sol. Lower priority = fed first. */
   feed?: { cost: number; priority: number };
+  /** Max weapon inventory slots for units that can equip weapons. */
+  weaponSlots?: number;
 };

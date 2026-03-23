@@ -13,7 +13,10 @@ export type RecipeResult =
   | { action: 'heal-unit'; amount: number } // amount = HP restored; use Infinity for full heal
   | { action: 'revive-unit' } // restores unit from tombstone card in the stack
   | { action: 'spawn-enemies'; enemyType: string; count: number } // spawns N enemies scattered on the board
-  | { action: 'discover-board'; boardName: string; chance: number; prerequisite?: string }; // reveals a board location
+  | { action: 'discover-board'; boardName: string; chance: number; prerequisite?: string } // reveals a board location
+  | { action: 'equip-weapon' } // moves the consumed weapon card into the unit's weaponInventory
+  | { action: 'equip-band-aid' } // increments bandAids on the unit
+  | { action: 'equip-uni-kit' }; // increments uniKits on the unit
 
 export type Recipe = {
   id: string;

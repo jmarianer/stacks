@@ -85,6 +85,7 @@ export const CARD_CATALOG: Record<string, CardDef> = {
     groups: ['people'],
     weapon: { damage: 5, damageType: 'impact', attackInterval: 2.0 },
     feed: { cost: 2, priority: 2 },
+    weaponSlots: 3,
   },
   'service-drone-1': {
     title: 'Service Drone',
@@ -183,6 +184,7 @@ export const CARD_CATALOG: Record<string, CardDef> = {
     image: 'weapon-blaster.svg',
     color: '#1565C0',
     value: 8,
+    groups: ['weapon'],
     weapon: { damage: 10, damageType: 'energy', attackInterval: 1.5 },
   },
   bolter: {
@@ -190,6 +192,7 @@ export const CARD_CATALOG: Record<string, CardDef> = {
     image: 'weapon-bolter.svg',
     color: '#546E7A',
     value: 10,
+    groups: ['weapon'],
     weapon: { damage: 15, damageType: 'impact', attackInterval: 2.0 },
   },
   'bolter-heavy': {
@@ -197,6 +200,7 @@ export const CARD_CATALOG: Record<string, CardDef> = {
     image: 'weapon-bolter-heavy.svg',
     color: '#37474F',
     value: 15,
+    groups: ['weapon'],
     weapon: { damage: 25, damageType: 'impact', attackInterval: 3.0 },
   },
   minigun: {
@@ -204,6 +208,7 @@ export const CARD_CATALOG: Record<string, CardDef> = {
     image: 'weapon-minigun.svg',
     color: '#FF6F00',
     value: 20,
+    groups: ['weapon'],
     weapon: { damage: 8, damageType: 'impact', attackInterval: 0.5 },
   },
   'laser-cannon': {
@@ -211,6 +216,7 @@ export const CARD_CATALOG: Record<string, CardDef> = {
     image: 'weapon-laser-cannon.svg',
     color: '#00BCD4',
     value: 25,
+    groups: ['weapon'],
     weapon: { damage: 40, damageType: 'energy', attackInterval: 4.0 },
   },
 };

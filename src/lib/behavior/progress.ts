@@ -21,6 +21,16 @@ function isCardType(s: string): s is CardType {
   return s in CARD_CATALOG;
 }
 
+function maxBandAids(stats: { endurance: number; strength: number; perception: number; intelligence: number; agility: number; luck: number }): number {
+  const sum = stats.endurance + stats.strength + stats.perception + stats.intelligence + stats.agility + stats.luck;
+  return Math.floor(sum / 10 + 1);
+}
+
+function maxUniKits(stats: { endurance: number; strength: number; perception: number; intelligence: number; agility: number; luck: number }): number {
+  const sum = stats.endurance + stats.strength + stats.perception + stats.intelligence + stats.agility + stats.luck;
+  return Math.floor(sum / 5 + 1);
+}
+
 function cardMatchesIngredient(type: CardType, match: string): boolean {
   if (type === match) return true;
   return (CARD_CATALOG[type] as CardDef).groups?.includes(match) ?? false;
@@ -58,7 +68,27 @@ function matchRecipe(stack: Stack, knownRecipeIds: string[]): Recipe | null {
     }
   }
 
-  return best?.recipe ?? null;
+  if (!best) return null;
+
+  // For equip recipes, block if the unit's inventory is already full
+  const unit = cards.find((c) => c.unitStats && !CARD_CATALOG[c.type].enemy);
+  for (const result of best.recipe.results) {
+    if (result.action === 'equip-weapon') {
+      if (!unit) return null;
+      const slots = CARD_CATALOG[unit.type].weaponSlots ?? 0;
+      if ((unit.weaponInventory?.length ?? 0) >= slots) return null;
+    }
+    if (result.action === 'equip-band-aid') {
+      if (!unit?.unitStats) return null;
+      if ((unit.bandAids ?? 0) >= maxBandAids(unit.unitStats)) return null;
+    }
+    if (result.action === 'equip-uni-kit') {
+      if (!unit?.unitStats) return null;
+      if ((unit.uniKits ?? 0) >= maxUniKits(unit.unitStats)) return null;
+    }
+  }
+
+  return best.recipe;
 }
 
 function weightedRandom(cards: Record<string, number>): string {
@@ -92,6 +122,7 @@ function applyResults(
   stack: Stack,
   routeDest: Stack | null,
   savedTombstone: CardData | null,
+  consumedCards: CardData[] = [],
 ): void {
   const stacks = board.stacks;
   const dropPos = { x: stack.pos.x + 2, y: stack.pos.y + 2 };
@@ -165,6 +196,26 @@ function applyResults(
       }
       continue;
     }
+    if (result.action === 'equip-weapon') {
+      const unit = stack.cards.find((c) => c.unitStats && !(CARD_CATALOG[c.type] as CardDef).enemy);
+      const weaponCard = consumedCards.find(
+        (c) => CARD_CATALOG[c.type].groups?.includes('weapon'),
+      );
+      if (unit && weaponCard) {
+        unit.weaponInventory = [...(unit.weaponInventory ?? []), weaponCard.type];
+      }
+      continue;
+    }
+    if (result.action === 'equip-band-aid') {
+      const unit = stack.cards.find((c) => c.unitStats && !(CARD_CATALOG[c.type] as CardDef).enemy);
+      if (unit) unit.bandAids = (unit.bandAids ?? 0) + 1;
+      continue;
+    }
+    if (result.action === 'equip-uni-kit') {
+      const unit = stack.cards.find((c) => c.unitStats && !(CARD_CATALOG[c.type] as CardDef).enemy);
+      if (unit) unit.uniKits = (unit.uniKits ?? 0) + 1;
+      continue;
+    }
   }
 }
 
@@ -182,9 +233,9 @@ function executeRecipe(board: Board, boards: Board[], stack: Stack, recipe: Reci
     }
   }
 
-  // Save tombstone before it's consumed (needed for revive-unit result)
-  const savedTombstone =
-    Array.from(consumed, (i) => stack.cards[i]).find((c) => c.type === 'tombstone') ?? null;
+  // Save consumed card data before removal (needed for revive-unit and equip-weapon results)
+  const consumedCards = Array.from(consumed, (i) => stack.cards[i]);
+  const savedTombstone = consumedCards.find((c) => c.type === 'tombstone') ?? null;
 
   const fullyConsumed = new Set<number>();
   for (const idx of consumed) {
@@ -205,7 +256,7 @@ function executeRecipe(board: Board, boards: Board[], stack: Stack, recipe: Reci
   const connection = board.connections.find((c) => c.fromId === stack.id);
   const routeDest = connection ? (stacks.find((s) => s.id === connection.toId) ?? null) : null;
 
-  applyResults(recipe.results, board, boards, stack, routeDest, savedTombstone);
+  applyResults(recipe.results, board, boards, stack, routeDest, savedTombstone, consumedCards);
 
   if (stack.cards.length === 0) {
     stacks.splice(stacks.indexOf(stack), 1);
@@ -231,18 +282,14 @@ function checkMilestones(board: Board, clock: Clock): void {
   }
 }
 
-/** Find the best weapon card in a unit's stack, or fall back to the unit's built-in weapon. */
-function getUnitWeapon(card: CardData, stack: Stack): WeaponStats | undefined {
-  let best: WeaponStats | undefined;
-  for (const c of stack.cards) {
-    if (c.id === card.id) continue;
-    const cDef = CARD_CATALOG[c.type] as CardDef;
-    if (cDef.weapon && !cDef.enemy && !c.unitStats) {
-      if (!best || cDef.weapon.damage > best.damage) best = cDef.weapon;
-    }
+/** Returns the active weapon for a player unit: last item in weaponInventory, or built-in weapon. */
+function getUnitWeapon(card: CardData): WeaponStats | undefined {
+  if (card.weaponInventory && card.weaponInventory.length > 0) {
+    const activeType = card.weaponInventory[card.weaponInventory.length - 1];
+    const def = CARD_CATALOG[activeType];
+    if (def.weapon) return def.weapon;
   }
-  if (best) return best;
-  return (CARD_CATALOG[card.type] as CardDef).weapon;
+  return CARD_CATALOG[card.type].weapon;
 }
 
 function nearestCombatant(
@@ -287,7 +334,7 @@ function runCombat(board: Board, now: number): void {
     if (dead.has(attacker.card.id)) return;
     const stats = attacker.card.unitStats!;
     const def = CARD_CATALOG[attacker.card.type] as CardDef;
-    const weapon = def.enemy ? def.enemy.weapon : getUnitWeapon(attacker.card, attacker.stack);
+    const weapon = def.enemy ? def.enemy.weapon : getUnitWeapon(attacker.card);
     if (!weapon) return;
 
     const live = targets.filter((t) => !dead.has(t.card.id));
