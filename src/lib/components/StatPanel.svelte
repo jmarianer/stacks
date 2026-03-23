@@ -2,6 +2,7 @@
   import { CARD_CATALOG } from '$lib/data/card-defs';
   import { type UnitStats, hpMaxFromStats } from '$lib/types/card-types';
   import type { CardData } from '$lib/types/board-types';
+  import { maxBandAids, maxUniKits } from '$lib/utils/unit-stats';
 
   const ATTRS: { key: keyof UnitStats; label: string; effect: string }[] = [
     { key: 'endurance', label: 'Endurance', effect: '+10 HP / level' },
@@ -25,6 +26,7 @@
     y: number;
     onClose: () => void;
   } = $props();
+
 </script>
 
 <button class="stat-backdrop" onclick={onClose} aria-label="Close"></button>
@@ -56,6 +58,24 @@
       <span class="stat-effect">{attr.effect}</span>
     </div>
   {/each}
+  {#if card.weaponInventory && card.weaponInventory.length > 0}
+    <div class="inv-section">
+      <span class="inv-label">Weapons</span>
+      {#each card.weaponInventory as wType, i (i)}
+        <span class="inv-item" class:inv-active={i === card.weaponInventory.length - 1}>
+          {CARD_CATALOG[wType].title}
+        </span>
+      {/each}
+    </div>
+  {/if}
+  <div class="inv-section">
+    <span class="inv-label">Band-aids</span>
+    <span class="inv-item">{card.bandAids ?? 0} / {maxBandAids(stats)}</span>
+  </div>
+  <div class="inv-section">
+    <span class="inv-label">Uni-kits</span>
+    <span class="inv-item">{card.uniKits ?? 0} / {maxUniKits(stats)}</span>
+  </div>
 </div>
 
 <style>
@@ -125,6 +145,27 @@
         font-size: 0.85rem;
         opacity: 0.7;
         white-space: nowrap;
+      }
+    }
+
+    .inv-section {
+      display: flex;
+      gap: 0.4rem;
+      align-items: baseline;
+      font-size: 0.9rem;
+      padding-top: 0.2rem;
+
+      .inv-label {
+        opacity: 0.6;
+        width: 5.5rem;
+        flex-shrink: 0;
+      }
+      .inv-item {
+        color: #f4c430;
+        opacity: 0.7;
+      }
+      .inv-active {
+        opacity: 1;
       }
     }
 

@@ -5,7 +5,6 @@ import {
   hpMaxFromStats,
   type WeaponStats,
   type CardDef,
-  type UnitStats,
 } from '$lib/types/card-types';
 import type { RecipeResult } from '$lib/types/recipe-types';
 import type { Vec2 } from '$lib/utils/vec2';
@@ -21,31 +20,10 @@ import {
 } from '$lib/utils/card-factories';
 import type { Recipe } from '$lib/types/recipe-types';
 import { getVirtualNow } from '$lib/behavior/clock';
+import { maxBandAids, maxUniKits } from '$lib/utils/unit-stats';
 
 function isCardType(s: string): s is CardType {
   return s in CARD_CATALOG;
-}
-
-function maxBandAids(stats: UnitStats): number {
-  const sum =
-    stats.endurance +
-    stats.strength +
-    stats.perception +
-    stats.intelligence +
-    stats.agility +
-    stats.luck;
-  return Math.floor(sum / 10 + 1);
-}
-
-function maxUniKits(stats: UnitStats): number {
-  const sum =
-    stats.endurance +
-    stats.strength +
-    stats.perception +
-    stats.intelligence +
-    stats.agility +
-    stats.luck;
-  return Math.floor(sum / 5 + 1);
 }
 
 function cardMatchesIngredient(type: CardType, match: string): boolean {
