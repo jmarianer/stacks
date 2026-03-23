@@ -1,7 +1,12 @@
 import { recipes } from '$lib/data/recipes';
 import { MILESTONES } from '$lib/data/milestones';
 import type { Stack, Board, CardData, Clock } from '$lib/types/board-types';
-import { hpMaxFromStats, type WeaponStats, type CardDef } from '$lib/types/card-types';
+import {
+  hpMaxFromStats,
+  type WeaponStats,
+  type CardDef,
+  type UnitStats,
+} from '$lib/types/card-types';
 import type { RecipeResult } from '$lib/types/recipe-types';
 import type { Vec2 } from '$lib/utils/vec2';
 import { CARD_CATALOG, type CardType } from '$lib/data/card-defs';
@@ -21,13 +26,25 @@ function isCardType(s: string): s is CardType {
   return s in CARD_CATALOG;
 }
 
-function maxBandAids(stats: { endurance: number; strength: number; perception: number; intelligence: number; agility: number; luck: number }): number {
-  const sum = stats.endurance + stats.strength + stats.perception + stats.intelligence + stats.agility + stats.luck;
+function maxBandAids(stats: UnitStats): number {
+  const sum =
+    stats.endurance +
+    stats.strength +
+    stats.perception +
+    stats.intelligence +
+    stats.agility +
+    stats.luck;
   return Math.floor(sum / 10 + 1);
 }
 
-function maxUniKits(stats: { endurance: number; strength: number; perception: number; intelligence: number; agility: number; luck: number }): number {
-  const sum = stats.endurance + stats.strength + stats.perception + stats.intelligence + stats.agility + stats.luck;
+function maxUniKits(stats: UnitStats): number {
+  const sum =
+    stats.endurance +
+    stats.strength +
+    stats.perception +
+    stats.intelligence +
+    stats.agility +
+    stats.luck;
   return Math.floor(sum / 5 + 1);
 }
 
@@ -198,9 +215,7 @@ function applyResults(
     }
     if (result.action === 'equip-weapon') {
       const unit = stack.cards.find((c) => c.unitStats && !(CARD_CATALOG[c.type] as CardDef).enemy);
-      const weaponCard = consumedCards.find(
-        (c) => CARD_CATALOG[c.type].groups?.includes('weapon'),
-      );
+      const weaponCard = consumedCards.find((c) => CARD_CATALOG[c.type].groups?.includes('weapon'));
       if (unit && weaponCard) {
         unit.weaponInventory = [...(unit.weaponInventory ?? []), weaponCard.type];
       }

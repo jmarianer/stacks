@@ -19,9 +19,6 @@ Any enemy on aggro list → move towards closest enemy (500 ms)
 Can patrol → patrol (500 ms)
 Otherwise → do nothing (1000 ms)
 
-
-
-
 ### Bacteria (hostile, 16 HP, regenerates 2 HP/tick)
 
 Enemy in weapon range → attack closest enemy (1000 ms)
@@ -29,7 +26,6 @@ Any enemy on aggro list → move towards closest enemy (500 ms)
 Can patrol → patrol (500 ms)
 Otherwise → do nothing (1000 ms)
 Straightforward aggressor; no retreat behaviour.
-
 
 Ignoring space mouse for the time being. I suggest we implement all of those except "patrol", and remove the "rush vs. move" distinction (i.e. treat both as "flee", so that the astronaut becomes "move away if HP < 50%"). Aggro = "enemies on the same board" for the moment, I think.
 
