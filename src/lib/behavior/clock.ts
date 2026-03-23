@@ -101,12 +101,6 @@ export function setSpeed(clock: Clock, newSpeed: number): void {
   clock.speed = newSpeed;
 }
 
-/** Returns sol progress 0–1, or 0 if the sol hasn't started or has ended. */
-export function getSolProgress(clock: Clock, realNow: number): number {
-  if (clock.solStartTime === null || clock.endOfSol) return 0;
-  return Math.min((getVirtualNow(clock, realNow) - clock.solStartTime) / SOL_DURATION, 1);
-}
-
 /** Advance the global sol timer; feed all boards when sol ends. */
 export function tickClock(clock: Clock, boards: Board[], realNow: number): void {
   if (clock.endOfSol) return;
