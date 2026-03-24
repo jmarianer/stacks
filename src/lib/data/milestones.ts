@@ -9,20 +9,23 @@ export const MILESTONES: Milestone[] = [
   },
   {
     id: 'service-drone',
-    condition: (_b, clock) => clock.sol >= 2,
+    condition: (b) => b.stacks.some((s) => s.cards.some((c) => c.type === 'nanocarbon')),
     unlockRecipeIds: ['make-service-drone'],
     createCards: [],
   },
   {
     id: 'bacteria-invasion',
-    condition: (_b, clock) => clock.sol >= 7,
+    condition: (b, clock) =>
+      clock.sol >= 4 &&
+      b.stacks.some((s) =>
+        s.cards.some((c) => c.type === 'astronaut' && (c.weaponInventory?.length ?? 0) > 0),
+      ),
     unlockRecipeIds: [],
     createCards: ['invasion-bacteria'],
   },
   {
     id: 'workbench',
-    condition: (b, clock) =>
-      clock.sol >= 3 &&
+    condition: (b) =>
       b.stacks.flatMap((s) => s.cards).filter((c) => c.type === 'plasteel').length >= 3,
     unlockRecipeIds: ['build-workbench'],
     createCards: [],
@@ -32,11 +35,11 @@ export const MILESTONES: Milestone[] = [
     condition: (b) => b.stacks.some((s) => s.cards.some((c) => c.type === 'workbench')),
     unlockRecipeIds: [
       'make-electronics',
-      'build-foundation',
-      'build-storage-crate',
-      'build-train-st',
-      'build-train-en',
-      'make-uni-kit',
+    //   'build-foundation',
+    //   'build-storage-crate',
+    //   'build-train-st',
+    //   'build-train-en',
+    //   'make-uni-kit',
     ],
     createCards: [],
   },
@@ -44,11 +47,11 @@ export const MILESTONES: Milestone[] = [
     id: 'first-electronics',
     condition: (b) => b.stacks.some((s) => s.cards.some((c) => c.type === 'electronics')),
     unlockRecipeIds: [
-      'build-drill',
-      'build-train-ag',
-      'build-refinery',
+    //   'build-drill',
+    //   'build-train-ag',
+    //   'build-refinery',
       'make-blaster',
-      'make-bolter',
+    //   'make-bolter',
     ],
     createCards: [],
   },
