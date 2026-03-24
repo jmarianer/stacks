@@ -26,7 +26,6 @@
     y: number;
     onClose: () => void;
   } = $props();
-
 </script>
 
 <button class="stat-backdrop" onclick={onClose} aria-label="Close"></button>

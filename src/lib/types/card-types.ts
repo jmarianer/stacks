@@ -8,6 +8,8 @@ export type WeaponStats = {
   damageType: DamageType;
   /** Seconds between attacks (before agility modifier). */
   attackInterval: number;
+  /** Attack range in vmin. */
+  range: number;
 };
 
 export type UnitStats = {
@@ -56,4 +58,8 @@ export type CardDef = {
   feed?: { cost: number; priority: number };
   /** Max weapon inventory slots for units that can equip weapons. */
   weaponSlots?: number;
+  /** Movement speed in vmin/second during combat. */
+  speed?: number;
+  /** HP regenerated per second during combat (enemies only for now). */
+  regen?: number;
 };

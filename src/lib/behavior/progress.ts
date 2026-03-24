@@ -1,11 +1,8 @@
 import { recipes } from '$lib/data/recipes';
 import { MILESTONES } from '$lib/data/milestones';
+import { CARD_W, CARD_H } from '$lib/data/constants';
 import type { Stack, Board, CardData, Clock } from '$lib/types/board-types';
-import {
-  hpMaxFromStats,
-  type WeaponStats,
-  type CardDef,
-} from '$lib/types/card-types';
+import { hpMaxFromStats, type WeaponStats, type CardDef } from '$lib/types/card-types';
 import type { RecipeResult } from '$lib/types/recipe-types';
 import type { Vec2 } from '$lib/utils/vec2';
 import { CARD_CATALOG, type CardType } from '$lib/data/card-defs';
@@ -302,27 +299,133 @@ function nearestCombatant(
   return best;
 }
 
+type CombatUnit = { card: CardData; stack: Stack };
+
+function moveUnit(unit: CombatUnit, targets: CombatUnit[], board: Board, now: number): void {
+  const def = CARD_CATALOG[unit.card.type] as CardDef;
+  const speed = def.speed ?? 0;
+  if (speed === 0) return;
+
+  const delta =
+    unit.card.combatLastMoveAt !== undefined
+      ? Math.min((now - unit.card.combatLastMoveAt) / 1000, 0.1)
+      : 0;
+  unit.card.combatLastMoveAt = now;
+  if (delta <= 0) return;
+
+  const nearest = nearestCombatant(unit.stack.pos, targets);
+  if (!nearest) return;
+
+  const stats = unit.card.unitStats!;
+  const hpPct = stats.health / hpMaxFromStats(stats);
+  const weapon = def.enemy ? def.enemy.weapon : getUnitWeapon(unit.card);
+  const dx = nearest.stack.pos.x - unit.stack.pos.x;
+  const dy = nearest.stack.pos.y - unit.stack.pos.y;
+  const dist = Math.sqrt(dx * dx + dy * dy);
+  if (dist < 0.01) return;
+
+  const shouldFlee = !def.enemy && hpPct < 0.5;
+  const inRange = weapon !== undefined && dist <= weapon.range;
+  if (!shouldFlee && inRange) return; // already in attack position
+
+  const nx = dx / dist;
+  const ny = dy / dist;
+  const moveAmount = speed * delta;
+  const moveX = shouldFlee ? -nx * moveAmount : nx * Math.min(moveAmount, dist);
+  const moveY = shouldFlee ? -ny * moveAmount : ny * Math.min(moveAmount, dist);
+
+  unit.stack.pos.x = Math.max(
+    CARD_W / 2,
+    Math.min(board.width - CARD_W / 2, unit.stack.pos.x + moveX),
+  );
+  unit.stack.pos.y = Math.max(
+    CARD_H / 2,
+    Math.min(board.height - CARD_H / 2, unit.stack.pos.y + moveY),
+  );
+}
+
 function runCombat(board: Board, now: number): void {
-  const playerUnits: Array<{ card: CardData; stack: Stack }> = [];
-  const enemyUnits: Array<{ card: CardData; stack: Stack }> = [];
+  const playerUnits: CombatUnit[] = [];
+  const enemyUnits: CombatUnit[] = [];
 
   for (const stack of board.stacks) {
     for (const card of stack.cards) {
       if (!card.unitStats) continue;
       const def = CARD_CATALOG[card.type] as CardDef;
       if (def.enemy) enemyUnits.push({ card, stack });
-      else if (def.weapon) playerUnits.push({ card, stack });
+      else playerUnits.push({ card, stack });
     }
   }
 
-  if (playerUnits.length === 0 || enemyUnits.length === 0) return;
+  // Return player units to home stacks when combat ends
+  if (enemyUnits.length === 0) {
+    for (const unit of playerUnits) {
+      if (unit.card.combatHomeStackId === undefined) continue;
+      const homeStack = board.stacks.find((s) => s.id === unit.card.combatHomeStackId);
+      if (homeStack) {
+        unit.stack.cards = unit.stack.cards.filter((c) => c.id !== unit.card.id);
+        homeStack.cards.push(unit.card);
+      }
+      unit.card.combatHomeStackId = undefined;
+      unit.card.combatLastMoveAt = undefined;
+      unit.card.combatHealAt = undefined;
+    }
+    board.stacks = board.stacks.filter((s) => s.cards.length > 0);
+    return;
+  }
 
+  if (playerUnits.length === 0) return;
+
+  // Detach player units entering combat for the first time
+  const toDetach = playerUnits.filter((u) => u.card.combatHomeStackId === undefined);
+  for (const unit of toDetach) {
+    unit.card.combatHomeStackId = unit.stack.id;
+    unit.stack.cards = unit.stack.cards.filter((c) => c.id !== unit.card.id);
+    const combatStack = makeStackFromCards({ ...unit.stack.pos }, [unit.card]);
+    board.stacks.push(combatStack);
+    unit.stack = combatStack;
+  }
+  board.stacks = board.stacks.filter((s) => s.cards.length > 0);
+
+  // Regen and movement
+  for (const enemy of enemyUnits) {
+    const def = CARD_CATALOG[enemy.card.type] as CardDef;
+    if (def.regen) {
+      const delta =
+        enemy.card.combatLastMoveAt !== undefined
+          ? Math.min((now - enemy.card.combatLastMoveAt) / 1000, 0.1)
+          : 0;
+      const hpMax = hpMaxFromStats(enemy.card.unitStats!);
+      enemy.card.unitStats!.health = Math.min(
+        enemy.card.unitStats!.health + def.regen * delta,
+        hpMax,
+      );
+    }
+    moveUnit(enemy, playerUnits, board, now);
+  }
+
+  for (const unit of playerUnits) {
+    // Use band-aid (≤50% HP) or uni-kit (≤90% HP), with a 3s cooldown
+    const stats = unit.card.unitStats!;
+    const hpMax = hpMaxFromStats(stats);
+    const hpPct = stats.health / hpMax;
+    const healReady = unit.card.combatHealAt === undefined || now - unit.card.combatHealAt >= 3000;
+    if (healReady && hpPct <= 0.5 && (unit.card.bandAids ?? 0) > 0) {
+      stats.health = Math.min(stats.health + 25, hpMax);
+      unit.card.bandAids!--;
+      unit.card.combatHealAt = now;
+    } else if (healReady && hpPct <= 0.9 && (unit.card.uniKits ?? 0) > 0) {
+      stats.health = hpMax;
+      unit.card.uniKits!--;
+      unit.card.combatHealAt = now;
+    }
+    moveUnit(unit, enemyUnits, board, now);
+  }
+
+  // Attacks
   const dead = new Set<number>();
 
-  function tryAttack(
-    attacker: { card: CardData; stack: Stack },
-    targets: Array<{ card: CardData; stack: Stack }>,
-  ): void {
+  function tryAttack(attacker: CombatUnit, targets: CombatUnit[]): void {
     if (dead.has(attacker.card.id)) return;
     const stats = attacker.card.unitStats!;
     const def = CARD_CATALOG[attacker.card.type] as CardDef;
@@ -333,7 +436,12 @@ function runCombat(board: Board, now: number): void {
     const target = nearestCombatant(attacker.stack.pos, live);
     if (!target) return;
 
-    // Agility shortens attack interval: each point above 1 = 10% faster
+    // Range check
+    const dx = target.stack.pos.x - attacker.stack.pos.x;
+    const dy = target.stack.pos.y - attacker.stack.pos.y;
+    if (Math.sqrt(dx * dx + dy * dy) > weapon.range) return;
+
+    // Cooldown: agility above 1 = 10% faster per point
     const effectiveInterval =
       (weapon.attackInterval * 1000) / (1 + Math.max(0, stats.agility - 1) * 0.1);
     if (stats.lastAttackAt !== undefined && now - stats.lastAttackAt < effectiveInterval) return;
@@ -342,19 +450,16 @@ function runCombat(board: Board, now: number): void {
     let damage = weapon.damage * (1 + Math.max(0, stats.strength - 1) * 0.1);
 
     // Luck → crit: each point above 1 = +2% crit chance (2× damage)
-    const critChance = Math.max(0, stats.luck - 1) * 2;
-    if (Math.random() * 100 < critChance) damage *= 2;
+    if (Math.random() * 100 < Math.max(0, stats.luck - 1) * 2) damage *= 2;
+
+    const targetStats = target.card.unitStats!;
+    stats.lastAttackAt = now;
 
     // Target perception → dodge: each point above 1 = +3% dodge chance
-    const targetStats = target.card.unitStats!;
-    const dodgeChance = Math.max(0, targetStats.perception - 1) * 3;
-    stats.lastAttackAt = now;
-    if (Math.random() * 100 < dodgeChance) return;
+    if (Math.random() * 100 < Math.max(0, targetStats.perception - 1) * 3) return;
 
-    // Resistance reduces damage (0–100%)
     const resist = targetStats.resist?.[weapon.damageType] ?? 0;
     targetStats.health -= Math.max(1, damage * (1 - resist / 100));
-
     if (targetStats.health <= 0) dead.add(target.card.id);
   }
 
@@ -363,7 +468,7 @@ function runCombat(board: Board, now: number): void {
 
   if (dead.size === 0) return;
 
-  // Collect loot drops and dead player cards before mutating stacks
+  // Collect loot and dead player cards before mutating stacks
   const lootEntries: Array<{ results: RecipeResult[]; pos: Vec2 }> = [];
   const deadPlayerCards: Array<{ card: CardData; pos: Vec2 }> = [];
 
