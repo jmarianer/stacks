@@ -159,7 +159,6 @@ function applyResults(
     if (result.action === 'expand-board') {
       board.width += result.dWidth;
       board.height += result.dHeight;
-      for (const s of board.stacks) s.pos.x += result.dWidth / 2;
       continue;
     }
     if (result.action === 'heal-unit') {
