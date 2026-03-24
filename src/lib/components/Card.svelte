@@ -3,12 +3,16 @@
   import { CARD_W, CARD_H } from '$lib/data/constants';
   import { CARD_CATALOG } from '$lib/data/card-defs';
   import type { CardData } from '$lib/types/board-types';
+  import { hpMaxFromStats } from '$lib/types/card-types';
+  import { getUnitWeapon } from '$lib/utils/unit-stats';
 
   let {
     cardData,
     top,
     left,
     isDropTarget = false,
+    inCombat = false,
+    vTime = 0,
     onDrag,
     onDragStart,
     onDragEnd,
@@ -18,10 +22,30 @@
     top: number;
     left: number;
     isDropTarget?: boolean;
+    inCombat?: boolean;
+    vTime?: number;
     onContextMenu?: (e: MouseEvent) => void;
   } & DragProps = $props();
 
   const def = $derived(CARD_CATALOG[cardData.type]);
+
+  const showCombat = $derived(inCombat && !!cardData.unitStats);
+
+  const hpPct = $derived.by(() => {
+    const stats = cardData.unitStats;
+    if (!stats) return 0;
+    return Math.max(0, Math.min(1, stats.health / hpMaxFromStats(stats)));
+  });
+
+  const hpColor = $derived(hpPct > 0.6 ? '#4CAF50' : hpPct > 0.3 ? '#FFC107' : '#F44336');
+
+  const cdPct = $derived.by(() => {
+    const stats = cardData.unitStats;
+    if (!stats || stats.lastAttackAt === undefined) return null;
+    const weapon = def.enemy ? def.enemy.weapon : getUnitWeapon(cardData);
+    if (!weapon) return null;
+    return Math.min(1, (vTime - stats.lastAttackAt) / (weapon.attackInterval * 1000));
+  });
 </script>
 
 <Draggable
@@ -48,6 +72,18 @@
     <div class="image">
       <img class="card-image" src="/cards/{def.image}" alt={def.title} draggable="false" />
     </div>
+    {#if showCombat}
+      <div class="combat-overlay">
+        <div class="hp-bar">
+          <div class="hp-fill" style="width: {hpPct * 100}%; background-color: {hpColor};"></div>
+        </div>
+        <div class="cd-bar">
+          {#if cdPct !== null}
+            <div class="cd-fill" style="width: {cdPct * 100}%;"></div>
+          {/if}
+        </div>
+      </div>
+    {/if}
     <div class="footer">
       {#if 'value' in def}
         <div class="value">{def.value}</div>
@@ -71,10 +107,41 @@
   }
 
   .card-inner {
+    position: relative;
     display: flex;
     flex-direction: column;
     width: 100%;
     height: 100%;
+  }
+
+  .combat-overlay {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 4vmin;
+    height: 4vmin;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3vmin;
+    padding: 0.4vmin;
+    pointer-events: none;
+  }
+
+  .hp-bar,
+  .cd-bar {
+    flex: 1;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 0.3vmin;
+    overflow: hidden;
+  }
+
+  .hp-fill,
+  .cd-fill {
+    height: 100%;
+  }
+
+  .cd-fill {
+    background: rgba(255, 255, 255, 0.75);
   }
 
   .title {

@@ -2,7 +2,7 @@ import { recipes } from '$lib/data/recipes';
 import { MILESTONES } from '$lib/data/milestones';
 import { CARD_W, CARD_H } from '$lib/data/constants';
 import type { Stack, Board, CardData, Clock } from '$lib/types/board-types';
-import { hpMaxFromStats, type WeaponStats, type CardDef } from '$lib/types/card-types';
+import { hpMaxFromStats, type CardDef } from '$lib/types/card-types';
 import type { RecipeResult } from '$lib/types/recipe-types';
 import type { Vec2 } from '$lib/utils/vec2';
 import { CARD_CATALOG, type CardType } from '$lib/data/card-defs';
@@ -17,7 +17,7 @@ import {
 } from '$lib/utils/card-factories';
 import type { Recipe } from '$lib/types/recipe-types';
 import { getVirtualNow } from '$lib/behavior/clock';
-import { maxBandAids, maxUniKits } from '$lib/utils/unit-stats';
+import { maxBandAids, maxUniKits, getUnitWeapon } from '$lib/utils/unit-stats';
 
 function isCardType(s: string): s is CardType {
   return s in CARD_CATALOG;
@@ -269,16 +269,6 @@ function checkMilestones(board: Board, clock: Clock): void {
       addCardToMatchingStack(board.stacks, card, { x: board.width / 2, y: board.height / 2 });
     }
   }
-}
-
-/** Returns the active weapon for a player unit: last item in weaponInventory, or built-in weapon. */
-function getUnitWeapon(card: CardData): WeaponStats | undefined {
-  if (card.weaponInventory && card.weaponInventory.length > 0) {
-    const activeType = card.weaponInventory[card.weaponInventory.length - 1];
-    const def = CARD_CATALOG[activeType];
-    if (def.weapon) return def.weapon;
-  }
-  return CARD_CATALOG[card.type].weapon;
 }
 
 function nearestCombatant(

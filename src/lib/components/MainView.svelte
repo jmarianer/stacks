@@ -29,7 +29,7 @@
   } from '$lib/utils/card-factories';
   import { tick as tickPhysics } from '$lib/behavior/physics';
   import { tick as tickProgress } from '$lib/behavior/progress';
-  import { tickClock, getSolProgress, setSpeed } from '$lib/behavior/clock';
+  import { tickClock, getSolProgress, setSpeed, getVirtualNow } from '$lib/behavior/clock';
   import { recipes } from '$lib/data/recipes';
 
   let showRecipes = $state(false);
@@ -194,6 +194,7 @@
   }
 
   let solProgress = $state(0);
+  let vTime = $state(0);
   let boards = $state<Board[]>(initialBoards);
   let clock = $state<Clock>(makeClock());
   let currentBoardIndex = $state(0);
@@ -222,6 +223,10 @@
 
   const isDraggingFoundation = $derived(
     currentBoard.stacks.some((s) => s.dragging && s.cards[0]?.type === 'foundation'),
+  );
+
+  const inCombat = $derived(
+    currentBoard.stacks.some((s) => s.cards.some((c) => CARD_CATALOG[c.type].enemy !== undefined)),
   );
 
   let mousePosition = { x: 0, y: 0 };
@@ -344,6 +349,7 @@
         tickProgress(board, boards, clock, now);
       }
       solProgress = getSolProgress(clock, now);
+      vTime = getVirtualNow(clock, now);
       rafId = requestAnimationFrame(loop);
     }
 
@@ -449,6 +455,8 @@
         top={stack.pos.y + cardIndex * STACK_CARD_OFFSET_Y}
         left={stack.pos.x + cardIndex * STACK_CARD_OFFSET_X}
         isDropTarget={stack.isDropTarget && cardIndex === stack.cards.length - 1}
+        {inCombat}
+        {vTime}
         onDragStart={(e) => handleDragStart(stack, cardIndex, e)}
         onDragEnd={handleDragEnd}
         onDrag={(dx, dy) => {
