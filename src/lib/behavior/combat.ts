@@ -10,10 +10,7 @@ import { applyResults } from '$lib/behavior/progress';
 
 export type CombatUnit = { card: CardData; stack: Stack };
 
-export function nearestCombatant(
-  pos: Vec2,
-  units: CombatUnit[],
-): CombatUnit | null {
+export function nearestCombatant(pos: Vec2, units: CombatUnit[]): CombatUnit | null {
   let best: CombatUnit | null = null;
   let bestDist = Infinity;
   for (const u of units) {
