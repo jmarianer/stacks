@@ -10,19 +10,39 @@ import { applyResults } from '$lib/behavior/progress';
 
 export type CombatUnit = { card: CardData; stack: Stack };
 
-export function nearestCombatant(pos: Vec2, units: CombatUnit[]): CombatUnit | null {
+export function nearestCombatant(
+  pos: Vec2,
+  units: CombatUnit[],
+  range?: number,
+): CombatUnit | null {
   let best: CombatUnit | null = null;
   let bestDist = Infinity;
   for (const u of units) {
     const dx = u.stack.pos.x - pos.x;
     const dy = u.stack.pos.y - pos.y;
-    const d = dx * dx + dy * dy;
-    if (d < bestDist) {
+    const d = Math.sqrt(dx * dx + dy * dy);
+    if (d < bestDist && (range === undefined || d <= range)) {
       bestDist = d;
       best = u;
     }
   }
   return best;
+}
+
+export function getCombatUnits(board: Board): {
+  playerUnits: CombatUnit[];
+  enemyUnits: CombatUnit[];
+} {
+  const playerUnits: CombatUnit[] = [];
+  const enemyUnits: CombatUnit[] = [];
+  for (const stack of board.stacks) {
+    for (const card of stack.cards) {
+      if (!card.unitStats) continue;
+      if ((CARD_CATALOG[card.type] as CardDef).enemy) enemyUnits.push({ card, stack });
+      else playerUnits.push({ card, stack });
+    }
+  }
+  return { playerUnits, enemyUnits };
 }
 
 function moveUnit(unit: CombatUnit, targets: CombatUnit[], board: Board, now: number): void {
@@ -69,17 +89,7 @@ function moveUnit(unit: CombatUnit, targets: CombatUnit[], board: Board, now: nu
 }
 
 export function runCombat(board: Board, now: number): void {
-  const playerUnits: CombatUnit[] = [];
-  const enemyUnits: CombatUnit[] = [];
-
-  for (const stack of board.stacks) {
-    for (const card of stack.cards) {
-      if (!card.unitStats) continue;
-      const def = CARD_CATALOG[card.type] as CardDef;
-      if (def.enemy) enemyUnits.push({ card, stack });
-      else playerUnits.push({ card, stack });
-    }
-  }
+  const { playerUnits, enemyUnits } = getCombatUnits(board);
 
   // Return player units to home stacks when combat ends
   if (enemyUnits.length === 0) {
@@ -157,13 +167,8 @@ export function runCombat(board: Board, now: number): void {
     if (!weapon) return;
 
     const live = targets.filter((t) => !dead.has(t.card.id));
-    const target = nearestCombatant(attacker.stack.pos, live);
+    const target = nearestCombatant(attacker.stack.pos, live, weapon.range);
     if (!target) return;
-
-    // Range check
-    const dx = target.stack.pos.x - attacker.stack.pos.x;
-    const dy = target.stack.pos.y - attacker.stack.pos.y;
-    if (Math.sqrt(dx * dx + dy * dy) > weapon.range) return;
 
     // Cooldown: agility above 1 = 10% faster per point
     const effectiveInterval =

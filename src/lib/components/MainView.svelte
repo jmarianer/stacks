@@ -18,7 +18,7 @@
   import RecipesPanel from './RecipesPanel.svelte';
   import StatPanel from './StatPanel.svelte';
   import LocationNav from './LocationNav.svelte';
-  import type { UnitStats } from '$lib/types/card-types';
+  import type { UnitStats, CardDef } from '$lib/types/card-types';
   import { CARD_CATALOG } from '$lib/data/card-defs';
   import { getUnitWeapon } from '$lib/utils/unit-stats';
   import { initialBoards } from '$lib/data/initial-boards';
@@ -30,7 +30,7 @@
   } from '$lib/utils/card-factories';
   import { tick as tickPhysics } from '$lib/behavior/physics';
   import { tick as tickProgress } from '$lib/behavior/progress';
-  import { runCombat } from '$lib/behavior/combat';
+  import { runCombat, getCombatUnits, nearestCombatant } from '$lib/behavior/combat';
   import { tickClock, getSolProgress, setSpeed, getVirtualNow } from '$lib/behavior/clock';
   import { recipes } from '$lib/data/recipes';
 
@@ -96,59 +96,26 @@
   }
 
   function computeAttackPairs(board: Board) {
-    const playerUnits: { card: CardData; stack: Stack }[] = [];
-    const enemyUnits: { card: CardData; stack: Stack }[] = [];
-    for (const stack of board.stacks) {
-      for (const card of stack.cards) {
-        if (!card.unitStats) continue;
-        const def = CARD_CATALOG[card.type];
-        if (def.enemy) enemyUnits.push({ card, stack });
-        else playerUnits.push({ card, stack });
-      }
-    }
+    const { playerUnits, enemyUnits } = getCombatUnits(board);
     if (playerUnits.length === 0 || enemyUnits.length === 0) return [];
 
     const pairs: { x1: number; y1: number; x2: number; y2: number; isEnemy: boolean }[] = [];
-
-    function nearestInRange(
-      pos: { x: number; y: number },
-      targets: { card: CardData; stack: Stack }[],
-      range: number,
-    ) {
-      let best: { card: CardData; stack: Stack } | null = null;
-      let bestDist = Infinity;
-      for (const t of targets) {
-        const dx = t.stack.pos.x - pos.x;
-        const dy = t.stack.pos.y - pos.y;
-        const d = Math.sqrt(dx * dx + dy * dy);
-        if (d <= range && d < bestDist) {
-          bestDist = d;
-          best = t;
-        }
-      }
-      return best;
-    }
 
     for (const unit of playerUnits) {
       if (unit.card.combatHomeStackId === undefined) continue;
       const weapon = getUnitWeapon(unit.card);
       if (!weapon) continue;
-      const target = nearestInRange(unit.stack.pos, enemyUnits, weapon.range);
+      const target = nearestCombatant(unit.stack.pos, enemyUnits, weapon.range);
       if (!target) continue;
-      const f = stackCenter(unit.stack);
-      const t = stackCenter(target.stack);
-      pairs.push({ x1: f.x, y1: f.y, x2: t.x, y2: t.y, isEnemy: false });
+      pairs.push({ ...connectionEndpoints(unit.stack, target.stack), isEnemy: false });
     }
 
     for (const unit of enemyUnits) {
-      const def = CARD_CATALOG[unit.card.type];
-      const weapon = def.enemy?.weapon;
+      const weapon = (CARD_CATALOG[unit.card.type] as CardDef).enemy?.weapon;
       if (!weapon) continue;
-      const target = nearestInRange(unit.stack.pos, playerUnits, weapon.range);
+      const target = nearestCombatant(unit.stack.pos, playerUnits, weapon.range);
       if (!target) continue;
-      const f = stackCenter(unit.stack);
-      const t = stackCenter(target.stack);
-      pairs.push({ x1: f.x, y1: f.y, x2: t.x, y2: t.y, isEnemy: true });
+      pairs.push({ ...connectionEndpoints(unit.stack, target.stack), isEnemy: true });
     }
 
     return pairs;
@@ -419,6 +386,7 @@
       solProgress = getSolProgress(clock, realNow);
       vTime = now;
       attackPairs = computeAttackPairs(currentBoard);
+
       rafId = requestAnimationFrame(loop);
     }
 
