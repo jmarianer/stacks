@@ -20,6 +20,7 @@
   import LocationNav from './LocationNav.svelte';
   import type { UnitStats } from '$lib/types/card-types';
   import { CARD_CATALOG } from '$lib/data/card-defs';
+  import { getUnitWeapon } from '$lib/utils/unit-stats';
   import { initialBoards } from '$lib/data/initial-boards';
   import {
     makeClock,
@@ -38,6 +39,9 @@
   let routingMode = $state(false);
   let routingFrom = $state<Stack | null>(null);
   let routingMouseBoard = $state<{ x: number; y: number } | null>(null);
+  let attackPairs = $state<{ x1: number; y1: number; x2: number; y2: number; isEnemy: boolean }[]>(
+    [],
+  );
 
   let scale = $state(1);
   let translate = $state({ x: 0, y: 0 });
@@ -88,6 +92,65 @@
 
   function stackCenter(stack: Stack) {
     return { x: stack.pos.x + CARD_W / 2, y: stack.pos.y + CARD_H / 2 };
+  }
+
+  function computeAttackPairs(board: Board) {
+    const playerUnits: { card: CardData; stack: Stack }[] = [];
+    const enemyUnits: { card: CardData; stack: Stack }[] = [];
+    for (const stack of board.stacks) {
+      for (const card of stack.cards) {
+        if (!card.unitStats) continue;
+        const def = CARD_CATALOG[card.type];
+        if (def.enemy) enemyUnits.push({ card, stack });
+        else playerUnits.push({ card, stack });
+      }
+    }
+    if (playerUnits.length === 0 || enemyUnits.length === 0) return [];
+
+    const pairs: { x1: number; y1: number; x2: number; y2: number; isEnemy: boolean }[] = [];
+
+    function nearestInRange(
+      pos: { x: number; y: number },
+      targets: { card: CardData; stack: Stack }[],
+      range: number,
+    ) {
+      let best: { card: CardData; stack: Stack } | null = null;
+      let bestDist = Infinity;
+      for (const t of targets) {
+        const dx = t.stack.pos.x - pos.x;
+        const dy = t.stack.pos.y - pos.y;
+        const d = Math.sqrt(dx * dx + dy * dy);
+        if (d <= range && d < bestDist) {
+          bestDist = d;
+          best = t;
+        }
+      }
+      return best;
+    }
+
+    for (const unit of playerUnits) {
+      if (unit.card.combatHomeStackId === undefined) continue;
+      const weapon = getUnitWeapon(unit.card);
+      if (!weapon) continue;
+      const target = nearestInRange(unit.stack.pos, enemyUnits, weapon.range);
+      if (!target) continue;
+      const f = stackCenter(unit.stack);
+      const t = stackCenter(target.stack);
+      pairs.push({ x1: f.x, y1: f.y, x2: t.x, y2: t.y, isEnemy: false });
+    }
+
+    for (const unit of enemyUnits) {
+      const def = CARD_CATALOG[unit.card.type];
+      const weapon = def.enemy?.weapon;
+      if (!weapon) continue;
+      const target = nearestInRange(unit.stack.pos, playerUnits, weapon.range);
+      if (!target) continue;
+      const f = stackCenter(unit.stack);
+      const t = stackCenter(target.stack);
+      pairs.push({ x1: f.x, y1: f.y, x2: t.x, y2: t.y, isEnemy: true });
+    }
+
+    return pairs;
   }
 
   function connectionEndpoints(from: Stack, to: Stack) {
@@ -350,6 +413,7 @@
       }
       solProgress = getSolProgress(clock, now);
       vTime = getVirtualNow(clock, now);
+      attackPairs = computeAttackPairs(currentBoard);
       rafId = requestAnimationFrame(loop);
     }
 
@@ -412,6 +476,19 @@
           opacity="0.6"
         />
       {/if}
+      {#each attackPairs as pair, i (i)}
+        <line
+          x1={pair.x1}
+          y1={pair.y1}
+          x2={pair.x2}
+          y2={pair.y2}
+          stroke={pair.isEnemy ? '#ff4444' : '#ffaa00'}
+          stroke-width="0.5"
+          stroke-dasharray="1.5 1.5"
+          opacity="0.75"
+          class="attack-beam"
+        />
+      {/each}
     </svg>
 
     {#if isDraggingFoundation}
@@ -634,6 +711,16 @@
     right: 0;
     pointer-events: none;
     z-index: 4;
+  }
+
+  .attack-beam {
+    animation: attack-march 0.25s linear infinite;
+  }
+
+  @keyframes attack-march {
+    to {
+      stroke-dashoffset: -3;
+    }
   }
 
   .routing-overlay {
