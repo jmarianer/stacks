@@ -30,6 +30,7 @@
   } from '$lib/utils/card-factories';
   import { tick as tickPhysics } from '$lib/behavior/physics';
   import { tick as tickProgress } from '$lib/behavior/progress';
+  import { runCombat } from '$lib/behavior/combat';
   import { tickClock, getSolProgress, setSpeed, getVirtualNow } from '$lib/behavior/clock';
   import { recipes } from '$lib/data/recipes';
 
@@ -409,6 +410,7 @@
       tickClock(clock, boards, now);
       for (const board of boards) {
         tickPhysics(board);
+        runCombat(board, getVirtualNow(clock, now));
         tickProgress(board, boards, clock, now);
       }
       solProgress = getSolProgress(clock, now);
