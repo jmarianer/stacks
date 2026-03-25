@@ -405,16 +405,19 @@
     let rafId: number;
 
     function loop() {
-      const now = performance.now();
+      const realNow = performance.now();
       updateDropTargets();
-      tickClock(clock, boards, now);
-      for (const board of boards) {
-        tickPhysics(board);
-        runCombat(board, getVirtualNow(clock, now));
-        tickProgress(board, boards, clock, now);
+      tickClock(clock, boards, realNow);
+      const now = getVirtualNow(clock, realNow);
+      if (!clock.endOfSol && clock.speed !== 0) {
+        for (const board of boards) {
+          tickPhysics(board);
+          runCombat(board, now);
+          tickProgress(board, boards, clock, now);
+        }
       }
-      solProgress = getSolProgress(clock, now);
-      vTime = getVirtualNow(clock, now);
+      solProgress = getSolProgress(clock, realNow);
+      vTime = now;
       attackPairs = computeAttackPairs(currentBoard);
       rafId = requestAnimationFrame(loop);
     }

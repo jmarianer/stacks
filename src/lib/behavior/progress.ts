@@ -14,7 +14,6 @@ import {
   makeTeleportCard,
 } from '$lib/utils/card-factories';
 import type { Recipe } from '$lib/types/recipe-types';
-import { getVirtualNow } from '$lib/behavior/clock';
 import { maxBandAids, maxUniKits } from '$lib/utils/unit-stats';
 
 function isCardType(s: string): s is CardType {
@@ -268,14 +267,8 @@ function checkMilestones(board: Board, clock: Clock): void {
   }
 }
 
-
 /** Advance recipe progress on a single board. */
-export function tick(board: Board, boards: Board[], clock: Clock, realNow: number): void {
-  if (clock.endOfSol) return;
-  if (clock.speed === 0) return;
-
-  const now = getVirtualNow(clock, realNow);
-
+export function tick(board: Board, boards: Board[], clock: Clock, now: number): void {
   checkMilestones(board, clock);
   const stacks = board.stacks;
   const toExecute: { stack: Stack; recipe: Recipe }[] = [];
