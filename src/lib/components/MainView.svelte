@@ -37,9 +37,14 @@
   let routingMode = $state(false);
   let routingFrom = $state<Stack | null>(null);
   let routingMouseBoard = $state<{ x: number; y: number } | null>(null);
-  let attackPairs = $state<{ x1: number; y1: number; x2: number; y2: number; isEnemy: boolean }[]>(
-    [],
-  );
+  let attackPairs = $state<
+    { x1: number; y1: number; x2: number; y2: number; isEnemy: boolean; glowT: number }[]
+  >([]);
+
+  // eslint-disable-next-line svelte/prefer-svelte-reactivity
+  const prevLastAttackAt = new Map<number, number>(); // stackId -> virtual lastAttackAt
+  // eslint-disable-next-line svelte/prefer-svelte-reactivity
+  const realAttackAt = new Map<number, number>(); // stackId -> real ms when attack fired
 
   let scale = $state(1);
   let translate = $state({ x: 0, y: 0 });
@@ -109,11 +114,20 @@
     return { x: stack.pos.x + CARD_W / 2, y: stack.pos.y + CARD_H / 2 };
   }
 
-  function computeAttackPairs(board: Board) {
+  const GLOW_DURATION = 400; // ms
+
+  function computeAttackPairs(board: Board, realNow: number) {
     const { playerUnits, enemyUnits } = getCombatUnits(board);
     if (playerUnits.length === 0 || enemyUnits.length === 0) return [];
 
-    const pairs: { x1: number; y1: number; x2: number; y2: number; isEnemy: boolean }[] = [];
+    const pairs: {
+      x1: number;
+      y1: number;
+      x2: number;
+      y2: number;
+      isEnemy: boolean;
+      glowT: number;
+    }[] = [];
 
     for (const unit of playerUnits) {
       if (unit.card.combatHomeStackId === undefined) continue;
@@ -121,7 +135,16 @@
       if (!weapon) continue;
       const target = nearestCombatant(unit.stack.pos, enemyUnits, weapon.range);
       if (!target) continue;
-      pairs.push({ ...connectionEndpoints(unit.stack, target.stack), isEnemy: false });
+      const vLast = unit.card.unitStats?.lastAttackAt ?? -Infinity;
+      if (vLast !== prevLastAttackAt.get(unit.stack.id)) {
+        prevLastAttackAt.set(unit.stack.id, vLast);
+        realAttackAt.set(unit.stack.id, realNow);
+      }
+      const glowT = Math.max(
+        0,
+        1 - (realNow - (realAttackAt.get(unit.stack.id) ?? -Infinity)) / GLOW_DURATION,
+      );
+      pairs.push({ ...connectionEndpoints(unit.stack, target.stack), isEnemy: false, glowT });
     }
 
     for (const unit of enemyUnits) {
@@ -129,7 +152,16 @@
       if (!weapon) continue;
       const target = nearestCombatant(unit.stack.pos, playerUnits, weapon.range);
       if (!target) continue;
-      pairs.push({ ...connectionEndpoints(unit.stack, target.stack), isEnemy: true });
+      const vLast = unit.card.unitStats?.lastAttackAt ?? -Infinity;
+      if (vLast !== prevLastAttackAt.get(unit.stack.id)) {
+        prevLastAttackAt.set(unit.stack.id, vLast);
+        realAttackAt.set(unit.stack.id, realNow);
+      }
+      const glowT = Math.max(
+        0,
+        1 - (realNow - (realAttackAt.get(unit.stack.id) ?? -Infinity)) / GLOW_DURATION,
+      );
+      pairs.push({ ...connectionEndpoints(unit.stack, target.stack), isEnemy: true, glowT });
     }
 
     return pairs;
@@ -396,7 +428,7 @@
       }
       solProgress = getSolProgress(clock, realNow);
       vTime = now;
-      attackPairs = computeAttackPairs(currentBoard);
+      attackPairs = computeAttackPairs(currentBoard, realNow);
 
       rafId = requestAnimationFrame(loop);
     }
@@ -441,6 +473,9 @@
           <marker id="arrowhead" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
             <path d="M0,0 L0,6 L6,3 z" fill="#00000080" />
           </marker>
+          <filter id="attack-glow" x="-100%" y="-100%" width="300%" height="300%">
+            <feGaussianBlur stdDeviation="1.5" />
+          </filter>
         </defs>
         {#each currentBoard.connections as conn (conn.fromId + '-' + conn.toId)}
           {@const fromStack = currentBoard.stacks.find((s) => s.id === conn.fromId)}
@@ -473,15 +508,27 @@
           />
         {/if}
         {#each attackPairs as pair, i (i)}
+          {#if pair.glowT > 0}
+            <line
+              x1={pair.x1}
+              y1={pair.y1}
+              x2={pair.x2}
+              y2={pair.y2}
+              stroke={pair.isEnemy ? '#ff6666' : '#ffdd44'}
+              stroke-width={3 + pair.glowT * 3}
+              opacity={pair.glowT * 0.55}
+              filter="url(#attack-glow)"
+            />
+          {/if}
           <line
             x1={pair.x1}
             y1={pair.y1}
             x2={pair.x2}
             y2={pair.y2}
             stroke={pair.isEnemy ? '#ff4444' : '#ffaa00'}
-            stroke-width="0.5"
+            stroke-width={0.5 + pair.glowT * 0.8}
             stroke-dasharray="1.5 1.5"
-            opacity="0.75"
+            opacity={0.75 + pair.glowT * 0.25}
             class="attack-beam"
           />
         {/each}
