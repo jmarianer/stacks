@@ -69,20 +69,7 @@
 
 <style>
   .recipes-panel {
-    position: absolute;
-    top: 3.5rem;
-    right: 1rem;
-    background: rgba(10, 10, 20, 0.92);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 0.5rem;
-    padding: 0.75rem 1rem;
-    font-family: 'BigNoodleTitling', sans-serif;
-    color: white;
     font-size: 1.1rem;
-    min-width: 16rem;
-    max-height: calc(100vh - 5rem);
-    overflow-y: auto;
-    z-index: 5;
     display: flex;
     flex-direction: column;
     gap: 0.6rem;

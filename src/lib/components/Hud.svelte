@@ -9,9 +9,6 @@
     energyAvailable,
     energyNeeded,
     shop,
-    hasOtherBoards,
-    showRecipes = $bindable(),
-    showTeleport = $bindable(),
     routingMode = $bindable(),
     onBuyCard,
     onSetSpeed,
@@ -22,9 +19,6 @@
     energyAvailable: number;
     energyNeeded: number;
     shop: ShopItem[];
-    hasOtherBoards: boolean;
-    showRecipes: boolean;
-    showTeleport: boolean;
     routingMode: boolean;
     onBuyCard: (item: ShopItem) => void;
     onSetSpeed: (clock: Clock, speed: number) => void;
@@ -54,10 +48,6 @@
   <span class="energy-hud" class:short={energyAvailable < energyNeeded}>
     ⚡ {energyAvailable} / {energyNeeded}
   </span>
-  <button class="recipes-toggle" onclick={() => (showRecipes = !showRecipes)}>📖</button>
-  {#if hasOtherBoards}
-    <button class="recipes-toggle" onclick={() => (showTeleport = !showTeleport)}>✈</button>
-  {/if}
   <button
     class="recipes-toggle"
     class:active={routingMode}
@@ -79,7 +69,7 @@
     position: absolute;
     top: 0;
     left: 0;
-    right: 0;
+    right: 25vw;
     display: flex;
     align-items: center;
     gap: 1rem;

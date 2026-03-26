@@ -14,11 +14,9 @@
   import { addScaled } from '$lib/utils/vec2';
   import type { Stack, Board, ShopItem, CardData, Clock } from '$lib/types/board-types';
   import Hud from './Hud.svelte';
-  import TeleportPanel from './TeleportPanel.svelte';
-  import RecipesPanel from './RecipesPanel.svelte';
-  import StatPanel from './StatPanel.svelte';
+  import Sidebar from './Sidebar.svelte';
   import LocationNav from './LocationNav.svelte';
-  import type { UnitStats, CardDef } from '$lib/types/card-types';
+  import type { CardDef } from '$lib/types/card-types';
   import { CARD_CATALOG } from '$lib/data/card-defs';
   import { getUnitWeapon } from '$lib/utils/unit-stats';
   import { initialBoards } from '$lib/data/initial-boards';
@@ -34,9 +32,7 @@
   import { tickClock, getSolProgress, setSpeed, getVirtualNow } from '$lib/behavior/clock';
   import { recipes } from '$lib/data/recipes';
 
-  let showRecipes = $state(false);
-  let showTeleport = $state(false);
-  let statPanel = $state<{ card: CardData; stats: UnitStats; x: number; y: number } | null>(null);
+  let selectedCard = $state<CardData | null>(null);
   let routingMode = $state(false);
   let routingFrom = $state<Stack | null>(null);
   let routingMouseBoard = $state<{ x: number; y: number } | null>(null);
@@ -54,7 +50,7 @@
 
   $effect(() => {
     updateVmin();
-    translate.x = (window.innerWidth - currentBoard.width * vmin) / 2;
+    translate.x = ((window.innerWidth * (2 / 3)) - currentBoard.width * vmin) / 2;
     translate.y = (window.innerHeight - currentBoard.height * vmin) / 2;
   });
 
@@ -196,8 +192,6 @@
     if (e.key === '2') setSpeed(clock, 2);
     if (e.key === '3') setSpeed(clock, 3);
     if (e.key === '4' && !clock.endOfSol) setSpeed(clock, 0);
-    if (e.key === 'q' || e.key === 'Q') showRecipes = !showRecipes;
-    if (e.key === 't' || e.key === 'T') showTeleport = !showTeleport;
     if (e.key === 'r' || e.key === 'R') routingMode = !routingMode;
     if (e.key === 'Backspace') {
       const stack = stackAtMouse();
@@ -288,7 +282,6 @@
     const card = makeTeleportCard(targetBoardIndex, boards[targetBoardIndex].name);
     const stack = makeStackFromCards({ x: onBoard.width / 2, y: onBoard.height / 2 }, [card]);
     onBoard.stacks = [...onBoard.stacks, stack];
-    showTeleport = false;
   }
 
   function handleDragEnd() {
@@ -512,9 +505,8 @@
         onDrag={(dx, dy) => {
           addScaled(stack.pos, { x: dx, y: dy }, 1 / (vmin * scale));
         }}
-        onContextMenu={(e) => {
-          if (cardData.unitStats)
-            statPanel = { card: cardData, stats: cardData.unitStats, x: e.clientX, y: e.clientY };
+        onContextMenu={() => {
+          selectedCard = cardData;
         }}
       />
       {#if cardIndex === 0 && stack.activeRecipeId !== null}
@@ -555,21 +547,13 @@
       </div>
     </div>
   {/if}
-  {#if showTeleport}
-    <TeleportPanel {boards} {currentBoardIndex} onTeleport={createTeleportCard} />
-  {/if}
-  {#if statPanel}
-    <StatPanel
-      card={statPanel.card}
-      stats={statPanel.stats}
-      x={statPanel.x}
-      y={statPanel.y}
-      onClose={() => (statPanel = null)}
-    />
-  {/if}
-  {#if showRecipes}
-    <RecipesPanel knownRecipeIds={currentBoard.knownRecipeIds} />
-  {/if}
+  <Sidebar
+    {boards}
+    {currentBoardIndex}
+    knownRecipeIds={currentBoard.knownRecipeIds}
+    {selectedCard}
+    onTeleport={createTeleportCard}
+  />
   {#if boards.filter((b) => b.discovered).length > 1}
     <LocationNav {boards} bind:currentBoardIndex />
   {/if}
@@ -580,9 +564,6 @@
     {energyAvailable}
     {energyNeeded}
     shop={currentBoard.shop}
-    hasOtherBoards={boards.some((b, i) => i !== currentBoardIndex && b.discovered)}
-    bind:showRecipes
-    bind:showTeleport
     bind:routingMode
     onBuyCard={buyCard}
     onSetSpeed={setSpeed}

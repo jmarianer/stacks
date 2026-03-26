@@ -25,18 +25,7 @@
 
 <style>
   .teleport-panel {
-    position: absolute;
-    top: 3.5rem;
-    right: 6rem;
-    background: rgba(10, 10, 20, 0.92);
-    border: 1px solid rgba(0, 188, 212, 0.4);
-    border-radius: 0.5rem;
-    padding: 0.75rem 1rem;
-    font-family: 'BigNoodleTitling', sans-serif;
-    color: white;
     font-size: 1.1rem;
-    min-width: 12rem;
-    z-index: 5;
     display: flex;
     flex-direction: column;
     gap: 0.4rem;
