@@ -66,15 +66,11 @@
 
 <style>
   .hud {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 25vw;
     display: flex;
     align-items: center;
     gap: 1rem;
     padding: 0.5rem 1rem;
-    background: rgba(0, 0, 0, 0.4);
+    background: rgba(10, 10, 20);
     font-family: 'BigNoodleTitling', sans-serif;
     color: white;
     font-size: 1.5rem;

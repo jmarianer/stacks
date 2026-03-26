@@ -101,11 +101,8 @@
 
 <style>
   .sidebar {
-    position: absolute;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    width: 25vw;
+    grid-row: 1 / 3;
+    grid-column: 2;
     background: rgba(10, 10, 20, 0.92);
     border-left: 1px solid rgba(255, 255, 255, 0.1);
     font-family: 'BigNoodleTitling', sans-serif;

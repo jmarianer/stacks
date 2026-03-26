@@ -1,6 +1,7 @@
 <script lang="ts">
   // import SettingsDialog from '$lib/components/SettingsDialog.svelte';
   // let settingsDialog: SettingsDialog;
+  import { untrack } from 'svelte';
   import Card from '$lib/components/Card.svelte';
   import {
     STACK_CARD_OFFSET_Y,
@@ -43,36 +44,53 @@
   let scale = $state(1);
   let translate = $state({ x: 0, y: 0 });
   let vmin = $state(0);
+  let boardAreaEl = $state<HTMLElement | null>(null);
 
   function updateVmin() {
     vmin = Math.min(window.innerWidth, window.innerHeight) / 100;
   }
 
   $effect(() => {
-    updateVmin();
-    translate.x = ((window.innerWidth * (2 / 3)) - currentBoard.width * vmin) / 2;
-    translate.y = (window.innerHeight - currentBoard.height * vmin) / 2;
+    const el = boardAreaEl;
+    const idx = currentBoardIndex;
+    untrack(() => {
+      if (!el) return;
+      updateVmin();
+      const availW = el.clientWidth;
+      const availH = el.clientHeight;
+      const boardW = boards[idx].width * vmin;
+      const boardH = boards[idx].height * vmin;
+      scale = Math.min(availW / boardW, availH / boardH) * 0.95;
+      translate.x = (availW - boardW * scale) / 2;
+      translate.y = (availH - boardH * scale) / 2;
+    });
   });
 
   function onWheel(e: WheelEvent) {
     e.preventDefault();
     const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
+    const rect = boardAreaEl?.getBoundingClientRect() ?? { left: 0, top: 0 };
+    const localX = e.clientX - rect.left;
+    const localY = e.clientY - rect.top;
     scale = scale * zoomFactor;
-    translate.x = e.clientX - (e.clientX - translate.x) * zoomFactor;
-    translate.y = e.clientY - (e.clientY - translate.y) * zoomFactor;
+    console.log(scale);
+    translate.x = localX - (localX - translate.x) * zoomFactor;
+    translate.y = localY - (localY - translate.y) * zoomFactor;
   }
 
   function boardMouse() {
+    const rect = boardAreaEl?.getBoundingClientRect() ?? { left: 0, top: 0 };
     return {
-      x: (mousePosition.x - translate.x) / (vmin * scale),
-      y: (mousePosition.y - translate.y) / (vmin * scale),
+      x: (mousePosition.x - rect.left - translate.x) / (vmin * scale),
+      y: (mousePosition.y - rect.top - translate.y) / (vmin * scale),
     };
   }
 
   function boardPosFromEvent(e: MouseEvent) {
+    const rect = boardAreaEl?.getBoundingClientRect() ?? { left: 0, top: 0 };
     return {
-      x: (e.clientX - translate.x) / (vmin * scale),
-      y: (e.clientY - translate.y) / (vmin * scale),
+      x: (e.clientX - rect.left - translate.x) / (vmin * scale),
+      y: (e.clientY - rect.top - translate.y) / (vmin * scale),
     };
   }
 
@@ -389,6 +407,18 @@
 </script>
 
 <div class="viewport">
+  <Hud
+    {clock}
+    {solProgress}
+    currency={currentBoard.currency}
+    {energyAvailable}
+    {energyNeeded}
+    shop={currentBoard.shop}
+    bind:routingMode
+    onBuyCard={buyCard}
+    onSetSpeed={setSpeed}
+  />
+  <div class="board-area" bind:this={boardAreaEl}>
   <Draggable
     onDrag={(dx, dy) => {
       translate.x += dx;
@@ -547,26 +577,16 @@
       </div>
     </div>
   {/if}
+  {#if boards.filter((b) => b.discovered).length > 1}
+    <LocationNav {boards} bind:currentBoardIndex />
+  {/if}
+  </div>
   <Sidebar
     {boards}
     {currentBoardIndex}
     knownRecipeIds={currentBoard.knownRecipeIds}
     {selectedCard}
     onTeleport={createTeleportCard}
-  />
-  {#if boards.filter((b) => b.discovered).length > 1}
-    <LocationNav {boards} bind:currentBoardIndex />
-  {/if}
-  <Hud
-    {clock}
-    {solProgress}
-    currency={currentBoard.currency}
-    {energyAvailable}
-    {energyNeeded}
-    shop={currentBoard.shop}
-    bind:routingMode
-    onBuyCard={buyCard}
-    onSetSpeed={setSpeed}
   />
 </div>
 
@@ -583,9 +603,16 @@
   .viewport {
     width: 100vw;
     height: 100vh;
-    background-color: #3d2b1f;
+    display: grid;
+    grid-template-columns: 1fr 25vw;
+    grid-template-rows: auto 1fr;
     overflow: hidden;
+  }
+
+  .board-area {
     position: relative;
+    overflow: hidden;
+    background-color: #3d2b1f;
   }
 
   .sol-overlay {
