@@ -305,9 +305,9 @@ export const recipes: Recipe[] = [
     label: 'Build Foundation',
     time: 3000,
     ingredients: [
-      { match: 'workbench', consumed: false },
       { match: 'plasteel', consumed: true },
       { match: 'nanocarbon', consumed: true },
+      { match: 'people', consumed: false },
     ],
     results: [{ action: 'card', card: 'foundation' }],
   },
@@ -373,9 +373,9 @@ export const recipes: Recipe[] = [
     label: 'Storage Crate',
     time: 2000,
     ingredients: [
+      { match: 'workbench', consumed: false },
       { match: 'plasteel', consumed: true },
       { match: 'nanocarbon', consumed: true },
-      { match: 'people', consumed: false },
     ],
     results: [{ action: 'expand-board', dWidth: 2 * CARD_W, dHeight: CARD_H }],
   },
