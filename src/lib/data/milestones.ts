@@ -8,8 +8,16 @@ export const MILESTONES: Milestone[] = [
     createCards: [],
   },
   {
+    id: 'foundation',
+    condition: (b) => b.stacks.some((s) => s.cards.some((c) => c.type === 'solar-panel')),
+    unlockRecipeIds: ['build-foundation'],
+    createCards: [],
+  },
+  {
     id: 'service-drone',
-    condition: (b) => b.stacks.some((s) => s.cards.some((c) => c.type === 'nanocarbon')),
+    condition: (b) =>
+      b.stacks.some((s) => s.cards.some((c) => c.type === 'solar-panel')) &&
+      b.stacks.some((s) => s.cards.some((c) => c.type === 'nanocarbon')),
     unlockRecipeIds: ['make-service-drone'],
     createCards: [],
   },
@@ -24,8 +32,19 @@ export const MILESTONES: Milestone[] = [
     createCards: ['invasion-bacteria'],
   },
   {
+    id: 'post-invasion',
+    condition: (b) =>
+      b.firedMilestones.includes('bacteria-invasion') &&
+      !b.stacks.some((s) =>
+        s.cards.some((c) => c.type === 'invasion-bacteria' || c.type === 'bacteria'),
+      ),
+    unlockRecipeIds: ['build-train-st', 'build-train-en', 'make-uni-kit', 'build-drill'],
+    createCards: [],
+  },
+  {
     id: 'workbench',
     condition: (b) =>
+      b.stacks.some((s) => s.cards.some((c) => c.type === 'service-drone-1')) &&
       b.stacks.flatMap((s) => s.cards).filter((c) => c.type === 'plasteel').length >= 3,
     unlockRecipeIds: ['build-workbench'],
     createCards: [],
@@ -33,32 +52,19 @@ export const MILESTONES: Milestone[] = [
   {
     id: 'first-workbench',
     condition: (b) => b.stacks.some((s) => s.cards.some((c) => c.type === 'workbench')),
-    unlockRecipeIds: [
-      'make-electronics',
-    //   'build-foundation',
-    //   'build-storage-crate',
-    //   'build-train-st',
-    //   'build-train-en',
-    //   'make-uni-kit',
-    ],
+    unlockRecipeIds: ['make-electronics', 'build-storage-crate'],
     createCards: [],
   },
   {
     id: 'first-electronics',
     condition: (b) => b.stacks.some((s) => s.cards.some((c) => c.type === 'electronics')),
-    unlockRecipeIds: [
-    //   'build-drill',
-    //   'build-train-ag',
-    //   'build-refinery',
-      'make-blaster',
-    //   'make-bolter',
-    ],
+    unlockRecipeIds: ['make-blaster'],
     createCards: [],
   },
   {
     id: 'first-drill',
     condition: (b) => b.stacks.some((s) => s.cards.some((c) => c.type === 'drill')),
-    unlockRecipeIds: ['build-adv-workbench', 'build-rover'],
+    unlockRecipeIds: ['build-adv-workbench', 'build-rover', 'make-bolter'],
     createCards: [],
   },
   {
