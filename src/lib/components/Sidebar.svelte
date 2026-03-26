@@ -44,8 +44,16 @@
     <div class="tabs">
       <!-- <button class="tab" class:active={activeTab === 'progression'} onclick={() => (activeTab = 'progression')}>Progress</button> -->
       {#if hasOtherBoards}
-        <button class="tab" class:active={activeTab === 'recipes'} onclick={() => (activeTab = 'recipes')}>Recipes</button>
-        <button class="tab" class:active={activeTab === 'boards'} onclick={() => (activeTab = 'boards')}>Boards</button>
+        <button
+          class="tab"
+          class:active={activeTab === 'recipes'}
+          onclick={() => (activeTab = 'recipes')}>Recipes</button
+        >
+        <button
+          class="tab"
+          class:active={activeTab === 'boards'}
+          onclick={() => (activeTab = 'boards')}>Boards</button
+        >
       {/if}
     </div>
     <div class="tab-content">
@@ -65,7 +73,10 @@
       <div class="stat-hp-row">
         <span class="stat-hp-label">HP</span>
         <div class="stat-hp-bar">
-          <div class="stat-hp-fill" style="width: {(stats.health / hpMaxFromStats(stats)) * 100}%"></div>
+          <div
+            class="stat-hp-fill"
+            style="width: {(stats.health / hpMaxFromStats(stats)) * 100}%"
+          ></div>
         </div>
         <span class="stat-hp-nums">{Math.ceil(stats.health)}/{hpMaxFromStats(stats)}</span>
       </div>

@@ -419,167 +419,168 @@
     onSetSpeed={setSpeed}
   />
   <div class="board-area" bind:this={boardAreaEl}>
-  <Draggable
-    onDrag={(dx, dy) => {
-      translate.x += dx;
-      translate.y += dy;
-    }}
-    class="board"
-    style="
+    <Draggable
+      onDrag={(dx, dy) => {
+        translate.x += dx;
+        translate.y += dy;
+      }}
+      class="board"
+      style="
       width: {currentBoard.width}vmin;
       height: {currentBoard.height}vmin;
       transform: translate({translate.x}px, {translate.y}px) scale({scale});
     "
-    onwheel={onWheel}
-  >
-    <svg
-      class="connections-overlay"
-      viewBox="0 0 {currentBoard.width} {currentBoard.height}"
-      style="width:{currentBoard.width}vmin;height:{currentBoard.height}vmin;"
+      onwheel={onWheel}
     >
-      <defs>
-        <marker id="arrowhead" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
-          <path d="M0,0 L0,6 L6,3 z" fill="#00000080" />
-        </marker>
-      </defs>
-      {#each currentBoard.connections as conn (conn.fromId + '-' + conn.toId)}
-        {@const fromStack = currentBoard.stacks.find((s) => s.id === conn.fromId)}
-        {@const toStack = currentBoard.stacks.find((s) => s.id === conn.toId)}
-        {#if fromStack && toStack}
-          {@const ep = connectionEndpoints(fromStack, toStack)}
-          <line
-            x1={ep.x1}
-            y1={ep.y1}
-            x2={ep.x2}
-            y2={ep.y2}
-            stroke="#00000080"
-            stroke-width="0.5"
-            opacity="0.8"
-            marker-end="url(#arrowhead)"
-          />
-        {/if}
-      {/each}
-      {#if routingFrom && routingMouseBoard}
-        {@const f = stackCenter(routingFrom)}
-        <line
-          x1={f.x}
-          y1={f.y}
-          x2={routingMouseBoard.x}
-          y2={routingMouseBoard.y}
-          stroke="#00000080"
-          stroke-width="0.4"
-          stroke-dasharray="2 2"
-          opacity="0.6"
-        />
-      {/if}
-      {#each attackPairs as pair, i (i)}
-        <line
-          x1={pair.x1}
-          y1={pair.y1}
-          x2={pair.x2}
-          y2={pair.y2}
-          stroke={pair.isEnemy ? '#ff4444' : '#ffaa00'}
-          stroke-width="0.5"
-          stroke-dasharray="1.5 1.5"
-          opacity="0.75"
-          class="attack-beam"
-        />
-      {/each}
-    </svg>
-
-    {#if isDraggingFoundation}
-      {@const gx = CARD_W + CARD_GAP}
-      {@const gy = CARD_H + CARD_GAP}
       <svg
-        class="foundation-grid"
+        class="connections-overlay"
         viewBox="0 0 {currentBoard.width} {currentBoard.height}"
         style="width:{currentBoard.width}vmin;height:{currentBoard.height}vmin;"
       >
-        {#each Array.from({ length: Math.ceil(currentBoard.width / gx) - 1 }, (_, i) => (i + 1) * gx) as x (x)}
-          <line
-            x1={x + CARD_GAP / 2}
-            y1="0"
-            x2={x + CARD_GAP / 2}
-            y2={currentBoard.height}
-            stroke="white"
-            stroke-width="0.3"
-            stroke-dasharray="1 1"
-            opacity="0.25"
-          />
+        <defs>
+          <marker id="arrowhead" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L6,3 z" fill="#00000080" />
+          </marker>
+        </defs>
+        {#each currentBoard.connections as conn (conn.fromId + '-' + conn.toId)}
+          {@const fromStack = currentBoard.stacks.find((s) => s.id === conn.fromId)}
+          {@const toStack = currentBoard.stacks.find((s) => s.id === conn.toId)}
+          {#if fromStack && toStack}
+            {@const ep = connectionEndpoints(fromStack, toStack)}
+            <line
+              x1={ep.x1}
+              y1={ep.y1}
+              x2={ep.x2}
+              y2={ep.y2}
+              stroke="#00000080"
+              stroke-width="0.5"
+              opacity="0.8"
+              marker-end="url(#arrowhead)"
+            />
+          {/if}
         {/each}
-        {#each Array.from({ length: Math.ceil(currentBoard.height / gy) - 1 }, (_, i) => (i + 1) * gy) as y (y)}
+        {#if routingFrom && routingMouseBoard}
+          {@const f = stackCenter(routingFrom)}
           <line
-            x1="0"
-            y1={y + CARD_GAP / 2}
-            x2={currentBoard.width}
-            y2={y + CARD_GAP / 2}
-            stroke="white"
-            stroke-width="0.3"
-            stroke-dasharray="1 1"
-            opacity="0.25"
+            x1={f.x}
+            y1={f.y}
+            x2={routingMouseBoard.x}
+            y2={routingMouseBoard.y}
+            stroke="#00000080"
+            stroke-width="0.4"
+            stroke-dasharray="2 2"
+            opacity="0.6"
+          />
+        {/if}
+        {#each attackPairs as pair, i (i)}
+          <line
+            x1={pair.x1}
+            y1={pair.y1}
+            x2={pair.x2}
+            y2={pair.y2}
+            stroke={pair.isEnemy ? '#ff4444' : '#ffaa00'}
+            stroke-width="0.5"
+            stroke-dasharray="1.5 1.5"
+            opacity="0.75"
+            class="attack-beam"
           />
         {/each}
       </svg>
-    {/if}
 
-    {#each renderedCards as { cardData, stack, cardIndex } (cardData.id)}
-      <Card
-        {cardData}
-        top={stack.pos.y + cardIndex * STACK_CARD_OFFSET_Y}
-        left={stack.pos.x + cardIndex * STACK_CARD_OFFSET_X}
-        isDropTarget={stack.isDropTarget && cardIndex === stack.cards.length - 1}
-        {inCombat}
-        {vTime}
-        onDragStart={(e) => handleDragStart(stack, cardIndex, e)}
-        onDragEnd={handleDragEnd}
-        onDrag={(dx, dy) => {
-          addScaled(stack.pos, { x: dx, y: dy }, 1 / (vmin * scale));
-        }}
-        onContextMenu={() => {
-          selectedCard = cardData;
-        }}
-      />
-      {#if cardIndex === 0 && stack.activeRecipeId !== null}
-        {@const recipeLabel = recipes.find((r) => r.id === stack.activeRecipeId)?.label ?? ''}
-        <div
-          class="progress-bar"
-          style="left: {stack.pos.x}vmin; top: {stack.pos.y - 4.5}vmin; width: {CARD_W}vmin;"
+      {#if isDraggingFoundation}
+        {@const gx = CARD_W + CARD_GAP}
+        {@const gy = CARD_H + CARD_GAP}
+        <svg
+          class="foundation-grid"
+          viewBox="0 0 {currentBoard.width} {currentBoard.height}"
+          style="width:{currentBoard.width}vmin;height:{currentBoard.height}vmin;"
         >
-          <div class="progress-bar-fill" style="width: {stack.progress * 100}%;"></div>
-          <span class="progress-bar-label">{recipeLabel}</span>
-        </div>
+          {#each Array.from({ length: Math.ceil(currentBoard.width / gx) - 1 }, (_, i) => (i + 1) * gx) as x (x)}
+            <line
+              x1={x + CARD_GAP / 2}
+              y1="0"
+              x2={x + CARD_GAP / 2}
+              y2={currentBoard.height}
+              stroke="white"
+              stroke-width="0.3"
+              stroke-dasharray="1 1"
+              opacity="0.25"
+            />
+          {/each}
+          {#each Array.from({ length: Math.ceil(currentBoard.height / gy) - 1 }, (_, i) => (i + 1) * gy) as y (y)}
+            <line
+              x1="0"
+              y1={y + CARD_GAP / 2}
+              x2={currentBoard.width}
+              y2={y + CARD_GAP / 2}
+              stroke="white"
+              stroke-width="0.3"
+              stroke-dasharray="1 1"
+              opacity="0.25"
+            />
+          {/each}
+        </svg>
       {/if}
-    {/each}
 
-    {#if routingMode}
-      <div
-        class="routing-overlay"
-        onmousedown={handleRoutingMouseDown}
-        onmousemove={handleRoutingMouseMove}
-        onmouseup={handleRoutingMouseUp}
-        role="presentation"
-      ></div>
-    {/if}
-  </Draggable>
-  {#if clock.endOfSol}
-    <div class="sol-overlay">
-      <div class="sol-dialog">
-        <div class="sol-title">Sol {clock.sol} complete</div>
-        {#each clock.lastSolFeeds.filter((f) => f.deaths.length > 0 || f.provided < f.needed) as feed (feed.boardName)}
-          <div class="sol-board-section">
-            <div class="sol-board-name">{feed.boardName}: {feed.provided}/{feed.needed} ⚡</div>
-            {#each feed.deaths as { type, count } (type)}
-              <span class="sol-death-entry">💀 {count}× {CARD_CATALOG[type].title} died</span>
-            {/each}
+      {#each renderedCards as { cardData, stack, cardIndex } (cardData.id)}
+        <Card
+          {cardData}
+          top={stack.pos.y + cardIndex * STACK_CARD_OFFSET_Y}
+          left={stack.pos.x + cardIndex * STACK_CARD_OFFSET_X}
+          isDropTarget={stack.isDropTarget && cardIndex === stack.cards.length - 1}
+          {inCombat}
+          {vTime}
+          onDragStart={(e) => handleDragStart(stack, cardIndex, e)}
+          onDragEnd={handleDragEnd}
+          onDrag={(dx, dy) => {
+            addScaled(stack.pos, { x: dx, y: dy }, 1 / (vmin * scale));
+          }}
+          onContextMenu={() => {
+            selectedCard = cardData;
+          }}
+        />
+        {#if cardIndex === 0 && stack.activeRecipeId !== null}
+          {@const recipeLabel = recipes.find((r) => r.id === stack.activeRecipeId)?.label ?? ''}
+          <div
+            class="progress-bar"
+            style="left: {stack.pos.x}vmin; top: {stack.pos.y - 4.5}vmin; width: {CARD_W}vmin;"
+          >
+            <div class="progress-bar-fill" style="width: {stack.progress * 100}%;"></div>
+            <span class="progress-bar-label">{recipeLabel}</span>
           </div>
-        {/each}
-        <button class="sol-continue" onclick={continueSol}>Continue to Sol {clock.sol + 1}</button>
+        {/if}
+      {/each}
+
+      {#if routingMode}
+        <div
+          class="routing-overlay"
+          onmousedown={handleRoutingMouseDown}
+          onmousemove={handleRoutingMouseMove}
+          onmouseup={handleRoutingMouseUp}
+          role="presentation"
+        ></div>
+      {/if}
+    </Draggable>
+    {#if clock.endOfSol}
+      <div class="sol-overlay">
+        <div class="sol-dialog">
+          <div class="sol-title">Sol {clock.sol} complete</div>
+          {#each clock.lastSolFeeds.filter((f) => f.deaths.length > 0 || f.provided < f.needed) as feed (feed.boardName)}
+            <div class="sol-board-section">
+              <div class="sol-board-name">{feed.boardName}: {feed.provided}/{feed.needed} ⚡</div>
+              {#each feed.deaths as { type, count } (type)}
+                <span class="sol-death-entry">💀 {count}× {CARD_CATALOG[type].title} died</span>
+              {/each}
+            </div>
+          {/each}
+          <button class="sol-continue" onclick={continueSol}>Continue to Sol {clock.sol + 1}</button
+          >
+        </div>
       </div>
-    </div>
-  {/if}
-  {#if boards.filter((b) => b.discovered).length > 1}
-    <LocationNav {boards} bind:currentBoardIndex />
-  {/if}
+    {/if}
+    {#if boards.filter((b) => b.discovered).length > 1}
+      <LocationNav {boards} bind:currentBoardIndex />
+    {/if}
   </div>
   <Sidebar
     {boards}
