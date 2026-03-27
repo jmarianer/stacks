@@ -2,6 +2,7 @@
   // import SettingsDialog from '$lib/components/SettingsDialog.svelte';
   // let settingsDialog: SettingsDialog;
   import { untrack } from 'svelte';
+  import { SvelteMap } from 'svelte/reactivity';
   import Card from '$lib/components/Card.svelte';
   import {
     STACK_CARD_OFFSET_Y,
@@ -37,9 +38,16 @@
   let routingMode = $state(false);
   let routingFrom = $state<Stack | null>(null);
   let routingMouseBoard = $state<{ x: number; y: number } | null>(null);
-  let attackPairs = $state<{ x1: number; y1: number; x2: number; y2: number; isEnemy: boolean }[]>(
-    [],
-  );
+  type AttackPair = {
+    x1: number;
+    y1: number;
+    x2: number;
+    y2: number;
+    isEnemy: boolean;
+    lastAttackAtReal: number;
+    lastAttackAtVtime: number;
+  };
+  const attackPairs = new SvelteMap<number, AttackPair>();
 
   let scale = $state(1);
   let translate = $state({ x: 0, y: 0 });
@@ -109,30 +117,59 @@
     return { x: stack.pos.x + CARD_W / 2, y: stack.pos.y + CARD_H / 2 };
   }
 
-  function computeAttackPairs(board: Board) {
+  const GLOW_DURATION = 400; // ms
+
+  function updateAttackPairs(board: Board, now_ms: number) {
     const { playerUnits, enemyUnits } = getCombatUnits(board);
-    if (playerUnits.length === 0 || enemyUnits.length === 0) return [];
+    // eslint-disable-next-line svelte/prefer-svelte-reactivity
+    const activeIds = new Set<number>();
 
-    const pairs: { x1: number; y1: number; x2: number; y2: number; isEnemy: boolean }[] = [];
+    if (playerUnits.length > 0 && enemyUnits.length > 0) {
+      for (const unit of playerUnits) {
+        if (unit.card.combatHomeStackId === undefined) continue;
+        const weapon = getUnitWeapon(unit.card);
+        if (!weapon) continue;
+        const target = nearestCombatant(unit.stack.pos, enemyUnits, weapon.range);
+        if (!target) continue;
+        const lastAttackAtVtime = unit.card.unitStats?.lastAttackAt ?? -Infinity;
+        const existing = attackPairs.get(unit.stack.id);
+        const lastAttackAtReal =
+          lastAttackAtVtime !== existing?.lastAttackAtVtime
+            ? now_ms
+            : (existing?.lastAttackAtReal ?? -Infinity);
+        attackPairs.set(unit.stack.id, {
+          ...connectionEndpoints(unit.stack, target.stack),
+          isEnemy: false,
+          lastAttackAtReal,
+          lastAttackAtVtime,
+        });
+        activeIds.add(unit.stack.id);
+      }
 
-    for (const unit of playerUnits) {
-      if (unit.card.combatHomeStackId === undefined) continue;
-      const weapon = getUnitWeapon(unit.card);
-      if (!weapon) continue;
-      const target = nearestCombatant(unit.stack.pos, enemyUnits, weapon.range);
-      if (!target) continue;
-      pairs.push({ ...connectionEndpoints(unit.stack, target.stack), isEnemy: false });
+      for (const unit of enemyUnits) {
+        const weapon = (CARD_CATALOG[unit.card.type] as CardDef).enemy?.weapon;
+        if (!weapon) continue;
+        const target = nearestCombatant(unit.stack.pos, playerUnits, weapon.range);
+        if (!target) continue;
+        const lastAttackAtVtime = unit.card.unitStats?.lastAttackAt ?? -Infinity;
+        const existing = attackPairs.get(unit.stack.id);
+        const lastAttackAtReal =
+          lastAttackAtVtime !== existing?.lastAttackAtVtime
+            ? now_ms
+            : (existing?.lastAttackAtReal ?? -Infinity);
+        attackPairs.set(unit.stack.id, {
+          ...connectionEndpoints(unit.stack, target.stack),
+          isEnemy: true,
+          lastAttackAtReal,
+          lastAttackAtVtime,
+        });
+        activeIds.add(unit.stack.id);
+      }
     }
 
-    for (const unit of enemyUnits) {
-      const weapon = (CARD_CATALOG[unit.card.type] as CardDef).enemy?.weapon;
-      if (!weapon) continue;
-      const target = nearestCombatant(unit.stack.pos, playerUnits, weapon.range);
-      if (!target) continue;
-      pairs.push({ ...connectionEndpoints(unit.stack, target.stack), isEnemy: true });
+    for (const id of attackPairs.keys()) {
+      if (!activeIds.has(id)) attackPairs.delete(id);
     }
-
-    return pairs;
   }
 
   function connectionEndpoints(from: Stack, to: Stack) {
@@ -238,6 +275,7 @@
 
   let solProgress = $state(0);
   let vTime = $state(0);
+  let realNow = $state(0);
   let boards = $state<Board[]>(initialBoards);
   let clock = $state<Clock>(makeClock());
   let currentBoardIndex = $state(0);
@@ -383,10 +421,10 @@
     let rafId: number;
 
     function loop() {
-      const realNow = performance.now();
+      const now_ms = performance.now();
       updateDropTargets();
-      tickClock(clock, boards, realNow);
-      const now = getVirtualNow(clock, realNow);
+      tickClock(clock, boards, now_ms);
+      const now = getVirtualNow(clock, now_ms);
       if (!clock.endOfSol && clock.speed !== 0) {
         for (const board of boards) {
           tickPhysics(board);
@@ -394,9 +432,10 @@
           tickProgress(board, boards, clock, now);
         }
       }
-      solProgress = getSolProgress(clock, realNow);
+      solProgress = getSolProgress(clock, now_ms);
       vTime = now;
-      attackPairs = computeAttackPairs(currentBoard);
+      realNow = now_ms;
+      updateAttackPairs(currentBoard, now_ms);
 
       rafId = requestAnimationFrame(loop);
     }
@@ -441,6 +480,9 @@
           <marker id="arrowhead" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
             <path d="M0,0 L0,6 L6,3 z" fill="#00000080" />
           </marker>
+          <filter id="attack-glow" x="-100%" y="-100%" width="300%" height="300%">
+            <feGaussianBlur stdDeviation="1.5" />
+          </filter>
         </defs>
         {#each currentBoard.connections as conn (conn.fromId + '-' + conn.toId)}
           {@const fromStack = currentBoard.stacks.find((s) => s.id === conn.fromId)}
@@ -472,16 +514,29 @@
             opacity="0.6"
           />
         {/if}
-        {#each attackPairs as pair, i (i)}
+        {#each attackPairs.entries() as [id, pair] (id)}
+          {@const glowT = Math.max(0, 1 - (realNow - pair.lastAttackAtReal) / GLOW_DURATION)}
+          {#if glowT > 0}
+            <line
+              x1={pair.x1}
+              y1={pair.y1}
+              x2={pair.x2}
+              y2={pair.y2}
+              stroke={pair.isEnemy ? '#ff6666' : '#ffdd44'}
+              stroke-width={3 + glowT * 3}
+              opacity={glowT * 0.55}
+              filter="url(#attack-glow)"
+            />
+          {/if}
           <line
             x1={pair.x1}
             y1={pair.y1}
             x2={pair.x2}
             y2={pair.y2}
             stroke={pair.isEnemy ? '#ff4444' : '#ffaa00'}
-            stroke-width="0.5"
+            stroke-width={0.5 + glowT * 0.8}
             stroke-dasharray="1.5 1.5"
-            opacity="0.75"
+            opacity={0.75 + glowT * 0.25}
             class="attack-beam"
           />
         {/each}
