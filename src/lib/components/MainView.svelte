@@ -30,7 +30,7 @@
     setNextId,
   } from '$lib/utils/card-factories';
   import { tick as tickPhysics } from '$lib/behavior/physics';
-  import { tick as tickProgress } from '$lib/behavior/progress';
+  import { tick as tickProgress, checkMilestones } from '$lib/behavior/progress';
   import { runCombat, getCombatUnits, nearestCombatant } from '$lib/behavior/combat';
   import { tickClock, getSolProgress, setSpeed, getVirtualNow } from '$lib/behavior/clock';
   import { recipes } from '$lib/data/recipes';
@@ -555,10 +555,11 @@
       tickClock(gameState.clock, gameState.boards, now_ms);
       const now = getVirtualNow(gameState.clock, now_ms);
       if (!gameState.clock.endOfSol && gameState.clock.speed !== 0) {
+        checkMilestones(gameState.boards, gameState.clock, currentBoard);
         for (const board of gameState.boards) {
           tickPhysics(board);
           runCombat(board, now);
-          tickProgress(board, gameState.boards, gameState.clock, now);
+          tickProgress(board, gameState.boards, now);
         }
       }
       solProgress = getSolProgress(gameState.clock, now_ms);

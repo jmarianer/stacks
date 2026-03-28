@@ -3,7 +3,7 @@ import type { CardType } from '$lib/data/card-defs';
 
 export type Milestone = {
   id: string;
-  condition: (board: Board, clock: Clock) => boolean;
+  condition: (boards: Board[], clock: Clock) => boolean;
   unlockRecipeIds: string[];
   createCards: CardType[]; // real cards dropped (e.g. invasion warnings)
 };

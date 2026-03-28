@@ -246,28 +246,32 @@ function executeRecipe(board: Board, boards: Board[], stack: Stack, recipe: Reci
   }
 }
 
-function checkMilestones(board: Board, clock: Clock): void {
+export function checkMilestones(boards: Board[], clock: Clock, currentBoard: Board): void {
   for (const milestone of MILESTONES) {
     if (clock.firedMilestones.includes(milestone.id)) continue;
-    if (!milestone.condition(board, clock)) continue;
+    if (!milestone.condition(boards, clock)) continue;
     clock.firedMilestones.push(milestone.id);
     for (const id of milestone.unlockRecipeIds) {
-      if (!board.knownRecipeIds.includes(id)) board.knownRecipeIds.push(id);
-      board.stacks.push(
-        makeStackFromCards({ x: board.width / 2, y: board.height / 2 }, [
+      for (const board of boards) {
+        if (!board.knownRecipeIds.includes(id)) board.knownRecipeIds.push(id);
+      }
+      currentBoard.stacks.push(
+        makeStackFromCards({ x: currentBoard.width / 2, y: currentBoard.height / 2 }, [
           makeIdeaCard(`Idea: ${recipes.find((r) => r.id === id)?.label}`),
         ]),
       );
     }
     for (const card of milestone.createCards) {
-      addCardToMatchingStack(board.stacks, card, { x: board.width / 2, y: board.height / 2 });
+      addCardToMatchingStack(currentBoard.stacks, card, {
+        x: currentBoard.width / 2,
+        y: currentBoard.height / 2,
+      });
     }
   }
 }
 
 /** Advance recipe progress on a single board. */
-export function tick(board: Board, boards: Board[], clock: Clock, now: number): void {
-  checkMilestones(board, clock);
+export function tick(board: Board, boards: Board[], now: number): void {
   const stacks = board.stacks;
   const toExecute: { stack: Stack; recipe: Recipe }[] = [];
 
