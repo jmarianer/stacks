@@ -56,6 +56,7 @@ export type Clock = {
   lastActiveSpeed: number;
   vTime: number;
   vTimeAt: number | null;
+  firedMilestones: string[];
 };
 
 export type Connection = { fromId: number; toId: number };
@@ -69,7 +70,6 @@ export type Board = {
   currency: number;
   shop: ShopItem[];
   knownRecipeIds: string[];
-  firedMilestones: string[];
   discovered: boolean;
   connections: Connection[];
 };

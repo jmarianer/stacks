@@ -109,6 +109,7 @@ export function makeClock(): Clock {
     lastActiveSpeed: 1,
     vTime: 0,
     vTimeAt: null,
+    firedMilestones: [],
   };
 }
 
@@ -131,7 +132,6 @@ export function makeBoard(
     currency,
     shop: shop.map((item) => ({ ...item, id: nextId++ })),
     knownRecipeIds,
-    firedMilestones: [],
     discovered,
     connections: [],
   };

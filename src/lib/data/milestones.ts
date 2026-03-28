@@ -33,8 +33,8 @@ export const MILESTONES: Milestone[] = [
   },
   {
     id: 'post-invasion',
-    condition: (b) =>
-      b.firedMilestones.includes('bacteria-invasion') &&
+    condition: (b, clock) =>
+      clock.firedMilestones.includes('bacteria-invasion') &&
       !b.stacks.some((s) =>
         s.cards.some((c) => c.type === 'invasion-bacteria' || c.type === 'bacteria'),
       ),

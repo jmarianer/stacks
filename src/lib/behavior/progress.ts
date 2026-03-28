@@ -250,9 +250,9 @@ function executeRecipe(board: Board, boards: Board[], stack: Stack, recipe: Reci
 
 function checkMilestones(board: Board, clock: Clock): void {
   for (const milestone of MILESTONES) {
-    if (board.firedMilestones.includes(milestone.id)) continue;
+    if (clock.firedMilestones.includes(milestone.id)) continue;
     if (!milestone.condition(board, clock)) continue;
-    board.firedMilestones.push(milestone.id);
+    clock.firedMilestones.push(milestone.id);
     for (const id of milestone.unlockRecipeIds) {
       if (!board.knownRecipeIds.includes(id)) board.knownRecipeIds.push(id);
       board.stacks.push(
