@@ -61,14 +61,14 @@
 
   $effect(() => {
     const el = boardAreaEl;
-    const idx = currentBoardIndex;
+    const idx = gameState.currentBoardIndex;
     untrack(() => {
       if (!el) return;
       updateVmin();
       const availW = el.clientWidth;
       const availH = el.clientHeight;
-      const boardW = boards[idx].width * vmin;
-      const boardH = boards[idx].height * vmin;
+      const boardW = gameState.boards[idx].width * vmin;
+      const boardH = gameState.boards[idx].height * vmin;
       scale = Math.min(availW / boardW, availH / boardH) * 0.95;
       translate.x = (availW - boardW * scale) / 2;
       translate.y = (availH - boardH * scale) / 2;
@@ -240,14 +240,17 @@
     if (e.key === 'd') translate.x -= speed;
     if (e.key === ' ') {
       e.preventDefault();
-      if (!clock.endOfSol) {
-        setSpeed(clock, clock.speed === 0 ? clock.lastActiveSpeed : 0);
+      if (!gameState.clock.endOfSol) {
+        setSpeed(
+          gameState.clock,
+          gameState.clock.speed === 0 ? gameState.clock.lastActiveSpeed : 0,
+        );
       }
     }
-    if (e.key === '1') setSpeed(clock, 1);
-    if (e.key === '2') setSpeed(clock, 2);
-    if (e.key === '3') setSpeed(clock, 3);
-    if (e.key === '4' && !clock.endOfSol) setSpeed(clock, 0);
+    if (e.key === '1') setSpeed(gameState.clock, 1);
+    if (e.key === '2') setSpeed(gameState.clock, 2);
+    if (e.key === '3') setSpeed(gameState.clock, 3);
+    if (e.key === '4' && !gameState.clock.endOfSol) setSpeed(gameState.clock, 0);
     if (e.key === 'r' || e.key === 'R') routingMode = !routingMode;
     if (e.key === 'Backspace') {
       const stack = stackAtMouse();
@@ -267,34 +270,38 @@
 
   function continueSol() {
     const realNow = performance.now();
-    clock.vTimeAt = realNow;
-    clock.endOfSol = false;
-    clock.endOfSolAt = null;
-    clock.sol++;
-    clock.solStartTime = clock.vTime;
+    gameState.clock.vTimeAt = realNow;
+    gameState.clock.endOfSol = false;
+    gameState.clock.endOfSolAt = null;
+    gameState.clock.sol++;
+    gameState.clock.solStartTime = gameState.clock.vTime;
   }
 
   let solProgress = $state(0);
   let vTime = $state(0);
   let realNow = $state(0);
-  let boards = $state<Board[]>(initialBoards);
-  let clock = $state<Clock>(makeClock());
-  let currentBoardIndex = $state(0);
+  type GameState = { boards: Board[]; clock: Clock; currentBoardIndex: number };
+  let gameState = $state<GameState>({
+    boards: initialBoards,
+    clock: makeClock(),
+    currentBoardIndex: 0,
+  });
 
-  function applySave(save: SaveState) {
+  function applySave(save: GameState) {
     save.clock.vTimeAt = null;
-    boards = save.boards;
-    clock = save.clock;
-    currentBoardIndex = save.currentBoardIndex;
+    gameState = save;
     const maxId = Math.max(
       0,
-      ...save.boards.flatMap((b) => [b.id, ...b.stacks.flatMap((s) => [s.id, ...s.cards.map((c) => c.id)])]),
+      ...save.boards.flatMap((b) => [
+        b.id,
+        ...b.stacks.flatMap((s) => [s.id, ...s.cards.map((c) => c.id)]),
+      ]),
     );
     setNextId(maxId + 1);
   }
 
   onMount(() => applySave(loadSave()));
-  const currentBoard = $derived(boards[currentBoardIndex]);
+  const currentBoard = $derived(gameState.boards[gameState.currentBoardIndex]);
 
   const energyAvailable = $derived(
     currentBoard.stacks
@@ -350,7 +357,7 @@
   }
 
   function createTeleportCard(targetBoardIndex: number, onBoard: Board = currentBoard) {
-    const card = makeTeleportCard(targetBoardIndex, boards[targetBoardIndex].name);
+    const card = makeTeleportCard(targetBoardIndex, gameState.boards[targetBoardIndex].name);
     const stack = makeStackFromCards({ x: onBoard.width / 2, y: onBoard.height / 2 }, [card]);
     onBoard.stacks = [...onBoard.stacks, stack];
   }
@@ -373,14 +380,14 @@
       const teleportCard = target.cards.find((c) => c.type === 'teleport');
       if (teleportCard?.targetBoardIndex !== undefined) {
         const destIdx = teleportCard.targetBoardIndex;
-        const dest = boards[destIdx];
+        const dest = gameState.boards[destIdx];
         const newStack = makeStackFromCards(
           { x: dest.width / 2, y: dest.height / 2 },
           dragging.cards,
         );
         dest.stacks = [...dest.stacks, newStack];
         currentBoard.stacks = stacks.filter((s) => s.id !== target.id && s.id !== dragging.id);
-        currentBoardIndex = destIdx;
+        gameState.currentBoardIndex = destIdx;
         return;
       }
       target.cards = [...target.cards, ...dragging.cards];
@@ -435,13 +442,11 @@
   const SAVE_KEY = 'stacks-autosave';
   const SAVE_INTERVAL_MS = 5000;
 
-  type SaveState = { boards: Board[]; clock: Clock; currentBoardIndex: number };
-
-  function loadSave(): SaveState {
+  function loadSave(): GameState {
     try {
       const raw = localStorage.getItem(SAVE_KEY);
       if (raw) {
-        const save = JSON.parse(raw) as SaveState;
+        const save = JSON.parse(raw) as GameState;
         return save;
       }
     } catch {
@@ -451,11 +456,11 @@
   }
 
   function saveState() {
-    localStorage.setItem(SAVE_KEY, JSON.stringify({ boards, clock, currentBoardIndex }));
+    localStorage.setItem(SAVE_KEY, JSON.stringify(gameState));
   }
 
   function exportSave() {
-    const json = JSON.stringify({ boards, clock, currentBoardIndex }, null, 2);
+    const json = JSON.stringify(gameState, null, 2);
     const blob = new Blob([json], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -471,7 +476,7 @@
     const reader = new FileReader();
     reader.onload = () => {
       try {
-        applySave(JSON.parse(reader.result as string) as SaveState);
+        applySave(JSON.parse(reader.result as string) as GameState);
       } catch {
         // silently ignore malformed import
       }
@@ -486,16 +491,16 @@
     function loop() {
       const now_ms = performance.now();
       updateDropTargets();
-      tickClock(clock, boards, now_ms);
-      const now = getVirtualNow(clock, now_ms);
-      if (!clock.endOfSol && clock.speed !== 0) {
-        for (const board of boards) {
+      tickClock(gameState.clock, gameState.boards, now_ms);
+      const now = getVirtualNow(gameState.clock, now_ms);
+      if (!gameState.clock.endOfSol && gameState.clock.speed !== 0) {
+        for (const board of gameState.boards) {
           tickPhysics(board);
           runCombat(board, now);
-          tickProgress(board, boards, clock, now);
+          tickProgress(board, gameState.boards, gameState.clock, now);
         }
       }
-      solProgress = getSolProgress(clock, now_ms);
+      solProgress = getSolProgress(gameState.clock, now_ms);
       vTime = now;
       realNow = now_ms;
       updateAttackPairs(currentBoard, now_ms);
@@ -514,7 +519,7 @@
 
 <div class="viewport">
   <Hud
-    {clock}
+    clock={gameState.clock}
     {solProgress}
     currency={currentBoard.currency}
     {energyAvailable}
@@ -683,11 +688,11 @@
         ></div>
       {/if}
     </Draggable>
-    {#if clock.endOfSol}
+    {#if gameState.clock.endOfSol}
       <div class="sol-overlay">
         <div class="sol-dialog">
-          <div class="sol-title">Sol {clock.sol} complete</div>
-          {#each clock.lastSolFeeds.filter((f) => f.deaths.length > 0 || f.provided < f.needed) as feed (feed.boardName)}
+          <div class="sol-title">Sol {gameState.clock.sol} complete</div>
+          {#each gameState.clock.lastSolFeeds.filter((f) => f.deaths.length > 0 || f.provided < f.needed) as feed (feed.boardName)}
             <div class="sol-board-section">
               <div class="sol-board-name">{feed.boardName}: {feed.provided}/{feed.needed} ⚡</div>
               {#each feed.deaths as { type, count } (type)}
@@ -695,18 +700,19 @@
               {/each}
             </div>
           {/each}
-          <button class="sol-continue" onclick={continueSol}>Continue to Sol {clock.sol + 1}</button
+          <button class="sol-continue" onclick={continueSol}
+            >Continue to Sol {gameState.clock.sol + 1}</button
           >
         </div>
       </div>
     {/if}
-    {#if boards.filter((b) => b.discovered).length > 1}
-      <LocationNav {boards} bind:currentBoardIndex />
+    {#if gameState.boards.filter((b) => b.discovered).length > 1}
+      <LocationNav boards={gameState.boards} bind:currentBoardIndex={gameState.currentBoardIndex} />
     {/if}
   </div>
   <Sidebar
-    {boards}
-    {currentBoardIndex}
+    boards={gameState.boards}
+    currentBoardIndex={gameState.currentBoardIndex}
     knownRecipeIds={currentBoard.knownRecipeIds}
     {selectedCard}
     onTeleport={createTeleportCard}

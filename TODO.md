@@ -25,7 +25,6 @@
 
 ## Code quality
 
-- Change SaveState to GameState and use it in place of the three variables in MainView
 - Lots of stuff needs to go out of MainView and into separate components
 
 ## Gameplay
