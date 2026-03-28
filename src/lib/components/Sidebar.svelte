@@ -21,12 +21,16 @@
     knownRecipeIds,
     selectedCard,
     onTeleport,
+    onExport,
+    onImport,
   }: {
     boards: Board[];
     currentBoardIndex: number;
     knownRecipeIds: string[];
     selectedCard: CardData | null;
     onTeleport: (i: number) => void;
+    onExport: () => void;
+    onImport: (e: Event) => void;
   } = $props();
 
   const hasOtherBoards = $derived(boards.some((b, i) => i !== currentBoardIndex && b.discovered));
@@ -65,6 +69,13 @@
         <TeleportPanel {boards} {currentBoardIndex} {onTeleport} />
       {/if}
     </div>
+  </div>
+  <div class="save-bar">
+    <button class="save-btn" onclick={onExport}>Export</button>
+    <label class="save-btn">
+      Import
+      <input type="file" accept=".json" onchange={onImport} style="display:none" />
+    </label>
   </div>
   {#if selectedCard?.unitStats}
     {@const stats = selectedCard.unitStats}
@@ -167,6 +178,32 @@
     opacity: 0.4;
     font-size: 1rem;
     padding: 1rem 0;
+  }
+
+  .save-bar {
+    display: flex;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    flex-shrink: 0;
+  }
+
+  .save-btn {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 0.35rem;
+    color: rgba(255, 255, 255, 0.7);
+    font-family: 'BigNoodleTitling', sans-serif;
+    font-size: 0.9rem;
+    padding: 0.3rem 0;
+    cursor: pointer;
+    text-align: center;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.13);
+      color: white;
+    }
   }
 
   .bottom-panel {

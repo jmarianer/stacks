@@ -5,6 +5,10 @@ import type { Vec2 } from '$lib/utils/vec2';
 
 let nextId = 1;
 
+export function setNextId(n: number) {
+  nextId = n;
+}
+
 export function makeCardOfType(type: CardType): CardData {
   const def: CardDef = CARD_CATALOG[type];
   let unitStats: UnitStats | undefined;

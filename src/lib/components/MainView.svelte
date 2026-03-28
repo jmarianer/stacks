@@ -1,7 +1,7 @@
 <script lang="ts">
   // import SettingsDialog from '$lib/components/SettingsDialog.svelte';
   // let settingsDialog: SettingsDialog;
-  import { untrack } from 'svelte';
+  import { untrack, onMount } from 'svelte';
   import { SvelteMap } from 'svelte/reactivity';
   import Card from '$lib/components/Card.svelte';
   import {
@@ -27,6 +27,7 @@
     makeStackFromCards,
     addCardToMatchingStack,
     makeTeleportCard,
+    setNextId,
   } from '$lib/utils/card-factories';
   import { tick as tickPhysics } from '$lib/behavior/physics';
   import { tick as tickProgress } from '$lib/behavior/progress';
@@ -279,6 +280,20 @@
   let boards = $state<Board[]>(initialBoards);
   let clock = $state<Clock>(makeClock());
   let currentBoardIndex = $state(0);
+
+  function applySave(save: SaveState) {
+    save.clock.vTimeAt = null;
+    boards = save.boards;
+    clock = save.clock;
+    currentBoardIndex = save.currentBoardIndex;
+    const maxId = Math.max(
+      0,
+      ...save.boards.flatMap((b) => [b.id, ...b.stacks.flatMap((s) => [s.id, ...s.cards.map((c) => c.id)])]),
+    );
+    setNextId(maxId + 1);
+  }
+
+  onMount(() => applySave(loadSave()));
   const currentBoard = $derived(boards[currentBoardIndex]);
 
   const energyAvailable = $derived(
@@ -417,8 +432,56 @@
     addCardToMatchingStack(currentBoard.stacks, item.cardType, pos);
   }
 
+  const SAVE_KEY = 'stacks-autosave';
+  const SAVE_INTERVAL_MS = 5000;
+
+  type SaveState = { boards: Board[]; clock: Clock; currentBoardIndex: number };
+
+  function loadSave(): SaveState {
+    try {
+      const raw = localStorage.getItem(SAVE_KEY);
+      if (raw) {
+        const save = JSON.parse(raw) as SaveState;
+        return save;
+      }
+    } catch {
+      // fall through to defaults
+    }
+    return { boards: initialBoards, clock: makeClock(), currentBoardIndex: 0 };
+  }
+
+  function saveState() {
+    localStorage.setItem(SAVE_KEY, JSON.stringify({ boards, clock, currentBoardIndex }));
+  }
+
+  function exportSave() {
+    const json = JSON.stringify({ boards, clock, currentBoardIndex }, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'stacks-save.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function importSave(e: Event) {
+    const file = (e.target as HTMLInputElement).files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        applySave(JSON.parse(reader.result as string) as SaveState);
+      } catch {
+        // silently ignore malformed import
+      }
+    };
+    reader.readAsText(file);
+  }
+
   $effect(() => {
     let rafId: number;
+    let lastSaveAt = 0;
 
     function loop() {
       const now_ms = performance.now();
@@ -436,6 +499,10 @@
       vTime = now;
       realNow = now_ms;
       updateAttackPairs(currentBoard, now_ms);
+      if (now_ms - lastSaveAt > SAVE_INTERVAL_MS) {
+        saveState();
+        lastSaveAt = now_ms;
+      }
 
       rafId = requestAnimationFrame(loop);
     }
@@ -643,6 +710,8 @@
     knownRecipeIds={currentBoard.knownRecipeIds}
     {selectedCard}
     onTeleport={createTeleportCard}
+    onExport={exportSave}
+    onImport={importSave}
   />
 </div>
 
