@@ -59,7 +59,7 @@ export type Clock = {
   firedMilestones: string[];
 };
 
-export type Connection = { fromId: number; toId: number };
+export type Connection = { fromId: number; toId: number; filter?: CardType };
 
 export type Board = {
   id: number;

@@ -1,6 +1,6 @@
 import { recipes } from '$lib/data/recipes';
 import { MILESTONES } from '$lib/data/milestones';
-import type { Stack, Board, CardData, Clock } from '$lib/types/board-types';
+import type { Stack, Board, CardData, Clock, Connection } from '$lib/types/board-types';
 import { hpMaxFromStats, type CardDef } from '$lib/types/card-types';
 import type { RecipeResult } from '$lib/types/recipe-types';
 import type { Vec2 } from '$lib/utils/vec2';
@@ -90,18 +90,19 @@ function weightedRandom(cards: Record<string, number>): string {
   return Object.keys(cards)[0];
 }
 
-function dropCard(
-  type: string,
-  stacks: Stack[],
-  pos: Vec2,
-  routeDest: Stack | null | undefined,
-): void {
+function dropCard(type: string, stacks: Stack[], pos: Vec2, connections: Connection[]): void {
   if (!isCardType(type)) return;
-  if (routeDest) {
-    routeDest.cards.push(makeCardOfType(type));
-  } else {
-    addCardToMatchingStack(stacks, type, pos);
+  if (connections.length > 0) {
+    const conn = connections.find((c) => c.filter === type) ?? connections.find((c) => !c.filter);
+    if (conn) {
+      const dest = stacks.find((s) => s.id === conn.toId);
+      if (dest) {
+        dest.cards.push(makeCardOfType(type));
+        return;
+      }
+    }
   }
+  addCardToMatchingStack(stacks, type, pos);
 }
 
 export function applyResults(
@@ -109,7 +110,7 @@ export function applyResults(
   board: Board,
   boards: Board[],
   stack: Stack,
-  routeDest: Stack | null,
+  connections: Connection[],
   consumedCards: CardData[] = [],
 ): void {
   const stacks = board.stacks;
@@ -123,11 +124,11 @@ export function applyResults(
     }
     if (result.action === 'card') {
       if (result.chance !== undefined && Math.random() * 100 > result.chance) continue;
-      dropCard(result.card, stacks, dropPos, routeDest);
+      dropCard(result.card, stacks, dropPos, connections);
       continue;
     }
     if (result.action === 'weighted') {
-      dropCard(weightedRandom(result.cards), stacks, dropPos, routeDest);
+      dropCard(weightedRandom(result.cards), stacks, dropPos, connections);
       continue;
     }
     if (result.action === 'discover-board') {
@@ -237,11 +238,8 @@ function executeRecipe(board: Board, boards: Board[], stack: Stack, recipe: Reci
   stack.progressStartTime = null;
   stack.activeRecipeId = null;
 
-  // Check for a routing connection from this stack to a destination foundation stack
-  const connection = board.connections.find((c) => c.fromId === stack.id);
-  const routeDest = connection ? (stacks.find((s) => s.id === connection.toId) ?? null) : null;
-
-  applyResults(recipe.results, board, boards, stack, routeDest, consumedCards);
+  const connections = board.connections.filter((c) => c.fromId === stack.id);
+  applyResults(recipe.results, board, boards, stack, connections, consumedCards);
 
   if (stack.cards.length === 0) {
     stacks.splice(stacks.indexOf(stack), 1);

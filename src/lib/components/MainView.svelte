@@ -14,12 +14,12 @@
   } from '$lib/data/constants';
   import Draggable from './Draggable.svelte';
   import { addScaled } from '$lib/utils/vec2';
-  import type { Stack, Board, ShopItem, CardData, Clock } from '$lib/types/board-types';
+  import type { Stack, Board, ShopItem, CardData, Clock, Connection } from '$lib/types/board-types';
   import Hud from './Hud.svelte';
   import Sidebar from './Sidebar.svelte';
   import LocationNav from './LocationNav.svelte';
   import type { CardDef } from '$lib/types/card-types';
-  import { CARD_CATALOG } from '$lib/data/card-defs';
+  import { CARD_CATALOG, type CardType } from '$lib/data/card-defs';
   import { getUnitWeapon } from '$lib/utils/unit-stats';
   import { initialBoards } from '$lib/data/initial-boards';
   import {
@@ -39,6 +39,9 @@
   let routingMode = $state(false);
   let routingFrom = $state<Stack | null>(null);
   let routingMouseBoard = $state<{ x: number; y: number } | null>(null);
+  // When non-null, the filter-assignment input is open for this connection (identified by fromId+toId)
+  let pendingFilterConn = $state<{ fromId: number; toId: number } | null>(null);
+  let filterInput = $state('');
   type AttackPair = {
     x1: number;
     y1: number;
@@ -179,22 +182,68 @@
     return { x1: f.x, y1: f.y, x2: t.x, y2: t.y };
   }
 
+  function connMidpoint(conn: { fromId: number; toId: number }) {
+    const from = currentBoard.stacks.find((s) => s.id === conn.fromId);
+    const to = currentBoard.stacks.find((s) => s.id === conn.toId);
+    if (!from || !to) return null;
+    const f = stackCenter(from);
+    const t = stackCenter(to);
+    return { x: (f.x + t.x) / 2, y: (f.y + t.y) / 2 };
+  }
+
+  function connAtPos(pos: { x: number; y: number }): Connection | undefined {
+    return currentBoard.connections.find((conn) => {
+      const mid = connMidpoint(conn);
+      return mid !== null && Math.hypot(mid.x - pos.x, mid.y - pos.y) < 3;
+    });
+  }
+
+  function confirmFilter() {
+    if (!pendingFilterConn) return;
+    const { fromId, toId } = pendingFilterConn;
+    const filter = filterInput in CARD_CATALOG ? (filterInput as CardType) : undefined;
+    currentBoard.connections = currentBoard.connections.map((c) =>
+      c.fromId === fromId && c.toId === toId ? { ...c, filter } : c,
+    );
+    pendingFilterConn = null;
+    filterInput = '';
+  }
+
+  function handleFilterKeyDown(e: KeyboardEvent) {
+    if (e.key === 'Enter') confirmFilter();
+    if (e.key === 'Escape') {
+      pendingFilterConn = null;
+      filterInput = '';
+    }
+    e.stopPropagation(); // prevent 'r' from toggling routing mode
+  }
+
+  function focusOnMount(node: HTMLElement) {
+    node.focus();
+  }
+
   function handleRoutingMouseDown(e: MouseEvent) {
+    if (pendingFilterConn) {
+      confirmFilter();
+      return;
+    }
     const pos = boardPosFromEvent(e);
+    // Click near a connection midpoint → open filter input for it
+    const conn = connAtPos(pos);
+    if (conn) {
+      e.stopPropagation();
+      pendingFilterConn = { fromId: conn.fromId, toId: conn.toId };
+      filterInput = conn.filter ?? '';
+      return;
+    }
     const stack = foundationStackAt(pos);
     if (!stack) {
       routingFrom = null;
       return;
     }
     e.stopPropagation();
-    const hasOutgoing = currentBoard.connections.some((c) => c.fromId === stack.id);
-    if (hasOutgoing) {
-      currentBoard.connections = currentBoard.connections.filter((c) => c.fromId !== stack.id);
-      routingFrom = null;
-    } else {
-      routingFrom = stack;
-      routingMouseBoard = stackCenter(stack);
-    }
+    routingFrom = stack;
+    routingMouseBoard = stackCenter(stack);
   }
 
   function handleRoutingMouseMove(e: MouseEvent) {
@@ -211,14 +260,26 @@
         (c) => c.fromId === routingFrom!.id && c.toId === target.id,
       );
       if (!already) {
-        currentBoard.connections = [
-          ...currentBoard.connections,
-          { fromId: routingFrom.id, toId: target.id },
-        ];
+        const newConn: Connection = { fromId: routingFrom.id, toId: target.id };
+        currentBoard.connections = [...currentBoard.connections, newConn];
+        pendingFilterConn = { fromId: newConn.fromId, toId: newConn.toId };
+        filterInput = '';
       }
     }
     routingFrom = null;
     routingMouseBoard = null;
+  }
+
+  function handleRoutingContextMenu(e: MouseEvent) {
+    e.preventDefault();
+    const pos = boardPosFromEvent(e);
+    const conn = connAtPos(pos);
+    if (conn) {
+      if (pendingFilterConn?.fromId === conn.fromId && pendingFilterConn?.toId === conn.toId) {
+        pendingFilterConn = null;
+      }
+      currentBoard.connections = currentBoard.connections.filter((c) => c !== conn);
+    }
   }
 
   function stackAtMouse(): Stack | undefined {
@@ -561,16 +622,42 @@
           {@const toStack = currentBoard.stacks.find((s) => s.id === conn.toId)}
           {#if fromStack && toStack}
             {@const ep = connectionEndpoints(fromStack, toStack)}
+            {@const isPending =
+              pendingFilterConn?.fromId === conn.fromId && pendingFilterConn?.toId === conn.toId}
             <line
               x1={ep.x1}
               y1={ep.y1}
               x2={ep.x2}
               y2={ep.y2}
-              stroke="#00000080"
-              stroke-width="0.5"
-              opacity="0.8"
+              stroke={isPending ? '#ff9900cc' : '#00000080'}
+              stroke-width={isPending ? 0.8 : 0.5}
+              opacity="0.9"
               marker-end="url(#arrowhead)"
             />
+            {#if conn.filter || routingMode}
+              {@const mx = (ep.x1 + ep.x2) / 2}
+              {@const my = (ep.y1 + ep.y2) / 2}
+              {@const label = conn.filter
+                ? (CARD_CATALOG[conn.filter]?.title ?? conn.filter)
+                : 'any'}
+              {@const chipW = Math.max(4, label.length * 1.05 + 1.5)}
+              <rect
+                x={mx - chipW / 2}
+                y={my - 1.6}
+                width={chipW}
+                height="3.2"
+                rx="0.6"
+                fill={isPending ? '#ff9900cc' : '#00000099'}
+              />
+              <text
+                x={mx}
+                y={my + 0.65}
+                text-anchor="middle"
+                font-size="1.8"
+                fill="white"
+                font-family="sans-serif">{label}</text
+              >
+            {/if}
           {/if}
         {/each}
         {#if routingFrom && routingMouseBoard}
@@ -684,8 +771,29 @@
           onmousedown={handleRoutingMouseDown}
           onmousemove={handleRoutingMouseMove}
           onmouseup={handleRoutingMouseUp}
+          oncontextmenu={handleRoutingContextMenu}
           role="presentation"
         ></div>
+        {#if pendingFilterConn}
+          {@const mid = connMidpoint(pendingFilterConn)}
+          {#if mid}
+            <div class="filter-input-popup" style="left:{mid.x}vmin; top:{mid.y}vmin;">
+              <input
+                type="text"
+                list="card-type-list"
+                bind:value={filterInput}
+                placeholder="any type"
+                onkeydown={handleFilterKeyDown}
+                use:focusOnMount
+              />
+              <datalist id="card-type-list">
+                {#each Object.keys(CARD_CATALOG) as type (type)}
+                  <option value={type}>{CARD_CATALOG[type as CardType].title}</option>
+                {/each}
+              </datalist>
+            </div>
+          {/if}
+        {/if}
       {/if}
     </Draggable>
     {#if gameState.clock.endOfSol}
@@ -843,6 +951,29 @@
     right: 0;
     cursor: crosshair;
     z-index: 5;
+  }
+
+  .filter-input-popup {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+    background: rgba(0, 0, 0, 0.85);
+    border-radius: 0.5vmin;
+    padding: 0.5vmin 0.75vmin;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3vmin;
+  }
+
+  .filter-input-popup input {
+    font-size: 1.4vmin;
+    padding: 0.3vmin 0.5vmin;
+    border: none;
+    border-radius: 0.3vmin;
+    outline: none;
+    width: 14vmin;
+    background: #fff;
+    color: #000;
   }
 
   :global .board {

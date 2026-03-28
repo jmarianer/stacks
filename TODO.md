@@ -1,9 +1,5 @@
 # Stacks TODO list
 
-## QoL
-
-- Sorter – like a foundation except can have multiple "outputs" and decides where to go based on card type (e.g., drill -> sorter -> plasteel goes one way, helium goes the other)
-
 ## UI
 
 - Ideas should show what the recipe is on mouseover / right-click.

@@ -216,7 +216,7 @@ export function runCombat(board: Board, now: number): void {
   board.stacks = board.stacks.filter((s) => s.cards.length > 0);
 
   for (const { results, pos } of lootEntries) {
-    applyResults(results, board, [], makeStackFromCards(pos, []), null);
+    applyResults(results, board, [], makeStackFromCards(pos, []), []);
   }
   for (const { card, pos } of deadPlayerCards) {
     board.stacks.push(makeStackFromCards(pos, [makeTombstoneCard(card)]));
