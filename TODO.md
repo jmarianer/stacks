@@ -15,7 +15,8 @@
 - Show upcoming milestones/quests. We'll give them titles or something.
 - Cards shouldn't always appear on top of the same card. Not sure when that should/shouldn't happen. Maybe just for resources (in early game when we don't have sorters, otherwise it's a PITA). Maybe never and sorters are much more foundational (e.g. appear at the same time as foundations).
 - Rename bandaids to something that makes it clear what they do. Figure out what they do first.
-- "Restart" button so I don't have to go in local storage and delete the thing.
+- "Restart" button so I don't have to go in local storage and delete the thing. Also "View game state JSON" maybe?
+- Figure out a nicer color scheme
 
 ## Bugs
 
