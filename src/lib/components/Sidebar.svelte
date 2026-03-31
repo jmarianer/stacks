@@ -23,6 +23,7 @@
     onTeleport,
     onExport,
     onImport,
+    onReset,
   }: {
     boards: Board[];
     currentBoardIndex: number;
@@ -31,6 +32,7 @@
     onTeleport: (i: number) => void;
     onExport: () => void;
     onImport: (e: Event) => void;
+    onReset: () => void;
   } = $props();
 
   const hasOtherBoards = $derived(boards.some((b, i) => i !== currentBoardIndex && b.discovered));
@@ -76,6 +78,7 @@
       Import
       <input type="file" accept=".json" onchange={onImport} style="display:none" />
     </label>
+    <button class="save-btn" onclick={onReset}>Reset</button>
   </div>
   {#if selectedCard?.unitStats}
     {@const stats = selectedCard.unitStats}

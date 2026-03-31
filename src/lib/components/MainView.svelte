@@ -789,7 +789,7 @@
               />
               <datalist id="card-type-list">
                 {#each Object.keys(CARD_CATALOG) as type (type)}
-                  <option value={type}>{CARD_CATALOG[type as CardType].title}</option>
+                  <option value={type}>{CARD_CATALOG[type].title}</option>
                 {/each}
               </datalist>
             </div>
@@ -827,6 +827,13 @@
     onTeleport={createTeleportCard}
     onExport={exportSave}
     onImport={importSave}
+    onReset={() => {
+      applySave({
+        boards: initialBoards,
+        clock: makeClock(),
+        currentBoardIndex: 0,
+      });
+    }}
   />
 </div>
 
