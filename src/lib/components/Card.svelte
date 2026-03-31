@@ -29,6 +29,13 @@
 
   const def = $derived(CARD_CATALOG[cardData.type]);
 
+  function fitTitle(node: HTMLElement) {
+    node.style.fontSize = '3vmin';
+    if (node.scrollWidth > node.clientWidth) {
+      node.style.fontSize = `${3 * (node.clientWidth / node.scrollWidth)}vmin`;
+    }
+  }
+
   const showCombat = $derived(inCombat && !!cardData.unitStats);
 
   const hpPct = $derived.by(() => {
@@ -68,7 +75,9 @@
   }}
 >
   <div class="card-inner">
-    <div class="title">{cardData.label ?? def.title}</div>
+    <div class="title" use:fitTitle>
+      {cardData.label ?? def.title}
+    </div>
     <div class="image">
       <img class="card-image" src="/cards/{def.image}" alt={def.title} draggable="false" />
     </div>
@@ -150,9 +159,11 @@
     align-items: center;
     justify-content: center;
     font-family: 'BigNoodleTitling';
-    font-size: 3vmin;
     color: white;
     border-bottom: 0.5vmin solid #000;
+    padding: 0 1vmin;
+    white-space: nowrap;
+    overflow: hidden;
   }
 
   .footer {
