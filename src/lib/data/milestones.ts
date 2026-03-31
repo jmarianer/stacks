@@ -38,7 +38,8 @@ export const MILESTONES: Milestone[] = [
     id: 'post-invasion',
     condition: (boards, clock) =>
       clock.firedMilestones.includes('bacteria-invasion') &&
-      !hasCard(boards, 'invasion-bacteria') && !hasCard(boards, 'bacteria'),
+      !hasCard(boards, 'invasion-bacteria') &&
+      !hasCard(boards, 'bacteria'),
     unlockRecipeIds: ['build-train-st', 'build-train-en', 'make-uni-kit', 'build-drill'],
     createCards: [],
   },
@@ -75,7 +76,7 @@ export const MILESTONES: Milestone[] = [
     unlockRecipeIds: [
       'build-power-station',
       'make-computronium',
-      'build-reactor',
+      'build-refinery',
       'make-bolter-heavy',
       'make-minigun',
     ],
@@ -103,6 +104,12 @@ export const MILESTONES: Milestone[] = [
     id: 'first-computronium',
     condition: (boards) => hasCard(boards, 'computronium'),
     unlockRecipeIds: ['build-train-in', 'make-laser-cannon'],
+    createCards: [],
+  },
+  {
+    id: 'first-unobtanium',
+    condition: (boards) => hasCard(boards, 'unobtanium'),
+    unlockRecipeIds: ['build-reactor'],
     createCards: [],
   },
   {
