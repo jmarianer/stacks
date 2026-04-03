@@ -86,7 +86,6 @@
     const localX = e.clientX - rect.left;
     const localY = e.clientY - rect.top;
     scale = scale * zoomFactor;
-    console.log(scale);
     translate.x = localX - (localX - translate.x) * zoomFactor;
     translate.y = localY - (localY - translate.y) * zoomFactor;
   }
