@@ -1,6 +1,16 @@
 import type { Board } from '$lib/types/board-types';
 import { makeBoard, makeStack } from '$lib/utils/card-factories';
 
+/** Recipe IDs known at the start of a new game. */
+export const initialKnownRecipeIds: string[] = [
+  'punch-crust-chunk',
+  'punch-plasteel-deposit',
+  'punch-fossil-regolith',
+  'make-energy-cell',
+  'make-multi-cell',
+  'make-mega-cell',
+];
+
 export const initialBoards: Board[] = [
   makeBoard(
     'Base',
@@ -13,14 +23,6 @@ export const initialBoards: Board[] = [
     112,
     0,
     [{ cardType: 'crust-chunk', price: 3, label: 'Crust Chunk', color: '#8B7355' }],
-    [
-      'punch-crust-chunk',
-      'punch-plasteel-deposit',
-      'punch-fossil-regolith',
-      'make-energy-cell',
-      'make-multi-cell',
-      'make-mega-cell',
-    ],
     true, // discovered
   ),
   makeBoard(
@@ -33,9 +35,6 @@ export const initialBoards: Board[] = [
     ],
     176,
     112,
-    0,
-    [],
-    [],
   ),
   makeBoard(
     'Desert',
@@ -47,9 +46,6 @@ export const initialBoards: Board[] = [
     ],
     176,
     112,
-    0,
-    [],
-    [],
   ),
   makeBoard(
     'Snow',
@@ -63,9 +59,6 @@ export const initialBoards: Board[] = [
     ],
     176,
     112,
-    0,
-    [],
-    [],
   ),
   makeBoard(
     'Tres-2b',
@@ -75,9 +68,6 @@ export const initialBoards: Board[] = [
     ],
     176,
     112,
-    0,
-    [],
-    [],
   ),
   makeBoard(
     'Flowers',
@@ -92,8 +82,5 @@ export const initialBoards: Board[] = [
     ],
     176,
     112,
-    0,
-    [],
-    [],
   ),
 ];

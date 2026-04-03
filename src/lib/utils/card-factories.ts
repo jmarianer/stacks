@@ -120,7 +120,6 @@ export function makeBoard(
   height: number,
   currency: number = 0,
   shop: Omit<ShopItem, 'id'>[] = [],
-  knownRecipeIds: string[] = [],
   discovered: boolean = false,
 ): Board {
   return {
@@ -131,7 +130,6 @@ export function makeBoard(
     height,
     currency,
     shop: shop.map((item) => ({ ...item, id: nextId++ })),
-    knownRecipeIds,
     discovered,
     connections: [],
   };

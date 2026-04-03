@@ -1,8 +1,10 @@
-import type { Board, CardData, Clock, SolFeedResult } from '$lib/types/board-types';
+import type { CardData } from '$lib/types/board-types';
 import type { CardDef } from '$lib/types/card-types';
 import { CARD_CATALOG, type CardType } from '$lib/data/card-defs';
 import { makeTombstoneCard, makeStackFromCards } from '$lib/utils/card-factories';
 import { SOL_DURATION } from '$lib/data/constants';
+import type { GameState } from '$lib/types/game-state';
+import type { Board, Clock, SolFeedResult } from '$lib/types/board-types';
 
 function feedUnits(board: Board): SolFeedResult {
   // Tally available energy
@@ -108,7 +110,8 @@ export function getSolProgress(clock: Clock, realNow: number): number {
 }
 
 /** Advance the global sol timer; feed all boards when sol ends. */
-export function tickClock(clock: Clock, boards: Board[], realNow: number): void {
+export function tickClock(gameState: GameState, realNow: number): void {
+  const { clock, boards } = gameState;
   if (clock.endOfSol) return;
   if (clock.speed === 0) return;
   if (clock.vTimeAt === null) clock.vTimeAt = realNow;

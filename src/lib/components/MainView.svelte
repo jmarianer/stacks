@@ -14,14 +14,15 @@
   } from '$lib/data/constants';
   import Draggable from './Draggable.svelte';
   import { addScaled } from '$lib/utils/vec2';
-  import type { Stack, Board, ShopItem, CardData, Clock, Connection } from '$lib/types/board-types';
+  import type { Stack, Board, ShopItem, CardData, Connection } from '$lib/types/board-types';
   import Hud from './Hud.svelte';
   import Sidebar from './Sidebar.svelte';
   import LocationNav from './LocationNav.svelte';
   import type { CardDef } from '$lib/types/card-types';
   import { CARD_CATALOG, type CardType } from '$lib/data/card-defs';
   import { getUnitWeapon } from '$lib/utils/unit-stats';
-  import { initialBoards } from '$lib/data/initial-boards';
+  import { initialBoards, initialKnownRecipeIds } from '$lib/data/initial-boards';
+  import type { GameState } from '$lib/types/game-state';
   import {
     makeClock,
     makeStackFromCards,
@@ -341,11 +342,11 @@
   let solProgress = $state(0);
   let vTime = $state(0);
   let realNow = $state(0);
-  type GameState = { boards: Board[]; clock: Clock; currentBoardIndex: number };
   let gameState = $state<GameState>({
     boards: initialBoards,
     clock: makeClock(),
     currentBoardIndex: 0,
+    knownRecipeIds: initialKnownRecipeIds,
   });
 
   function applySave(save: GameState) {
@@ -507,13 +508,17 @@
     try {
       const raw = localStorage.getItem(SAVE_KEY);
       if (raw) {
-        const save = JSON.parse(raw) as GameState;
-        return save;
+        return JSON.parse(raw) as GameState;
       }
     } catch {
       // fall through to defaults
     }
-    return { boards: initialBoards, clock: makeClock(), currentBoardIndex: 0 };
+    return {
+      boards: initialBoards,
+      clock: makeClock(),
+      currentBoardIndex: 0,
+      knownRecipeIds: initialKnownRecipeIds,
+    };
   }
 
   function saveState() {
@@ -552,14 +557,14 @@
     function loop() {
       const now_ms = performance.now();
       updateDropTargets();
-      tickClock(gameState.clock, gameState.boards, now_ms);
+      tickClock(gameState, now_ms);
       const now = getVirtualNow(gameState.clock, now_ms);
       if (!gameState.clock.endOfSol && gameState.clock.speed !== 0) {
-        checkMilestones(gameState.boards, gameState.clock, currentBoard);
+        checkMilestones(gameState, currentBoard);
         for (const board of gameState.boards) {
           tickPhysics(board);
-          runCombat(board, now);
-          tickProgress(board, gameState.boards, now);
+          runCombat(board, gameState, now);
+          tickProgress(board, gameState, now);
         }
       }
       solProgress = getSolProgress(gameState.clock, now_ms);
@@ -822,7 +827,7 @@
   <Sidebar
     boards={gameState.boards}
     currentBoardIndex={gameState.currentBoardIndex}
-    knownRecipeIds={currentBoard.knownRecipeIds}
+    knownRecipeIds={gameState.knownRecipeIds}
     {selectedCard}
     onTeleport={createTeleportCard}
     onExport={exportSave}
@@ -832,6 +837,7 @@
         boards: initialBoards,
         clock: makeClock(),
         currentBoardIndex: 0,
+        knownRecipeIds: initialKnownRecipeIds,
       });
     }}
   />

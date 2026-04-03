@@ -1,4 +1,12 @@
-export type RecipeIngredient = { match: string; count?: number; consumed: boolean };
+import type { CardType } from '$lib/data/card-defs';
+
+/** Valid group names used in recipe ingredient matching. */
+export type CardGroup = 'people' | 'weapon';
+
+/** A recipe ingredient matcher: either an exact card type or a group name. */
+export type IngredientMatcher = CardType | CardGroup;
+
+export type RecipeIngredient = { match: IngredientMatcher; count?: number; consumed: boolean };
 
 export type RecipeResult =
   | { action: 'card'; card: string; chance?: number }
@@ -24,5 +32,5 @@ export type Recipe = {
   time: number;
   ingredients: RecipeIngredient[];
   results: RecipeResult[];
-  alwaysKnown?: boolean; // fires even if not in board.knownRecipeIds
+  alwaysKnown?: boolean; // fires even if not in gameState.knownRecipeIds
 };

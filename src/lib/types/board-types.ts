@@ -69,7 +69,6 @@ export type Board = {
   height: number; // vmin
   currency: number;
   shop: ShopItem[];
-  knownRecipeIds: string[];
   discovered: boolean;
   connections: Connection[];
 };

@@ -1,8 +1,8 @@
 import { recipes } from '$lib/data/recipes';
 import { MILESTONES } from '$lib/data/milestones';
-import type { Stack, Board, CardData, Clock, Connection } from '$lib/types/board-types';
+import type { Stack, Board, CardData, Connection } from '$lib/types/board-types';
 import { hpMaxFromStats, type CardDef } from '$lib/types/card-types';
-import type { RecipeResult } from '$lib/types/recipe-types';
+import type { RecipeResult, IngredientMatcher } from '$lib/types/recipe-types';
 import type { Vec2 } from '$lib/utils/vec2';
 import { CARD_CATALOG, type CardType } from '$lib/data/card-defs';
 import {
@@ -15,14 +15,15 @@ import {
 } from '$lib/utils/card-factories';
 import type { Recipe } from '$lib/types/recipe-types';
 import { maxBandAids, maxUniKits } from '$lib/utils/unit-stats';
+import type { GameState } from '$lib/types/game-state';
 
 function isCardType(s: string): s is CardType {
   return s in CARD_CATALOG;
 }
 
-function cardMatchesIngredient(type: CardType, match: string): boolean {
+function cardMatchesIngredient(type: CardType, match: IngredientMatcher): boolean {
   if (type === match) return true;
-  return (CARD_CATALOG[type] as CardDef).groups?.includes(match) ?? false;
+  return CARD_CATALOG[type].groups?.includes(match) ?? false;
 }
 
 function matchRecipe(stack: Stack, knownRecipeIds: string[]): Recipe | null {
@@ -108,7 +109,7 @@ function dropCard(type: string, stacks: Stack[], pos: Vec2, connections: Connect
 export function applyResults(
   results: RecipeResult[],
   board: Board,
-  boards: Board[],
+  gameState: GameState,
   stack: Stack,
   connections: Connection[],
   consumedCards: CardData[] = [],
@@ -117,8 +118,8 @@ export function applyResults(
   const dropPos = { x: stack.pos.x + 2, y: stack.pos.y + 2 };
   for (const result of results) {
     if (result.action === 'unlock-recipe') {
-      if (!board.knownRecipeIds.includes(result.recipeId)) {
-        board.knownRecipeIds.push(result.recipeId);
+      if (!gameState.knownRecipeIds.includes(result.recipeId)) {
+        gameState.knownRecipeIds.push(result.recipeId);
       }
       continue;
     }
@@ -132,12 +133,13 @@ export function applyResults(
       continue;
     }
     if (result.action === 'discover-board') {
-      const target = boards.find((b) => b.name === result.boardName);
+      const target = gameState.boards.find((b) => b.name === result.boardName);
       const prereqMet =
-        !result.prerequisite || boards.find((b) => b.name === result.prerequisite)?.discovered;
+        !result.prerequisite ||
+        gameState.boards.find((b) => b.name === result.prerequisite)?.discovered;
       if (target && !target.discovered && prereqMet && Math.random() * 100 < result.chance) {
         target.discovered = true;
-        const card = makeTeleportCard(boards.indexOf(target), target.name);
+        const card = makeTeleportCard(gameState.boards.indexOf(target), target.name);
         stacks.push(makeStackFromCards({ x: board.width / 2, y: board.height / 2 }, [card]));
       }
       continue;
@@ -206,7 +208,7 @@ export function applyResults(
   }
 }
 
-function executeRecipe(board: Board, boards: Board[], stack: Stack, recipe: Recipe): void {
+function executeRecipe(board: Board, gameState: GameState, stack: Stack, recipe: Recipe): void {
   const stacks = board.stacks;
   const consumed = new Set<number>();
   for (const ing of recipe.ingredients) {
@@ -239,29 +241,27 @@ function executeRecipe(board: Board, boards: Board[], stack: Stack, recipe: Reci
   stack.activeRecipeId = null;
 
   const connections = board.connections.filter((c) => c.fromId === stack.id);
-  applyResults(recipe.results, board, boards, stack, connections, consumedCards);
+  applyResults(recipe.results, board, gameState, stack, connections, consumedCards);
 
   if (stack.cards.length === 0) {
     stacks.splice(stacks.indexOf(stack), 1);
   }
 }
 
-export function checkMilestones(boards: Board[], clock: Clock, currentBoard: Board): void {
+export function checkMilestones(gameState: GameState, currentBoard: Board): void {
   for (const milestone of MILESTONES) {
-    if (clock.firedMilestones.includes(milestone.id)) continue;
-    if (!milestone.condition(boards, clock)) continue;
-    clock.firedMilestones.push(milestone.id);
-    for (const id of milestone.unlockRecipeIds) {
-      for (const board of boards) {
-        if (!board.knownRecipeIds.includes(id)) board.knownRecipeIds.push(id);
-      }
+    if (gameState.clock.firedMilestones.includes(milestone.id)) continue;
+    if (!milestone.condition(gameState)) continue;
+    gameState.clock.firedMilestones.push(milestone.id);
+    for (const id of milestone.unlockRecipeIds ?? []) {
+      if (!gameState.knownRecipeIds.includes(id)) gameState.knownRecipeIds.push(id);
       currentBoard.stacks.push(
         makeStackFromCards({ x: currentBoard.width / 2, y: currentBoard.height / 2 }, [
           makeIdeaCard(`Idea: ${recipes.find((r) => r.id === id)?.label}`),
         ]),
       );
     }
-    for (const card of milestone.createCards) {
+    for (const card of milestone.createCards ?? []) {
       addCardToMatchingStack(currentBoard.stacks, card, {
         x: currentBoard.width / 2,
         y: currentBoard.height / 2,
@@ -271,12 +271,12 @@ export function checkMilestones(boards: Board[], clock: Clock, currentBoard: Boa
 }
 
 /** Advance recipe progress on a single board. */
-export function tick(board: Board, boards: Board[], now: number): void {
+export function tick(board: Board, gameState: GameState, now: number): void {
   const stacks = board.stacks;
   const toExecute: { stack: Stack; recipe: Recipe }[] = [];
 
   for (const stack of stacks) {
-    const recipe = matchRecipe(stack, board.knownRecipeIds);
+    const recipe = matchRecipe(stack, gameState.knownRecipeIds);
     if (!recipe) {
       stack.progress = 0;
       stack.progressStartTime = null;
@@ -301,6 +301,6 @@ export function tick(board: Board, boards: Board[], now: number): void {
   }
 
   for (const { stack, recipe } of toExecute) {
-    executeRecipe(board, boards, stack, recipe);
+    executeRecipe(board, gameState, stack, recipe);
   }
 }

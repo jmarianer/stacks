@@ -7,6 +7,7 @@ import { CARD_CATALOG } from '$lib/data/card-defs';
 import { makeTombstoneCard, makeStackFromCards } from '$lib/utils/card-factories';
 import { getUnitWeapon } from '$lib/utils/unit-stats';
 import { applyResults } from '$lib/behavior/progress';
+import type { GameState } from '$lib/types/game-state';
 
 export type CombatUnit = { card: CardData; stack: Stack };
 
@@ -88,7 +89,7 @@ function moveUnit(unit: CombatUnit, targets: CombatUnit[], board: Board, now: nu
   );
 }
 
-export function runCombat(board: Board, now: number): void {
+export function runCombat(board: Board, gameState: GameState, now: number): void {
   const { playerUnits, enemyUnits } = getCombatUnits(board);
 
   // Return player units to home stacks when combat ends
@@ -216,7 +217,7 @@ export function runCombat(board: Board, now: number): void {
   board.stacks = board.stacks.filter((s) => s.cards.length > 0);
 
   for (const { results, pos } of lootEntries) {
-    applyResults(results, board, [], makeStackFromCards(pos, []), []);
+    applyResults(results, board, gameState, makeStackFromCards(pos, []), []);
   }
   for (const { card, pos } of deadPlayerCards) {
     board.stacks.push(makeStackFromCards(pos, [makeTombstoneCard(card)]));
