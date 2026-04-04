@@ -1,7 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import { matchRecipe } from '$lib/behavior/progress';
-import { makeStack } from '$lib/utils/card-factories';
+import { matchRecipe, tick } from '$lib/behavior/progress';
+import { makeBoard, makeClock, makeStack } from '$lib/utils/card-factories';
 import { type CardType } from '$lib/data/card-defs';
+import type { GameState } from '$lib/types/game-state';
 
 // Recipes available from game start (alwaysKnown or in initialKnownRecipeIds)
 const KNOWN = ['punch-crust-chunk', 'punch-plasteel-deposit', 'make-energy-cell'];
@@ -47,5 +48,79 @@ describe('matchRecipe', () => {
     // TODO fix this. It should definitely make a blaster, not electronics, since the stack has the required ingredients for make-blaster.
     // testRecipe(['workbench', 'astronaut', 'electronics', 'plasteel', 'plasteel'], ['make-electronics', 'make-blaster'], 'make-blaster');
   });
+});
 
+describe('executeRecipe (via tick)', () => {
+  // Pre-set activeRecipeId so tick skips initialization and goes straight to progress computation
+  function makeTestGameState(cards: CardType[], recipeId: string) {
+    const stack = makeTestStack(cards);
+    stack.activeRecipeId = recipeId;
+    stack.progressStartTime = 0;
+    const board = makeBoard('test', [stack], 100, 100);
+    const gameState: GameState = { boards: [board], clock: makeClock(), currentBoardIndex: 0, knownRecipeIds: [recipeId] };
+    return { gameState, board, stack };
+  }
+
+  it('removes consumed cards from the stack', () => {
+    const { gameState, board, stack } = makeTestGameState(['crust-chunk', 'astronaut'], 'punch-crust-chunk');
+    tick(board, gameState, 3000);
+    expect(stack.cards.some((c) => c.type === 'crust-chunk')).toBe(false);
+  });
+
+  it('leaves non-consumed ingredients in the stack', () => {
+    const { gameState, board, stack } = makeTestGameState(['plasteel-deposit', 'astronaut'], 'punch-plasteel-deposit');
+    tick(board, gameState, 3000);
+    expect(stack.cards.some((c) => c.type === 'astronaut')).toBe(true);
+  });
+
+  it('decrements usesRemaining instead of removing the card when uses remain', () => {
+    const { gameState, board, stack } = makeTestGameState(['plasteel-deposit', 'astronaut'], 'punch-plasteel-deposit');
+    const deposit = stack.cards.find((c) => c.type === 'plasteel-deposit')!;
+    expect(deposit.usesRemaining).toBe(3); // usesInitial = 3 per card catalog
+    tick(board, gameState, 3000);
+    expect(deposit.usesRemaining).toBe(2);
+    expect(stack.cards).toContain(deposit);
+  });
+
+  it('fully removes a card when usesRemaining reaches 0', () => {
+    const { gameState, board, stack } = makeTestGameState(['plasteel-deposit', 'astronaut'], 'punch-plasteel-deposit');
+    const deposit = stack.cards.find((c) => c.type === 'plasteel-deposit')!;
+    deposit.usesRemaining = 1;
+    tick(board, gameState, 3000);
+    expect(stack.cards.some((c) => c.type === 'plasteel-deposit')).toBe(false);
+  });
+
+  it('removes the stack from the board when all cards are consumed', () => {
+    const { gameState, board, stack } = makeTestGameState(['plasteel', 'helium3'], 'make-energy-cell');
+    tick(board, gameState, 2000);
+    expect(board.stacks).not.toContain(stack);
+  });
+
+  it('adds the output card to the board', () => {
+    const { gameState, board } = makeTestGameState(['plasteel', 'helium3'], 'make-energy-cell');
+    tick(board, gameState, 2000);
+    expect(board.stacks.flatMap((s) => s.cards).some((c) => c.type === 'energy-cell')).toBe(true);
+  });
+
+  it('resets progress state after execution', () => {
+    const { gameState, board, stack } = makeTestGameState(['plasteel-deposit', 'astronaut'], 'punch-plasteel-deposit');
+    tick(board, gameState, 3000);
+    expect(stack.progress).toBe(0);
+    expect(stack.progressStartTime).toBeNull();
+    expect(stack.activeRecipeId).toBeNull();
+  });
+
+  it('consumes multiple cards of the same ingredient type', () => {
+    const { gameState, board, stack } = makeTestGameState(['energy-cell', 'energy-cell', 'energy-cell', 'energy-cell'], 'make-multi-cell');
+    tick(board, gameState, 2000);
+    expect(board.stacks).not.toContain(stack);
+    expect(board.stacks.flatMap((s) => s.cards).some((c) => c.type === 'multi-cell')).toBe(true);
+  });
+
+  it('leaves some cards of the same ingredient type', () => {
+    const { gameState, board, stack } = makeTestGameState(['energy-cell', 'energy-cell', 'energy-cell', 'energy-cell', 'energy-cell'], 'make-multi-cell');
+    tick(board, gameState, 2000);
+    expect(board.stacks).toContain(stack);
+    expect(stack.cards.filter((c) => c.type === 'energy-cell').length).toBe(1);
+  });
 });
