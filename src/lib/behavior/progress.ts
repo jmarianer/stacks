@@ -26,7 +26,7 @@ function cardMatchesIngredient(type: CardType, match: IngredientMatcher): boolea
   return CARD_CATALOG[type].groups?.includes(match) ?? false;
 }
 
-function matchRecipe(stack: Stack, knownRecipeIds: string[]): Recipe | null {
+export function matchRecipe(stack: Stack, knownRecipeIds: string[]): Recipe | null {
   if (stack.cards.some((c) => c.type === 'teleport')) return null;
   // Foundation cards are transparent to recipe matching — they act as a base, not an ingredient
   const cards = stack.cards.filter((c) => c.type !== 'foundation');
