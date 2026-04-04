@@ -80,9 +80,7 @@
       {#if conn.filter || routingMode}
         {@const mx = (ep.x1 + ep.x2) / 2}
         {@const my = (ep.y1 + ep.y2) / 2}
-        {@const label = conn.filter
-          ? (CARD_CATALOG[conn.filter]?.title ?? conn.filter)
-          : 'any'}
+        {@const label = conn.filter ? (CARD_CATALOG[conn.filter]?.title ?? conn.filter) : 'any'}
         {@const chipW = Math.max(4, label.length * 1.05 + 1.5)}
         <rect
           x={mx - chipW / 2}

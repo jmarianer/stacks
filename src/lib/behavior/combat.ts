@@ -52,7 +52,13 @@ export function getCombatUnits(board: Board): {
   return { playerUnits, enemyUnits };
 }
 
-function moveUnit(unit: CombatUnit, targets: CombatUnit[], board: Board, gameState: GameState, now: number): void {
+function moveUnit(
+  unit: CombatUnit,
+  targets: CombatUnit[],
+  board: Board,
+  gameState: GameState,
+  now: number,
+): void {
   const def = CARD_CATALOG[unit.card.type] as CardDef;
   const speed = def.speed ?? 0;
   if (speed === 0) return;

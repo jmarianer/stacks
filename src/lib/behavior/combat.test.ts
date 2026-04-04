@@ -6,7 +6,13 @@ import type { Board } from '$lib/types/board-types';
 import { hpMaxFromStats } from '$lib/types/card-types';
 
 function makeTestGameState(board: Board): GameState {
-  return { boards: [board], clock: makeClock(), currentBoardIndex: 0, knownRecipeIds: [], combatState: {} };
+  return {
+    boards: [board],
+    clock: makeClock(),
+    currentBoardIndex: 0,
+    knownRecipeIds: [],
+    combatState: {},
+  };
 }
 
 beforeEach(() => {
@@ -57,11 +63,10 @@ describe('runCombat — strength increases damage', () => {
       board.stacks.push(playerStack, enemyStack);
       const gs = makeTestGameState(board);
       const hpBefore = enemyStack.cards[0].unitStats!.health;
-      runCombat(board, gs, 0);    // first tick: detach player unit
+      runCombat(board, gs, 0); // first tick: detach player unit
       runCombat(board, gs, 5000); // second tick: attack fires
-      const hpAfter = board.stacks
-        .flatMap((s) => s.cards)
-        .find((c) => c.type === 'bacteria')?.unitStats?.health;
+      const hpAfter = board.stacks.flatMap((s) => s.cards).find((c) => c.type === 'bacteria')
+        ?.unitStats?.health;
       return hpBefore - (hpAfter ?? hpBefore);
     };
 
@@ -89,7 +94,8 @@ describe('runCombat — agility reduces attack interval', () => {
       const gs = makeTestGameState(board);
       runCombat(board, gs, 0);
       runCombat(board, gs, 1500);
-      return board.stacks.flatMap((s) => s.cards).find((c) => c.type === 'bacteria')?.unitStats?.health;
+      return board.stacks.flatMap((s) => s.cards).find((c) => c.type === 'bacteria')?.unitStats
+        ?.health;
     };
 
     const hpAfterSlowAgility = bacteriaHpAfter(1);
@@ -134,8 +140,8 @@ describe('runCombat — units return home when enemies are gone', () => {
     board.stacks.push(homeStack, enemyStack);
     const gs = makeTestGameState(board);
 
-    runCombat(board, gs, 0);     // detach astronaut into its own combat stack + attack
-    runCombat(board, gs, 5000);  // enemy dies → astronaut returns home
+    runCombat(board, gs, 0); // detach astronaut into its own combat stack + attack
+    runCombat(board, gs, 5000); // enemy dies → astronaut returns home
 
     expect(homeStack.cards.find((c) => c.type === 'astronaut')).toBeDefined();
   });

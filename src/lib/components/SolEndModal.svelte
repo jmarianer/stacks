@@ -17,9 +17,7 @@
           {/each}
         </div>
       {/each}
-      <button class="sol-continue" onclick={oncontinue}
-        >Continue to Sol {clock.sol + 1}</button
-      >
+      <button class="sol-continue" onclick={oncontinue}>Continue to Sol {clock.sol + 1}</button>
     </div>
   </div>
 {/if}
