@@ -106,33 +106,36 @@ function dropCard(type: string, stacks: Stack[], pos: Vec2, connections: Connect
   addCardToMatchingStack(stacks, type, pos);
 }
 
-export function applyResults(
-  results: RecipeResult[],
-  board: Board,
-  gameState: GameState,
-  stack: Stack,
-  connections: Connection[],
-  consumedCards: CardData[] = [],
-): void {
-  const stacks = board.stacks;
+function applyCardOutputs(results: RecipeResult[], board: Board, stack: Stack): void {
+  const connections = board.connections.filter((c) => c.fromId === stack.id);
   const dropPos = { x: stack.pos.x + 2, y: stack.pos.y + 2 };
+  for (const result of results) {
+    if (result.action === 'card') {
+      if (result.chance !== undefined && Math.random() * 100 > result.chance) continue;
+      dropCard(result.card, board.stacks, dropPos, connections);
+    } else if (result.action === 'weighted') {
+      dropCard(weightedRandom(result.cards), board.stacks, dropPos, connections);
+    } else if (result.action === 'spawn-enemies') {
+      if (isCardType(result.enemyType)) {
+        for (let i = 0; i < result.count; i++) {
+          const pos = {
+            x: Math.random() * (board.width - 24) + 12,
+            y: Math.random() * (board.height - 24) + 12,
+          };
+          board.stacks.push(makeStackFromCards(pos, [makeCardOfType(result.enemyType)]));
+        }
+      }
+    }
+  }
+}
+
+function applyBoardEffects(results: RecipeResult[], board: Board, gameState: GameState): void {
   for (const result of results) {
     if (result.action === 'unlock-recipe') {
       if (!gameState.knownRecipeIds.includes(result.recipeId)) {
         gameState.knownRecipeIds.push(result.recipeId);
       }
-      continue;
-    }
-    if (result.action === 'card') {
-      if (result.chance !== undefined && Math.random() * 100 > result.chance) continue;
-      dropCard(result.card, stacks, dropPos, connections);
-      continue;
-    }
-    if (result.action === 'weighted') {
-      dropCard(weightedRandom(result.cards), stacks, dropPos, connections);
-      continue;
-    }
-    if (result.action === 'discover-board') {
+    } else if (result.action === 'discover-board') {
       const target = gameState.boards.find((b) => b.name === result.boardName);
       const prereqMet =
         !result.prerequisite ||
@@ -140,44 +143,34 @@ export function applyResults(
       if (target && !target.discovered && prereqMet && Math.random() * 100 < result.chance) {
         target.discovered = true;
         const card = makeTeleportCard(gameState.boards.indexOf(target), target.name);
-        stacks.push(makeStackFromCards({ x: board.width / 2, y: board.height / 2 }, [card]));
+        board.stacks.push(makeStackFromCards({ x: board.width / 2, y: board.height / 2 }, [card]));
       }
-      continue;
-    }
-    if (result.action === 'spawn-enemies') {
-      if (isCardType(result.enemyType)) {
-        for (let i = 0; i < result.count; i++) {
-          const pos = {
-            x: Math.random() * (board.width - 24) + 12,
-            y: Math.random() * (board.height - 24) + 12,
-          };
-          stacks.push(makeStackFromCards(pos, [makeCardOfType(result.enemyType)]));
-        }
-      }
-      continue;
-    }
-    if (result.action === 'expand-board') {
+    } else if (result.action === 'expand-board') {
       board.width += result.dWidth;
       board.height += result.dHeight;
-      continue;
     }
+  }
+}
+
+function applyUnitMutations(
+  results: RecipeResult[],
+  stack: Stack,
+  consumedCards: CardData[],
+): void {
+  for (const result of results) {
     if (result.action === 'heal-unit') {
       const unit = stack.cards.find((c) => c.unitStats);
       if (unit?.unitStats) {
         const max = hpMaxFromStats(unit.unitStats);
         unit.unitStats.health = Math.min(unit.unitStats.health + result.amount, max);
       }
-      continue;
-    }
-    if (result.action === 'revive-unit') {
+    } else if (result.action === 'revive-unit') {
       const savedTombstone = consumedCards.find((c) => c.type === 'tombstone') ?? null;
       if (savedTombstone) {
         const revived = makeReviveCard(savedTombstone);
-        stacks.push(makeStackFromCards({ x: stack.pos.x + 2, y: stack.pos.y + 2 }, [revived]));
+        stack.cards.push(revived);
       }
-      continue;
-    }
-    if (result.action === 'train-stat') {
+    } else if (result.action === 'train-stat') {
       const unit = stack.cards.find((c) => c.unitStats);
       if (unit?.unitStats) {
         const oldHpMax = hpMaxFromStats(unit.unitStats);
@@ -185,27 +178,32 @@ export function applyResults(
         const newHpMax = hpMaxFromStats(unit.unitStats);
         unit.unitStats.health = Math.min(unit.unitStats.health + (newHpMax - oldHpMax), newHpMax);
       }
-      continue;
-    }
-    if (result.action === 'equip-weapon') {
+    } else if (result.action === 'equip-weapon') {
       const unit = stack.cards.find((c) => c.unitStats && !(CARD_CATALOG[c.type] as CardDef).enemy);
       const weaponCard = consumedCards.find((c) => CARD_CATALOG[c.type].groups?.includes('weapon'));
       if (unit && weaponCard) {
         unit.weaponInventory = [...(unit.weaponInventory ?? []), weaponCard.type];
       }
-      continue;
-    }
-    if (result.action === 'equip-band-aid') {
+    } else if (result.action === 'equip-band-aid') {
       const unit = stack.cards.find((c) => c.unitStats && !(CARD_CATALOG[c.type] as CardDef).enemy);
       if (unit) unit.bandAids = (unit.bandAids ?? 0) + 1;
-      continue;
-    }
-    if (result.action === 'equip-uni-kit') {
+    } else if (result.action === 'equip-uni-kit') {
       const unit = stack.cards.find((c) => c.unitStats && !(CARD_CATALOG[c.type] as CardDef).enemy);
       if (unit) unit.uniKits = (unit.uniKits ?? 0) + 1;
-      continue;
     }
   }
+}
+
+export function applyResults(
+  results: RecipeResult[],
+  board: Board,
+  gameState: GameState,
+  stack: Stack,
+  consumedCards: CardData[] = [],
+): void {
+  applyCardOutputs(results, board, stack);
+  applyBoardEffects(results, board, gameState);
+  applyUnitMutations(results, stack, consumedCards);
 }
 
 function executeRecipe(board: Board, gameState: GameState, stack: Stack, recipe: Recipe): void {
@@ -240,8 +238,7 @@ function executeRecipe(board: Board, gameState: GameState, stack: Stack, recipe:
   stack.progressStartTime = null;
   stack.activeRecipeId = null;
 
-  const connections = board.connections.filter((c) => c.fromId === stack.id);
-  applyResults(recipe.results, board, gameState, stack, connections, consumedCards);
+  applyResults(recipe.results, board, gameState, stack, consumedCards);
 
   if (stack.cards.length === 0) {
     stacks.splice(stacks.indexOf(stack), 1);
