@@ -4,6 +4,9 @@
   import { untrack, onMount } from 'svelte';
   import { SvelteMap } from 'svelte/reactivity';
   import Card from '$lib/components/Card.svelte';
+  import BoardCanvas, { type AttackPair } from '$lib/components/BoardCanvas.svelte';
+  import RoutingOverlay from '$lib/components/RoutingOverlay.svelte';
+  import SolEndModal from '$lib/components/SolEndModal.svelte';
   import {
     STACK_CARD_OFFSET_Y,
     STACK_CARD_OFFSET_X,
@@ -14,12 +17,12 @@
   } from '$lib/data/constants';
   import Draggable from './Draggable.svelte';
   import { addScaled } from '$lib/utils/vec2';
-  import type { Stack, Board, ShopItem, CardData, Connection } from '$lib/types/board-types';
+  import type { Stack, Board, ShopItem, CardData } from '$lib/types/board-types';
   import Hud from './Hud.svelte';
   import Sidebar from './Sidebar.svelte';
   import LocationNav from './LocationNav.svelte';
   import type { CardDef } from '$lib/types/card-types';
-  import { CARD_CATALOG, type CardType } from '$lib/data/card-defs';
+  import { CARD_CATALOG } from '$lib/data/card-defs';
   import { getUnitWeapon } from '$lib/utils/unit-stats';
   import { initialBoards, initialKnownRecipeIds } from '$lib/data/initial-boards';
   import type { GameState } from '$lib/types/game-state';
@@ -42,16 +45,6 @@
   let routingMouseBoard = $state<{ x: number; y: number } | null>(null);
   // When non-null, the filter-assignment input is open for this connection (identified by fromId+toId)
   let pendingFilterConn = $state<{ fromId: number; toId: number } | null>(null);
-  let filterInput = $state('');
-  type AttackPair = {
-    x1: number;
-    y1: number;
-    x2: number;
-    y2: number;
-    isEnemy: boolean;
-    lastAttackAtReal: number;
-    lastAttackAtVtime: number;
-  };
   const attackPairs = new SvelteMap<number, AttackPair>();
 
   let scale = $state(1);
@@ -106,22 +99,9 @@
     };
   }
 
-  function foundationStackAt(pos: { x: number; y: number }): Stack | undefined {
-    return currentBoard.stacks.findLast(
-      (s) =>
-        s.cards[0]?.type === 'foundation' &&
-        pos.x >= s.pos.x &&
-        pos.x <= s.pos.x + CARD_W &&
-        pos.y >= s.pos.y &&
-        pos.y <= s.pos.y + CARD_H,
-    );
-  }
-
   function stackCenter(stack: Stack) {
     return { x: stack.pos.x + CARD_W / 2, y: stack.pos.y + CARD_H / 2 };
   }
-
-  const GLOW_DURATION = 400; // ms
 
   function updateAttackPairs(board: Board, now_ms: number) {
     const { playerUnits, enemyUnits } = getCombatUnits(board);
@@ -180,106 +160,6 @@
     const f = stackCenter(from);
     const t = stackCenter(to);
     return { x1: f.x, y1: f.y, x2: t.x, y2: t.y };
-  }
-
-  function connMidpoint(conn: { fromId: number; toId: number }) {
-    const from = currentBoard.stacks.find((s) => s.id === conn.fromId);
-    const to = currentBoard.stacks.find((s) => s.id === conn.toId);
-    if (!from || !to) return null;
-    const f = stackCenter(from);
-    const t = stackCenter(to);
-    return { x: (f.x + t.x) / 2, y: (f.y + t.y) / 2 };
-  }
-
-  function connAtPos(pos: { x: number; y: number }): Connection | undefined {
-    return currentBoard.connections.find((conn) => {
-      const mid = connMidpoint(conn);
-      return mid !== null && Math.hypot(mid.x - pos.x, mid.y - pos.y) < 3;
-    });
-  }
-
-  function confirmFilter() {
-    if (!pendingFilterConn) return;
-    const { fromId, toId } = pendingFilterConn;
-    const filter = filterInput in CARD_CATALOG ? (filterInput as CardType) : undefined;
-    currentBoard.connections = currentBoard.connections.map((c) =>
-      c.fromId === fromId && c.toId === toId ? { ...c, filter } : c,
-    );
-    pendingFilterConn = null;
-    filterInput = '';
-  }
-
-  function handleFilterKeyDown(e: KeyboardEvent) {
-    if (e.key === 'Enter') confirmFilter();
-    if (e.key === 'Escape') {
-      pendingFilterConn = null;
-      filterInput = '';
-    }
-    e.stopPropagation(); // prevent 'r' from toggling routing mode
-  }
-
-  function focusOnMount(node: HTMLElement) {
-    node.focus();
-  }
-
-  function handleRoutingMouseDown(e: MouseEvent) {
-    if (pendingFilterConn) {
-      confirmFilter();
-      return;
-    }
-    const pos = boardPosFromEvent(e);
-    // Click near a connection midpoint → open filter input for it
-    const conn = connAtPos(pos);
-    if (conn) {
-      e.stopPropagation();
-      pendingFilterConn = { fromId: conn.fromId, toId: conn.toId };
-      filterInput = conn.filter ?? '';
-      return;
-    }
-    const stack = foundationStackAt(pos);
-    if (!stack) {
-      routingFrom = null;
-      return;
-    }
-    e.stopPropagation();
-    routingFrom = stack;
-    routingMouseBoard = stackCenter(stack);
-  }
-
-  function handleRoutingMouseMove(e: MouseEvent) {
-    if (!routingFrom) return;
-    routingMouseBoard = boardPosFromEvent(e);
-  }
-
-  function handleRoutingMouseUp(e: MouseEvent) {
-    if (!routingFrom) return;
-    const pos = boardPosFromEvent(e);
-    const target = foundationStackAt(pos);
-    if (target && target.id !== routingFrom.id) {
-      const already = currentBoard.connections.some(
-        (c) => c.fromId === routingFrom!.id && c.toId === target.id,
-      );
-      if (!already) {
-        const newConn: Connection = { fromId: routingFrom.id, toId: target.id };
-        currentBoard.connections = [...currentBoard.connections, newConn];
-        pendingFilterConn = { fromId: newConn.fromId, toId: newConn.toId };
-        filterInput = '';
-      }
-    }
-    routingFrom = null;
-    routingMouseBoard = null;
-  }
-
-  function handleRoutingContextMenu(e: MouseEvent) {
-    e.preventDefault();
-    const pos = boardPosFromEvent(e);
-    const conn = connAtPos(pos);
-    if (conn) {
-      if (pendingFilterConn?.fromId === conn.fromId && pendingFilterConn?.toId === conn.toId) {
-        pendingFilterConn = null;
-      }
-      currentBoard.connections = currentBoard.connections.filter((c) => c !== conn);
-    }
   }
 
   function stackAtMouse(): Stack | undefined {
@@ -612,137 +492,16 @@
     "
       onwheel={onWheel}
     >
-      <svg
-        class="connections-overlay"
-        viewBox="0 0 {currentBoard.width} {currentBoard.height}"
-        style="width:{currentBoard.width}vmin;height:{currentBoard.height}vmin;"
-      >
-        <defs>
-          <marker id="arrowhead" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
-            <path d="M0,0 L0,6 L6,3 z" fill="#00000080" />
-          </marker>
-          <filter id="attack-glow" x="-100%" y="-100%" width="300%" height="300%">
-            <feGaussianBlur stdDeviation="1.5" />
-          </filter>
-        </defs>
-        {#each currentBoard.connections as conn (conn.fromId + '-' + conn.toId)}
-          {@const fromStack = currentBoard.stacks.find((s) => s.id === conn.fromId)}
-          {@const toStack = currentBoard.stacks.find((s) => s.id === conn.toId)}
-          {#if fromStack && toStack}
-            {@const ep = connectionEndpoints(fromStack, toStack)}
-            {@const isPending =
-              pendingFilterConn?.fromId === conn.fromId && pendingFilterConn?.toId === conn.toId}
-            <line
-              x1={ep.x1}
-              y1={ep.y1}
-              x2={ep.x2}
-              y2={ep.y2}
-              stroke={isPending ? '#ff9900cc' : '#00000080'}
-              stroke-width={isPending ? 0.8 : 0.5}
-              opacity="0.9"
-              marker-end="url(#arrowhead)"
-            />
-            {#if conn.filter || routingMode}
-              {@const mx = (ep.x1 + ep.x2) / 2}
-              {@const my = (ep.y1 + ep.y2) / 2}
-              {@const label = conn.filter
-                ? (CARD_CATALOG[conn.filter]?.title ?? conn.filter)
-                : 'any'}
-              {@const chipW = Math.max(4, label.length * 1.05 + 1.5)}
-              <rect
-                x={mx - chipW / 2}
-                y={my - 1.6}
-                width={chipW}
-                height="3.2"
-                rx="0.6"
-                fill={isPending ? '#ff9900cc' : '#00000099'}
-              />
-              <text
-                x={mx}
-                y={my + 0.65}
-                text-anchor="middle"
-                font-size="1.8"
-                fill="white"
-                font-family="sans-serif">{label}</text
-              >
-            {/if}
-          {/if}
-        {/each}
-        {#if routingFrom && routingMouseBoard}
-          {@const f = stackCenter(routingFrom)}
-          <line
-            x1={f.x}
-            y1={f.y}
-            x2={routingMouseBoard.x}
-            y2={routingMouseBoard.y}
-            stroke="#00000080"
-            stroke-width="0.4"
-            stroke-dasharray="2 2"
-            opacity="0.6"
-          />
-        {/if}
-        {#each attackPairs.entries() as [id, pair] (id)}
-          {@const glowT = Math.max(0, 1 - (realNow - pair.lastAttackAtReal) / GLOW_DURATION)}
-          {#if glowT > 0}
-            <line
-              x1={pair.x1}
-              y1={pair.y1}
-              x2={pair.x2}
-              y2={pair.y2}
-              stroke={pair.isEnemy ? '#ff6666' : '#ffdd44'}
-              stroke-width={3 + glowT * 3}
-              opacity={glowT * 0.55}
-              filter="url(#attack-glow)"
-            />
-          {/if}
-          <line
-            x1={pair.x1}
-            y1={pair.y1}
-            x2={pair.x2}
-            y2={pair.y2}
-            stroke={pair.isEnemy ? '#ff4444' : '#ffaa00'}
-            stroke-width={0.5 + glowT * 0.8}
-            stroke-dasharray="1.5 1.5"
-            opacity={0.75 + glowT * 0.25}
-            class="attack-beam"
-          />
-        {/each}
-      </svg>
-
-      {#if isDraggingFoundation}
-        {@const gx = CARD_W + CARD_GAP}
-        {@const gy = CARD_H + CARD_GAP}
-        <svg
-          class="foundation-grid"
-          viewBox="0 0 {currentBoard.width} {currentBoard.height}"
-          style="width:{currentBoard.width}vmin;height:{currentBoard.height}vmin;"
-        >
-          {#each Array.from({ length: Math.ceil(currentBoard.width / gx) - 1 }, (_, i) => (i + 1) * gx) as x (x)}
-            <line
-              x1={x + CARD_GAP / 2}
-              y1="0"
-              x2={x + CARD_GAP / 2}
-              y2={currentBoard.height}
-              stroke="white"
-              stroke-width="0.3"
-              stroke-dasharray="1 1"
-              opacity="0.25"
-            />
-          {/each}
-          {#each Array.from({ length: Math.ceil(currentBoard.height / gy) - 1 }, (_, i) => (i + 1) * gy) as y (y)}
-            <line
-              x1="0"
-              y1={y + CARD_GAP / 2}
-              x2={currentBoard.width}
-              y2={y + CARD_GAP / 2}
-              stroke="white"
-              stroke-width="0.3"
-              stroke-dasharray="1 1"
-              opacity="0.25"
-            />
-          {/each}
-        </svg>
-      {/if}
+      <BoardCanvas
+        board={currentBoard}
+        {attackPairs}
+        {routingMode}
+        {routingFrom}
+        {routingMouseBoard}
+        {pendingFilterConn}
+        {realNow}
+        {isDraggingFoundation}
+      />
 
       {#each renderedCards as { cardData, stack, cardIndex } (cardData.id)}
         <Card
@@ -774,54 +533,16 @@
       {/each}
 
       {#if routingMode}
-        <div
-          class="routing-overlay"
-          onmousedown={handleRoutingMouseDown}
-          onmousemove={handleRoutingMouseMove}
-          onmouseup={handleRoutingMouseUp}
-          oncontextmenu={handleRoutingContextMenu}
-          role="presentation"
-        ></div>
-        {#if pendingFilterConn}
-          {@const mid = connMidpoint(pendingFilterConn)}
-          {#if mid}
-            <div class="filter-input-popup" style="left:{mid.x}vmin; top:{mid.y}vmin;">
-              <input
-                type="text"
-                list="card-type-list"
-                bind:value={filterInput}
-                placeholder="any type"
-                onkeydown={handleFilterKeyDown}
-                use:focusOnMount
-              />
-              <datalist id="card-type-list">
-                {#each Object.keys(CARD_CATALOG) as type (type)}
-                  <option value={type}>{CARD_CATALOG[type].title}</option>
-                {/each}
-              </datalist>
-            </div>
-          {/if}
-        {/if}
+        <RoutingOverlay
+          board={currentBoard}
+          bind:routingFrom
+          bind:routingMouseBoard
+          bind:pendingFilterConn
+          {boardPosFromEvent}
+        />
       {/if}
     </Draggable>
-    {#if gameState.clock.endOfSol}
-      <div class="sol-overlay">
-        <div class="sol-dialog">
-          <div class="sol-title">Sol {gameState.clock.sol} complete</div>
-          {#each gameState.clock.lastSolFeeds.filter((f) => f.deaths.length > 0 || f.provided < f.needed) as feed (feed.boardName)}
-            <div class="sol-board-section">
-              <div class="sol-board-name">{feed.boardName}: {feed.provided}/{feed.needed} ⚡</div>
-              {#each feed.deaths as { type, count } (type)}
-                <span class="sol-death-entry">💀 {count}× {CARD_CATALOG[type].title} died</span>
-              {/each}
-            </div>
-          {/each}
-          <button class="sol-continue" onclick={continueSol}
-            >Continue to Sol {gameState.clock.sol + 1}</button
-          >
-        </div>
-      </div>
-    {/if}
+    <SolEndModal clock={gameState.clock} oncontinue={continueSol} />
     {#if gameState.boards.filter((b) => b.discovered).length > 1}
       <LocationNav boards={gameState.boards} bind:currentBoardIndex={gameState.currentBoardIndex} />
     {/if}
@@ -869,128 +590,6 @@
     position: relative;
     overflow: hidden;
     background-color: #3d2b1f;
-  }
-
-  .sol-overlay {
-    position: absolute;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.6);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 10;
-  }
-
-  .sol-dialog {
-    background: #1a1a2e;
-    border: 2px solid #f4c430;
-    border-radius: 1rem;
-    padding: 2rem 3rem;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1.25rem;
-    font-family: 'BigNoodleTitling', sans-serif;
-    color: white;
-
-    .sol-title {
-      font-size: 2.5rem;
-      color: #f4c430;
-      letter-spacing: 0.05em;
-    }
-
-    .sol-board-section {
-      display: flex;
-      flex-direction: column;
-      gap: 0.2rem;
-      font-size: 1.1rem;
-
-      .sol-board-name {
-        color: #aaa;
-        font-size: 1rem;
-      }
-
-      .sol-death-entry {
-        color: #ff6b6b;
-        padding-left: 0.5rem;
-      }
-    }
-
-    .sol-continue {
-      margin-top: 0.5rem;
-      padding: 0.5rem 2rem;
-      background: #f4c430;
-      border: none;
-      border-radius: 0.5rem;
-      font-family: 'BigNoodleTitling', sans-serif;
-      font-size: 1.5rem;
-      color: #1a1a2e;
-      cursor: pointer;
-
-      &:hover {
-        background: #ffe066;
-      }
-    }
-  }
-
-  .foundation-grid {
-    position: absolute;
-    top: 0;
-    left: 0;
-    pointer-events: none;
-  }
-
-  .connections-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    right: 0;
-    pointer-events: none;
-    z-index: 4;
-  }
-
-  .attack-beam {
-    animation: attack-march 0.25s linear infinite;
-  }
-
-  @keyframes attack-march {
-    to {
-      stroke-dashoffset: -3;
-    }
-  }
-
-  .routing-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    right: 0;
-    cursor: crosshair;
-    z-index: 5;
-  }
-
-  .filter-input-popup {
-    position: absolute;
-    transform: translate(-50%, -50%);
-    z-index: 10;
-    background: rgba(0, 0, 0, 0.85);
-    border-radius: 0.5vmin;
-    padding: 0.5vmin 0.75vmin;
-    display: flex;
-    flex-direction: column;
-    gap: 0.3vmin;
-  }
-
-  .filter-input-popup input {
-    font-size: 1.4vmin;
-    padding: 0.3vmin 0.5vmin;
-    border: none;
-    border-radius: 0.3vmin;
-    outline: none;
-    width: 14vmin;
-    background: #fff;
-    color: #000;
   }
 
   :global .board {
