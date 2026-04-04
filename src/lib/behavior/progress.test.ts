@@ -57,7 +57,7 @@ describe('executeRecipe (via tick)', () => {
     stack.activeRecipeId = recipeId;
     stack.progressStartTime = 0;
     const board = makeBoard('test', [stack], 100, 100);
-    const gameState: GameState = { boards: [board], clock: makeClock(), currentBoardIndex: 0, knownRecipeIds: [recipeId] };
+    const gameState: GameState = { boards: [board], clock: makeClock(), currentBoardIndex: 0, knownRecipeIds: [recipeId], combatState: {} };
     return { gameState, board, stack };
   }
 

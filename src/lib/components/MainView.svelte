@@ -130,7 +130,7 @@
 
     if (playerUnits.length > 0 && enemyUnits.length > 0) {
       for (const unit of playerUnits) {
-        if (unit.card.combatHomeStackId === undefined) continue;
+        if (!(unit.card.id in gameState.combatState)) continue;
         const weapon = getUnitWeapon(unit.card);
         if (!weapon) continue;
         const target = nearestCombatant(unit.stack.pos, enemyUnits, weapon.range);
@@ -346,10 +346,12 @@
     clock: makeClock(),
     currentBoardIndex: 0,
     knownRecipeIds: initialKnownRecipeIds,
+    combatState: {},
   });
 
   function applySave(save: GameState) {
     save.clock.vTimeAt = null;
+    save.combatState ??= {};
     gameState = save;
     const maxId = Math.max(
       0,
@@ -517,6 +519,7 @@
       clock: makeClock(),
       currentBoardIndex: 0,
       knownRecipeIds: initialKnownRecipeIds,
+      combatState: {},
     };
   }
 
@@ -837,6 +840,7 @@
         clock: makeClock(),
         currentBoardIndex: 0,
         knownRecipeIds: initialKnownRecipeIds,
+        combatState: {},
       });
     }}
   />

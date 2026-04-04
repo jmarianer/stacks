@@ -9,6 +9,12 @@ import { getUnitWeapon } from '$lib/utils/unit-stats';
 import { applyResults } from '$lib/behavior/progress';
 import type { GameState } from '$lib/types/game-state';
 
+export type CombatCardState = {
+  homeStackId: number;
+  lastMoveAt?: number;
+  healAt?: number;
+};
+
 export type CombatUnit = { card: CardData; stack: Stack };
 
 export function nearestCombatant(
@@ -46,16 +52,15 @@ export function getCombatUnits(board: Board): {
   return { playerUnits, enemyUnits };
 }
 
-function moveUnit(unit: CombatUnit, targets: CombatUnit[], board: Board, now: number): void {
+function moveUnit(unit: CombatUnit, targets: CombatUnit[], board: Board, gameState: GameState, now: number): void {
   const def = CARD_CATALOG[unit.card.type] as CardDef;
   const speed = def.speed ?? 0;
   if (speed === 0) return;
 
+  const state = gameState.combatState[unit.card.id];
   const delta =
-    unit.card.combatLastMoveAt !== undefined
-      ? Math.min((now - unit.card.combatLastMoveAt) / 1000, 0.1)
-      : 0;
-  unit.card.combatLastMoveAt = now;
+    state?.lastMoveAt !== undefined ? Math.min((now - state.lastMoveAt) / 1000, 0.1) : 0;
+  if (state) state.lastMoveAt = now;
   if (delta <= 0) return;
 
   const nearest = nearestCombatant(unit.stack.pos, targets);
@@ -95,15 +100,14 @@ export function runCombat(board: Board, gameState: GameState, now: number): void
   // Return player units to home stacks when combat ends
   if (enemyUnits.length === 0) {
     for (const unit of playerUnits) {
-      if (unit.card.combatHomeStackId === undefined) continue;
-      const homeStack = board.stacks.find((s) => s.id === unit.card.combatHomeStackId);
+      const state = gameState.combatState[unit.card.id];
+      if (state === undefined) continue;
+      const homeStack = board.stacks.find((s) => s.id === state.homeStackId);
       if (homeStack) {
         unit.stack.cards = unit.stack.cards.filter((c) => c.id !== unit.card.id);
         homeStack.cards.push(unit.card);
       }
-      unit.card.combatHomeStackId = undefined;
-      unit.card.combatLastMoveAt = undefined;
-      unit.card.combatHealAt = undefined;
+      delete gameState.combatState[unit.card.id];
     }
     board.stacks = board.stacks.filter((s) => s.cards.length > 0);
     return;
@@ -112,9 +116,9 @@ export function runCombat(board: Board, gameState: GameState, now: number): void
   if (playerUnits.length === 0) return;
 
   // Detach player units entering combat for the first time
-  const toDetach = playerUnits.filter((u) => u.card.combatHomeStackId === undefined);
+  const toDetach = playerUnits.filter((u) => !(u.card.id in gameState.combatState));
   for (const unit of toDetach) {
-    unit.card.combatHomeStackId = unit.stack.id;
+    gameState.combatState[unit.card.id] = { homeStackId: unit.stack.id };
     unit.stack.cards = unit.stack.cards.filter((c) => c.id !== unit.card.id);
     const combatStack = makeStackFromCards({ ...unit.stack.pos }, [unit.card]);
     board.stacks.push(combatStack);
@@ -126,17 +130,16 @@ export function runCombat(board: Board, gameState: GameState, now: number): void
   for (const enemy of enemyUnits) {
     const def = CARD_CATALOG[enemy.card.type] as CardDef;
     if (def.regen) {
+      const state = gameState.combatState[enemy.card.id];
       const delta =
-        enemy.card.combatLastMoveAt !== undefined
-          ? Math.min((now - enemy.card.combatLastMoveAt) / 1000, 0.1)
-          : 0;
+        state?.lastMoveAt !== undefined ? Math.min((now - state.lastMoveAt) / 1000, 0.1) : 0;
       const hpMax = hpMaxFromStats(enemy.card.unitStats!);
       enemy.card.unitStats!.health = Math.min(
         enemy.card.unitStats!.health + def.regen * delta,
         hpMax,
       );
     }
-    moveUnit(enemy, playerUnits, board, now);
+    moveUnit(enemy, playerUnits, board, gameState, now);
   }
 
   for (const unit of playerUnits) {
@@ -144,17 +147,18 @@ export function runCombat(board: Board, gameState: GameState, now: number): void
     const stats = unit.card.unitStats!;
     const hpMax = hpMaxFromStats(stats);
     const hpPct = stats.health / hpMax;
-    const healReady = unit.card.combatHealAt === undefined || now - unit.card.combatHealAt >= 3000;
+    const state = gameState.combatState[unit.card.id];
+    const healReady = state?.healAt === undefined || now - state.healAt >= 3000;
     if (healReady && hpPct <= 0.5 && (unit.card.bandAids ?? 0) > 0) {
       stats.health = Math.min(stats.health + 25, hpMax);
       unit.card.bandAids!--;
-      unit.card.combatHealAt = now;
+      if (state) state.healAt = now;
     } else if (healReady && hpPct <= 0.9 && (unit.card.uniKits ?? 0) > 0) {
       stats.health = hpMax;
       unit.card.uniKits!--;
-      unit.card.combatHealAt = now;
+      if (state) state.healAt = now;
     }
-    moveUnit(unit, enemyUnits, board, now);
+    moveUnit(unit, enemyUnits, board, gameState, now);
   }
 
   // Attacks
