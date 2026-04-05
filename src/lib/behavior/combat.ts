@@ -1,4 +1,10 @@
-import { CARD_W, CARD_H } from '$lib/data/constants';
+import {
+  CARD_W,
+  CARD_H,
+  HEAL_COOLDOWN_MS,
+  HEAL_HP_THRESHOLD,
+  REGEN_HP_THRESHOLD,
+} from '$lib/data/constants';
 import type { Stack, Board, CardData } from '$lib/types/game-state';
 import { hpMaxFromStats, type CardDef } from '$lib/types/card-types';
 import type { RecipeResult } from '$lib/types/recipe-types';
@@ -80,7 +86,7 @@ function moveUnit(
   const dist = Math.sqrt(dx * dx + dy * dy);
   if (dist < 0.01) return;
 
-  const shouldFlee = !def.enemy && hpPct < 0.5;
+  const shouldFlee = !def.enemy && hpPct < HEAL_HP_THRESHOLD;
   const inRange = weapon !== undefined && dist <= weapon.range;
   if (!shouldFlee && inRange) return;
 
@@ -154,12 +160,12 @@ export function runCombat(board: Board, gameState: GameState, now: number): void
     const hpMax = hpMaxFromStats(stats);
     const hpPct = stats.health / hpMax;
     const state = gameState.combatState[unit.card.id];
-    const healReady = state?.healAt === undefined || now - state.healAt >= 3000;
-    if (healReady && hpPct <= 0.5 && (unit.card.bandAids ?? 0) > 0) {
+    const healReady = state?.healAt === undefined || now - state.healAt >= HEAL_COOLDOWN_MS;
+    if (healReady && hpPct <= HEAL_HP_THRESHOLD && (unit.card.bandAids ?? 0) > 0) {
       stats.health = Math.min(stats.health + 25, hpMax);
       unit.card.bandAids!--;
       if (state) state.healAt = now;
-    } else if (healReady && hpPct <= 0.9 && (unit.card.uniKits ?? 0) > 0) {
+    } else if (healReady && hpPct <= REGEN_HP_THRESHOLD && (unit.card.uniKits ?? 0) > 0) {
       stats.health = hpMax;
       unit.card.uniKits!--;
       if (state) state.healAt = now;

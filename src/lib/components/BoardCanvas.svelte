@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { Board, Stack } from '$lib/types/game-state';
   import { CARD_CATALOG } from '$lib/data/card-defs';
-  import { CARD_W, CARD_H, CARD_GAP } from '$lib/data/constants';
+  import { CARD_W, CARD_H, CARD_GAP, GLOW_DURATION_MS } from '$lib/data/constants';
   import type { SvelteMap } from 'svelte/reactivity';
 
   export type AttackPair = {
@@ -13,8 +13,6 @@
     lastAttackAtReal: number;
     lastAttackAtVtime: number;
   };
-
-  const GLOW_DURATION = 400; // ms
 
   let {
     board,
@@ -35,6 +33,8 @@
     realNow: number;
     isDraggingFoundation: boolean;
   } = $props();
+
+  const stackById = $derived(new Map(board.stacks.map((s) => [s.id, s])));
 
   function stackCenter(stack: Stack) {
     return { x: stack.pos.x + CARD_W / 2, y: stack.pos.y + CARD_H / 2 };
@@ -61,8 +61,8 @@
     </filter>
   </defs>
   {#each board.connections as conn (conn.fromId + '-' + conn.toId)}
-    {@const fromStack = board.stacks.find((s) => s.id === conn.fromId)}
-    {@const toStack = board.stacks.find((s) => s.id === conn.toId)}
+    {@const fromStack = stackById.get(conn.fromId)}
+    {@const toStack = stackById.get(conn.toId)}
     {#if fromStack && toStack}
       {@const ep = connectionEndpoints(fromStack, toStack)}
       {@const isPending =
@@ -115,7 +115,7 @@
     />
   {/if}
   {#each attackPairs.entries() as [id, pair] (id)}
-    {@const glowT = Math.max(0, 1 - (realNow - pair.lastAttackAtReal) / GLOW_DURATION)}
+    {@const glowT = Math.max(0, 1 - (realNow - pair.lastAttackAtReal) / GLOW_DURATION_MS)}
     {#if glowT > 0}
       <line
         x1={pair.x1}

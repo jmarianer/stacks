@@ -4,6 +4,7 @@ import {
   STACK_CARD_OFFSET_Y,
   STACK_CARD_OFFSET_X,
   CARD_GAP,
+  PHYSICS_SPEED_LIMIT,
 } from '$lib/data/constants';
 import type { Stack, Board } from '$lib/types/game-state';
 import { type Vec2, sub, len, norm, addScaled } from '$lib/utils/vec2';
@@ -79,10 +80,10 @@ export function tick(board: Board, draggingId: number | null = null): void {
 
     // Speed limit
     const speed = len(velocities[stack.id]);
-    if (speed > 0.25) {
+    if (speed > PHYSICS_SPEED_LIMIT) {
       const { x, y } = norm(velocities[stack.id]);
-      velocities[stack.id].x = x * 0.25;
-      velocities[stack.id].y = y * 0.25;
+      velocities[stack.id].x = x * PHYSICS_SPEED_LIMIT;
+      velocities[stack.id].y = y * PHYSICS_SPEED_LIMIT;
     }
   }
 

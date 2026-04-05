@@ -26,20 +26,11 @@
 - I think tombstones can attack enemies :o
 - No way to remove routes now
 
-## Code quality
-
-- Lots of stuff needs to go out of MainView and into separate components
-- Can we make knownRecipeIds a part of GameState instead of part of Board? What would that entail?
-- Pass GameState around everywhere instead of boards, clock as separate parameters.
-- Prereq in recipe should be function, not string
-- unlockRecipeIds and createCards should be optional in Milestone
-
 ## Gameplay
 
 - Can't see new worlds until teleported at least once?
 - Deactivate physics for noncombatants. Combat takes place on a higher plane or something
 - Increase fists distance (fistance) a bit so that bacteria can attack vertically
-- Understand why post-invasion didn't happen (drill and stuff)
 - Maybe training should be a later-game thing? Not sure.
 - Stat limits
 - The number of band-aids is too damn low. Probably got that and unikits backwards.

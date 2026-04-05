@@ -18,12 +18,8 @@
   import { CARD_CATALOG } from '$lib/data/card-defs';
   import { getUnitWeapon } from '$lib/utils/unit-stats';
   import { initialBoards, initialKnownRecipeIds } from '$lib/data/initial-boards';
-  import {
-    makeClock,
-    makeStackFromCards,
-    addCardToMatchingStack,
-    makeTeleportCard,
-  } from '$lib/utils/card-factories';
+  import { makeClock, makeStackFromCards, makeTeleportCard } from '$lib/utils/card-factories';
+  import { addCardToMatchingStack } from '$lib/utils/card-placement';
   import { tick as tickPhysics } from '$lib/behavior/physics';
   import { tick as tickProgress, checkMilestones } from '$lib/behavior/progress';
   import { runCombat, getCombatUnits, nearestCombatant } from '$lib/behavior/combat';

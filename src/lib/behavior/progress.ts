@@ -6,13 +6,13 @@ import type { RecipeResult, IngredientMatcher } from '$lib/types/recipe-types';
 import type { Vec2 } from '$lib/utils/vec2';
 import { CARD_CATALOG, type CardType } from '$lib/data/card-defs';
 import {
-  addCardToMatchingStack,
   makeCardOfType,
   makeIdeaCard,
   makeReviveCard,
   makeStackFromCards,
   makeTeleportCard,
 } from '$lib/utils/card-factories';
+import { addCardToMatchingStack } from '$lib/utils/card-placement';
 import type { Recipe } from '$lib/types/recipe-types';
 import { maxBandAids, maxUniKits } from '$lib/utils/unit-stats';
 import type { GameState } from '$lib/types/game-state';
