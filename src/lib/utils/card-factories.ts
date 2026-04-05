@@ -64,8 +64,6 @@ export function makeStack(pos: Vec2, types: CardType[]): Stack {
   return {
     id: nextId++,
     pos,
-    dragging: false,
-    isDropTarget: false,
     cards: types.map(makeCardOfType),
     progress: 0,
     progressStartTime: null,
@@ -78,8 +76,6 @@ export function makeStackFromCards(pos: Vec2, cards: CardData[]): Stack {
   return {
     id: nextId++,
     pos,
-    dragging: false,
-    isDropTarget: false,
     cards,
     progress: 0,
     progressStartTime: null,

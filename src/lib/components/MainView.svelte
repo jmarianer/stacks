@@ -1,20 +1,13 @@
 <script lang="ts">
   // import SettingsDialog from '$lib/components/SettingsDialog.svelte';
   // let settingsDialog: SettingsDialog;
-  import { untrack, onMount } from 'svelte';
+  import { onMount } from 'svelte';
   import { SvelteMap } from 'svelte/reactivity';
   import Card from '$lib/components/Card.svelte';
   import BoardCanvas, { type AttackPair } from '$lib/components/BoardCanvas.svelte';
   import RoutingOverlay from '$lib/components/RoutingOverlay.svelte';
   import SolEndModal from '$lib/components/SolEndModal.svelte';
-  import {
-    STACK_CARD_OFFSET_Y,
-    STACK_CARD_OFFSET_X,
-    CARD_W,
-    CARD_H,
-    DROP_TARGET_INSET,
-    CARD_GAP,
-  } from '$lib/data/constants';
+  import { STACK_CARD_OFFSET_Y, STACK_CARD_OFFSET_X, CARD_W, CARD_H } from '$lib/data/constants';
   import Draggable from './Draggable.svelte';
   import { addScaled } from '$lib/utils/vec2';
   import type { Stack, Board, ShopItem, CardData } from '$lib/types/board-types';
@@ -25,19 +18,28 @@
   import { CARD_CATALOG } from '$lib/data/card-defs';
   import { getUnitWeapon } from '$lib/utils/unit-stats';
   import { initialBoards, initialKnownRecipeIds } from '$lib/data/initial-boards';
-  import type { GameState } from '$lib/types/game-state';
   import {
     makeClock,
     makeStackFromCards,
     addCardToMatchingStack,
     makeTeleportCard,
-    setNextId,
   } from '$lib/utils/card-factories';
   import { tick as tickPhysics } from '$lib/behavior/physics';
   import { tick as tickProgress, checkMilestones } from '$lib/behavior/progress';
   import { runCombat, getCombatUnits, nearestCombatant } from '$lib/behavior/combat';
   import { tickClock, getSolProgress, setSpeed, getVirtualNow } from '$lib/behavior/clock';
   import { recipes } from '$lib/data/recipes';
+  import { gameState } from '$lib/state/game-state.svelte';
+  import {
+    applySave,
+    loadSave,
+    saveState,
+    exportSave,
+    importSave,
+    SAVE_INTERVAL_MS,
+  } from '$lib/state/persistence';
+  import { useBoardView } from '$lib/hooks/useBoardView.svelte';
+  import { useDragAndDrop } from '$lib/hooks/useDragAndDrop.svelte';
 
   let selectedCard = $state<CardData | null>(null);
   let routingMode = $state(false);
@@ -47,57 +49,9 @@
   let pendingFilterConn = $state<{ fromId: number; toId: number } | null>(null);
   const attackPairs = new SvelteMap<number, AttackPair>();
 
-  let scale = $state(1);
-  let translate = $state({ x: 0, y: 0 });
-  let vmin = $state(0);
   let boardAreaEl = $state<HTMLElement | null>(null);
-
-  function updateVmin() {
-    vmin = Math.min(window.innerWidth, window.innerHeight) / 100;
-  }
-
-  $effect(() => {
-    const el = boardAreaEl;
-    const idx = gameState.currentBoardIndex;
-    untrack(() => {
-      if (!el) return;
-      updateVmin();
-      const availW = el.clientWidth;
-      const availH = el.clientHeight;
-      const boardW = gameState.boards[idx].width * vmin;
-      const boardH = gameState.boards[idx].height * vmin;
-      scale = Math.min(availW / boardW, availH / boardH) * 0.95;
-      translate.x = (availW - boardW * scale) / 2;
-      translate.y = (availH - boardH * scale) / 2;
-    });
-  });
-
-  function onWheel(e: WheelEvent) {
-    e.preventDefault();
-    const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
-    const rect = boardAreaEl?.getBoundingClientRect() ?? { left: 0, top: 0 };
-    const localX = e.clientX - rect.left;
-    const localY = e.clientY - rect.top;
-    scale = scale * zoomFactor;
-    translate.x = localX - (localX - translate.x) * zoomFactor;
-    translate.y = localY - (localY - translate.y) * zoomFactor;
-  }
-
-  function boardMouse() {
-    const rect = boardAreaEl?.getBoundingClientRect() ?? { left: 0, top: 0 };
-    return {
-      x: (mousePosition.x - rect.left - translate.x) / (vmin * scale),
-      y: (mousePosition.y - rect.top - translate.y) / (vmin * scale),
-    };
-  }
-
-  function boardPosFromEvent(e: MouseEvent) {
-    const rect = boardAreaEl?.getBoundingClientRect() ?? { left: 0, top: 0 };
-    return {
-      x: (e.clientX - rect.left - translate.x) / (vmin * scale),
-      y: (e.clientY - rect.top - translate.y) / (vmin * scale),
-    };
-  }
+  const boardView = useBoardView(() => boardAreaEl);
+  const dnd = useDragAndDrop(boardView.boardMouse);
 
   function stackCenter(stack: Stack) {
     return { x: stack.pos.x + CARD_W / 2, y: stack.pos.y + CARD_H / 2 };
@@ -163,7 +117,7 @@
   }
 
   function stackAtMouse(): Stack | undefined {
-    const { x, y } = boardMouse();
+    const { x, y } = boardView.boardMouse();
     return currentBoard.stacks.findLast((stack) =>
       stack.cards.some((_, i) => {
         const cx = stack.pos.x + i * STACK_CARD_OFFSET_X + CARD_W / 2;
@@ -175,10 +129,10 @@
 
   function onKeyDown(e: KeyboardEvent) {
     const speed = 20;
-    if (e.key === 'w') translate.y += speed;
-    if (e.key === 's') translate.y -= speed;
-    if (e.key === 'a') translate.x += speed;
-    if (e.key === 'd') translate.x -= speed;
+    if (e.key === 'w') boardView.translate.y += speed;
+    if (e.key === 's') boardView.translate.y -= speed;
+    if (e.key === 'a') boardView.translate.x += speed;
+    if (e.key === 'd') boardView.translate.x -= speed;
     if (e.key === ' ') {
       e.preventDefault();
       if (!gameState.clock.endOfSol) {
@@ -221,27 +175,6 @@
   let solProgress = $state(0);
   let vTime = $state(0);
   let realNow = $state(0);
-  let gameState = $state<GameState>({
-    boards: initialBoards,
-    clock: makeClock(),
-    currentBoardIndex: 0,
-    knownRecipeIds: initialKnownRecipeIds,
-    combatState: {},
-  });
-
-  function applySave(save: GameState) {
-    save.clock.vTimeAt = null;
-    save.combatState ??= {};
-    gameState = save;
-    const maxId = Math.max(
-      0,
-      ...save.boards.flatMap((b) => [
-        b.id,
-        ...b.stacks.flatMap((s) => [s.id, ...s.cards.map((c) => c.id)]),
-      ]),
-    );
-    setNextId(maxId + 1);
-  }
 
   onMount(() => applySave(loadSave()));
   const currentBoard = $derived(gameState.boards[gameState.currentBoardIndex]);
@@ -268,111 +201,18 @@
   );
 
   const isDraggingFoundation = $derived(
-    currentBoard.stacks.some((s) => s.dragging && s.cards[0]?.type === 'foundation'),
+    dnd.draggingId !== null &&
+      currentBoard.stacks.find((s) => s.id === dnd.draggingId)?.cards[0]?.type === 'foundation',
   );
 
   const inCombat = $derived(
     currentBoard.stacks.some((s) => s.cards.some((c) => CARD_CATALOG[c.type].enemy !== undefined)),
   );
 
-  let mousePosition = { x: 0, y: 0 };
-
-  function handleDragStart(stack: Stack, cardIndex: number, e: MouseEvent) {
-    const stacks = currentBoard.stacks;
-    if (e.altKey || cardIndex === 0) {
-      // Drag the whole stack
-      stack.dragging = true;
-      currentBoard.stacks = [...stacks.filter((s) => s.id !== stack.id), stack];
-    } else {
-      // Peel this card and everything above it into a new stack
-      const peeledCards = stack.cards.slice(cardIndex);
-      stack.cards = stack.cards.slice(0, cardIndex);
-      const newStack = makeStackFromCards(
-        {
-          x: stack.pos.x + cardIndex * STACK_CARD_OFFSET_X,
-          y: stack.pos.y + cardIndex * STACK_CARD_OFFSET_Y,
-        },
-        peeledCards,
-      );
-      newStack.dragging = true;
-      currentBoard.stacks = [...stacks, newStack];
-    }
-  }
-
   function createTeleportCard(targetBoardIndex: number, onBoard: Board = currentBoard) {
     const card = makeTeleportCard(targetBoardIndex, gameState.boards[targetBoardIndex].name);
     const stack = makeStackFromCards({ x: onBoard.width / 2, y: onBoard.height / 2 }, [card]);
     onBoard.stacks = [...onBoard.stacks, stack];
-  }
-
-  function handleDragEnd() {
-    const stacks = currentBoard.stacks;
-    const dragging = stacks.find((s) => s.dragging);
-    if (!dragging) return;
-
-    // Grid-snap stacks based on a foundation card
-    if (dragging.cards[0]?.type === 'foundation') {
-      dragging.pos.x =
-        Math.round(dragging.pos.x / (CARD_W + CARD_GAP)) * (CARD_W + CARD_GAP) + CARD_GAP;
-      dragging.pos.y =
-        Math.round(dragging.pos.y / (CARD_H + CARD_GAP)) * (CARD_H + CARD_GAP) + CARD_GAP;
-    }
-
-    const target = stacks.find((s) => s.isDropTarget);
-    if (target) {
-      const teleportCard = target.cards.find((c) => c.type === 'teleport');
-      if (teleportCard?.targetBoardIndex !== undefined) {
-        const destIdx = teleportCard.targetBoardIndex;
-        const dest = gameState.boards[destIdx];
-        const newStack = makeStackFromCards(
-          { x: dest.width / 2, y: dest.height / 2 },
-          dragging.cards,
-        );
-        dest.stacks = [...dest.stacks, newStack];
-        currentBoard.stacks = stacks.filter((s) => s.id !== target.id && s.id !== dragging.id);
-        gameState.currentBoardIndex = destIdx;
-        return;
-      }
-      target.cards = [...target.cards, ...dragging.cards];
-      target.isDropTarget = false;
-      currentBoard.stacks = stacks.filter((s) => s.id !== dragging.id);
-    } else {
-      dragging.dragging = false;
-    }
-  }
-
-  function updateDropTargets() {
-    const stacks = currentBoard.stacks;
-    const anyDragging = stacks.some((s) => s.dragging);
-    if (!anyDragging) {
-      for (const s of stacks) s.isDropTarget = false;
-      return;
-    }
-
-    const { x: mx, y: my } = boardMouse();
-
-    // Mark the first stack whose drop target rectangle contains the mouse
-    let foundTarget = false;
-    for (const stack of stacks) {
-      if (stack.dragging) {
-        stack.isDropTarget = false;
-        continue;
-      }
-      if (foundTarget) {
-        stack.isDropTarget = false;
-        continue;
-      }
-      // Target rectangle: DROP_TARGET_INSET from each edge of the card
-      stack.isDropTarget = stack.cards.some((_, i) => {
-        const cx = stack.pos.x + i * STACK_CARD_OFFSET_X + CARD_W / 2;
-        const cy = stack.pos.y + i * STACK_CARD_OFFSET_Y + CARD_H / 2;
-        return (
-          Math.abs(mx - cx) <= CARD_W / 2 - DROP_TARGET_INSET &&
-          Math.abs(my - cy) <= CARD_H / 2 - DROP_TARGET_INSET
-        );
-      });
-      if (stack.isDropTarget) foundTarget = true;
-    }
   }
 
   function buyCard(item: ShopItem) {
@@ -382,69 +222,19 @@
     addCardToMatchingStack(currentBoard.stacks, item.cardType, pos);
   }
 
-  const SAVE_KEY = 'stacks-autosave';
-  const SAVE_INTERVAL_MS = 5000;
-
-  function loadSave(): GameState {
-    try {
-      const raw = localStorage.getItem(SAVE_KEY);
-      if (raw) {
-        return JSON.parse(raw) as GameState;
-      }
-    } catch {
-      // fall through to defaults
-    }
-    return {
-      boards: initialBoards,
-      clock: makeClock(),
-      currentBoardIndex: 0,
-      knownRecipeIds: initialKnownRecipeIds,
-      combatState: {},
-    };
-  }
-
-  function saveState() {
-    localStorage.setItem(SAVE_KEY, JSON.stringify(gameState));
-  }
-
-  function exportSave() {
-    const json = JSON.stringify(gameState, null, 2);
-    const blob = new Blob([json], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'stacks-save.json';
-    a.click();
-    URL.revokeObjectURL(url);
-  }
-
-  function importSave(e: Event) {
-    const file = (e.target as HTMLInputElement).files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      try {
-        applySave(JSON.parse(reader.result as string) as GameState);
-      } catch {
-        // silently ignore malformed import
-      }
-    };
-    reader.readAsText(file);
-  }
-
   $effect(() => {
     let rafId: number;
     let lastSaveAt = 0;
 
     function loop() {
       const now_ms = performance.now();
-      updateDropTargets();
+      dnd.updateDropTargets();
       tickClock(gameState, now_ms);
       const now = getVirtualNow(gameState.clock, now_ms);
       if (!gameState.clock.endOfSol && gameState.clock.speed !== 0) {
         checkMilestones(gameState, currentBoard);
         for (const board of gameState.boards) {
-          tickPhysics(board);
+          tickPhysics(board, dnd.draggingId);
           runCombat(board, gameState, now);
           tickProgress(board, gameState, now);
         }
@@ -481,16 +271,17 @@
   <div class="board-area" bind:this={boardAreaEl}>
     <Draggable
       onDrag={(dx, dy) => {
-        translate.x += dx;
-        translate.y += dy;
+        boardView.translate.x += dx;
+        boardView.translate.y += dy;
       }}
       class="board"
       style="
       width: {currentBoard.width}vmin;
       height: {currentBoard.height}vmin;
-      transform: translate({translate.x}px, {translate.y}px) scale({scale});
+      transform: translate({boardView.translate.x}px, {boardView.translate
+        .y}px) scale({boardView.scale});
     "
-      onwheel={onWheel}
+      onwheel={boardView.onWheel}
     >
       <BoardCanvas
         board={currentBoard}
@@ -508,13 +299,13 @@
           {cardData}
           top={stack.pos.y + cardIndex * STACK_CARD_OFFSET_Y}
           left={stack.pos.x + cardIndex * STACK_CARD_OFFSET_X}
-          isDropTarget={stack.isDropTarget && cardIndex === stack.cards.length - 1}
+          isDropTarget={dnd.dropTargetId === stack.id && cardIndex === stack.cards.length - 1}
           {inCombat}
           {vTime}
-          onDragStart={(e) => handleDragStart(stack, cardIndex, e)}
-          onDragEnd={handleDragEnd}
+          onDragStart={(e) => dnd.handleDragStart(stack, cardIndex, e)}
+          onDragEnd={dnd.handleDragEnd}
           onDrag={(dx, dy) => {
-            addScaled(stack.pos, { x: dx, y: dy }, 1 / (vmin * scale));
+            addScaled(stack.pos, { x: dx, y: dy }, 1 / (boardView.vmin * boardView.scale));
           }}
           onContextMenu={() => {
             selectedCard = cardData;
@@ -538,7 +329,7 @@
           bind:routingFrom
           bind:routingMouseBoard
           bind:pendingFilterConn
-          {boardPosFromEvent}
+          boardPosFromEvent={boardView.boardPosFromEvent}
         />
       {/if}
     </Draggable>
@@ -568,12 +359,9 @@
 </div>
 
 <svelte:window
-  onresize={updateVmin}
+  onresize={boardView.updateVmin}
   onkeydown={onKeyDown}
-  onmousemove={(e) => {
-    mousePosition.x = e.clientX;
-    mousePosition.y = e.clientY;
-  }}
+  onmousemove={(e) => boardView.updateMousePosition(e.clientX, e.clientY)}
 />
 
 <style>

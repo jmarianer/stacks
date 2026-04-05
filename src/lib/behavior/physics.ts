@@ -26,7 +26,7 @@ function stackCenter(stack: Stack): Vec2 {
   return rectCenter(stackDimensions(stack));
 }
 
-export function tick(board: Board): void {
+export function tick(board: Board, draggingId: number | null = null): void {
   const stacks = board.stacks;
   // Accumulate velocities, then apply them all at once
   const velocities: Record<number, Vec2> = {};
@@ -37,13 +37,13 @@ export function tick(board: Board): void {
   // Stack-stack repulsion
   for (let i = 0; i < stacks.length; i++) {
     const a = stacks[i];
-    if (a.dragging) continue;
+    if (a.id === draggingId) continue;
 
     const aDim = rectExtend(stackDimensions(a), CARD_GAP);
 
     for (let j = i + 1; j < stacks.length; j++) {
       const b = stacks[j];
-      if (b.dragging) continue;
+      if (b.id === draggingId) continue;
 
       const bDim = rectExtend(stackDimensions(b), CARD_GAP);
       const overlapX =
@@ -88,7 +88,7 @@ export function tick(board: Board): void {
 
   // Apply velocities — foundations are immovable (grid-snapped, never drift)
   for (const stack of stacks) {
-    if (stack.dragging) continue;
+    if (stack.id === draggingId) continue;
     if (stack.cards[0]?.type === 'foundation') continue;
     addScaled(stack.pos, velocities[stack.id], 1);
   }

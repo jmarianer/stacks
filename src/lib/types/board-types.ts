@@ -19,8 +19,6 @@ export type CardData = {
 export type Stack = {
   id: number;
   pos: Vec2;
-  dragging: boolean;
-  isDropTarget: boolean;
   cards: CardData[]; // index 0 = bottom
   progress: number; // 0–1, for progress bar rendering
   progressStartTime: number | null;
