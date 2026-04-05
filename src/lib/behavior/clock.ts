@@ -1,10 +1,8 @@
-import type { CardData } from '$lib/types/board-types';
 import type { CardDef } from '$lib/types/card-types';
 import { CARD_CATALOG, type CardType } from '$lib/data/card-defs';
 import { makeTombstoneCard, makeStackFromCards } from '$lib/utils/card-factories';
 import { SOL_DURATION } from '$lib/data/constants';
-import type { GameState } from '$lib/types/game-state';
-import type { Board, Clock, SolFeedResult } from '$lib/types/board-types';
+import type { GameState, CardData, Board, Clock, SolFeedResult } from '$lib/types/game-state';
 
 function feedUnits(board: Board): SolFeedResult {
   // Tally available energy

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { Board } from '$lib/types/board-types';
+  import type { Board } from '$lib/types/game-state';
 
   let {
     boards,

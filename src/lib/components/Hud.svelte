@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { Clock, ShopItem } from '$lib/types/board-types';
+  import type { Clock, ShopItem } from '$lib/types/game-state';
   import { CARD_CATALOG } from '$lib/data/card-defs';
 
   let {

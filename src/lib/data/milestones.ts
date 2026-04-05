@@ -1,5 +1,5 @@
 import type { Milestone } from '$lib/types/milestone-types';
-import type { Board } from '$lib/types/board-types';
+import type { Board } from '$lib/types/game-state';
 
 const hasCard = (boards: Board[], type: string) =>
   boards.some((b) => b.stacks.some((s) => s.cards.some((c) => c.type === type)));

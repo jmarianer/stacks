@@ -10,7 +10,7 @@
   import { STACK_CARD_OFFSET_Y, STACK_CARD_OFFSET_X, CARD_W, CARD_H } from '$lib/data/constants';
   import Draggable from './Draggable.svelte';
   import { addScaled } from '$lib/utils/vec2';
-  import type { Stack, Board, ShopItem, CardData } from '$lib/types/board-types';
+  import type { Stack, Board, ShopItem, CardData } from '$lib/types/game-state';
   import Hud from './Hud.svelte';
   import Sidebar from './Sidebar.svelte';
   import LocationNav from './LocationNav.svelte';

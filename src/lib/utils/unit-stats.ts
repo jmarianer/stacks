@@ -1,6 +1,6 @@
 import { CARD_CATALOG } from '$lib/data/card-defs';
 import type { WeaponStats, UnitStats } from '$lib/types/card-types';
-import type { CardData } from '$lib/types/board-types';
+import type { CardData } from '$lib/types/game-state';
 
 /** Returns the active weapon for a player unit: last item in weaponInventory, or built-in. */
 export function getUnitWeapon(card: CardData): WeaponStats | undefined {

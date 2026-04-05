@@ -1,5 +1,5 @@
 import { CARD_W, CARD_H } from '$lib/data/constants';
-import type { Stack, Board, CardData } from '$lib/types/board-types';
+import type { Stack, Board, CardData } from '$lib/types/game-state';
 import { hpMaxFromStats, type CardDef } from '$lib/types/card-types';
 import type { RecipeResult } from '$lib/types/recipe-types';
 import type { Vec2 } from '$lib/utils/vec2';

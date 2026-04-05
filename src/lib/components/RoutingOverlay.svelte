@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { Board, Stack, Connection } from '$lib/types/board-types';
+  import type { Board, Stack, Connection } from '$lib/types/game-state';
   import { CARD_CATALOG, type CardType } from '$lib/data/card-defs';
   import { CARD_W, CARD_H } from '$lib/data/constants';
 

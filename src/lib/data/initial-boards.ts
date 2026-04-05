@@ -1,4 +1,4 @@
-import type { Board } from '$lib/types/board-types';
+import type { Board } from '$lib/types/game-state';
 import { makeBoard, makeStack } from '$lib/utils/card-factories';
 
 /** Recipe IDs known at the start of a new game. */

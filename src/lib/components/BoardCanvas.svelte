@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { Board, Stack } from '$lib/types/board-types';
+  import type { Board, Stack } from '$lib/types/game-state';
   import { CARD_CATALOG } from '$lib/data/card-defs';
   import { CARD_W, CARD_H, CARD_GAP } from '$lib/data/constants';
   import type { SvelteMap } from 'svelte/reactivity';

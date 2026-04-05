@@ -2,7 +2,7 @@
   import Draggable, { type DragProps } from './Draggable.svelte';
   import { CARD_W, CARD_H } from '$lib/data/constants';
   import { CARD_CATALOG } from '$lib/data/card-defs';
-  import type { CardData } from '$lib/types/board-types';
+  import type { CardData } from '$lib/types/game-state';
   import { hpMaxFromStats } from '$lib/types/card-types';
   import { getUnitWeapon } from '$lib/utils/unit-stats';
 

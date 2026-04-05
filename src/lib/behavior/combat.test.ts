@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { runCombat, getCombatUnits } from '$lib/behavior/combat';
 import { makeBoard, makeClock, makeStack } from '$lib/utils/card-factories';
 import type { GameState } from '$lib/types/game-state';
-import type { Board } from '$lib/types/board-types';
+import type { Board } from '$lib/types/game-state';
 import { hpMaxFromStats } from '$lib/types/card-types';
 
 function makeTestGameState(board: Board): GameState {

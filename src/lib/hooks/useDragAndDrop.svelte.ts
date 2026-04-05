@@ -8,7 +8,7 @@ import {
   DROP_TARGET_INSET,
   CARD_GAP,
 } from '$lib/data/constants';
-import type { Stack } from '$lib/types/board-types';
+import type { Stack } from '$lib/types/game-state';
 
 export function useDragAndDrop(boardMouse: () => { x: number; y: number }) {
   let draggingId = $state<number | null>(null);

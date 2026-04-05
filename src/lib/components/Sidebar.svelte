@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { Board, CardData } from '$lib/types/board-types';
+  import type { Board, CardData } from '$lib/types/game-state';
   import { CARD_CATALOG } from '$lib/data/card-defs';
   import { hpMaxFromStats, type UnitStats } from '$lib/types/card-types';
   import { maxBandAids, maxUniKits } from '$lib/utils/unit-stats';

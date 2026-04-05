@@ -1,5 +1,5 @@
 import { type UnitStats, hpMaxFromStats, type CardDef } from '$lib/types/card-types';
-import type { CardData, Stack, Board, ShopItem, Clock } from '$lib/types/board-types';
+import type { CardData, Stack, Board, ShopItem, Clock } from '$lib/types/game-state';
 import { CARD_CATALOG, type CardType } from '$lib/data/card-defs';
 import type { Vec2 } from '$lib/utils/vec2';
 

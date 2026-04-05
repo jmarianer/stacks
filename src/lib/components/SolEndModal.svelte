@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { Clock } from '$lib/types/board-types';
+  import type { Clock } from '$lib/types/game-state';
   import { CARD_CATALOG } from '$lib/data/card-defs';
 
   let { clock, oncontinue }: { clock: Clock; oncontinue: () => void } = $props();

@@ -1,6 +1,6 @@
 import { recipes } from '$lib/data/recipes';
 import { MILESTONES } from '$lib/data/milestones';
-import type { Stack, Board, CardData, Connection } from '$lib/types/board-types';
+import type { Stack, Board, CardData, Connection } from '$lib/types/game-state';
 import { hpMaxFromStats, type CardDef } from '$lib/types/card-types';
 import type { RecipeResult, IngredientMatcher } from '$lib/types/recipe-types';
 import type { Vec2 } from '$lib/utils/vec2';

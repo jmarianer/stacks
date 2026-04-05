@@ -1,7 +1,7 @@
 <script lang="ts">
   import { CARD_CATALOG } from '$lib/data/card-defs';
   import { type UnitStats, hpMaxFromStats } from '$lib/types/card-types';
-  import type { CardData } from '$lib/types/board-types';
+  import type { CardData } from '$lib/types/game-state';
   import { maxBandAids, maxUniKits } from '$lib/utils/unit-stats';
 
   const ATTRS: { key: keyof UnitStats; label: string; effect: string }[] = [
