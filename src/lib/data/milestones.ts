@@ -37,7 +37,7 @@ export const MILESTONES: Milestone[] = [
       clock.firedMilestones.includes('bacteria-invasion') &&
       !hasCard(boards, 'invasion-bacteria') &&
       !hasCard(boards, 'bacteria'),
-    unlockRecipeIds: ['build-train-st', 'build-train-en', 'make-uni-kit', 'build-drill'],
+    unlockRecipeIds: ['make-uni-kit', 'build-drill'],
   },
   {
     id: 'workbench',
@@ -91,7 +91,7 @@ export const MILESTONES: Milestone[] = [
   {
     id: 'first-computronium',
     condition: ({ boards }) => hasCard(boards, 'computronium'),
-    unlockRecipeIds: ['build-train-in', 'make-laser-cannon'],
+    unlockRecipeIds: ['make-laser-cannon'],
   },
   {
     id: 'first-unobtanium',
@@ -108,14 +108,6 @@ export const MILESTONES: Milestone[] = [
     condition: ({ boards }) => hasCard(boards, 'reactor'),
     unlockRecipeIds: ['make-wishalloy'],
   },
-  {
-    id: 'first-unobtainium',
-    condition: ({ boards }) => hasCard(boards, 'unobtainium'),
-    unlockRecipeIds: ['build-train-pe'],
-  },
-  {
-    id: 'first-wishalloy',
-    condition: ({ boards }) => hasCard(boards, 'wishalloy'),
-    unlockRecipeIds: ['build-train-lk'],
-  },
 ];
+
+// TODO: add back build-train-{st,en,in,pe,lk} and also -ag.
