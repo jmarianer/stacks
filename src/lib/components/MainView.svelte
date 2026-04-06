@@ -167,7 +167,6 @@
     const realNow = performance.now();
     gameState.clock.vTimeAt = realNow;
     gameState.clock.endOfSol = false;
-    gameState.clock.endOfSolAt = null;
     gameState.clock.sol++;
     gameState.clock.solStartTime = gameState.clock.vTime;
   }

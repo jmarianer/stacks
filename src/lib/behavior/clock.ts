@@ -123,6 +123,5 @@ export function tickClock(gameState: GameState, realNow: number): void {
     clock.vTime = now;
     clock.vTimeAt = realNow;
     clock.endOfSol = true;
-    clock.endOfSolAt = realNow;
   }
 }

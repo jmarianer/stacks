@@ -46,7 +46,6 @@ export type Clock = {
   sol: number;
   solStartTime: number | null;
   endOfSol: boolean;
-  endOfSolAt: number | null;
   lastSolFeeds: BoardFeedResult[];
   speed: number; // 0 = paused, 1/2/3 = active speed multiplier
   lastActiveSpeed: number;

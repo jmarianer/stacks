@@ -88,7 +88,6 @@ export function makeClock(): Clock {
     sol: 1,
     solStartTime: null,
     endOfSol: false,
-    endOfSolAt: null,
     lastSolFeeds: [],
     speed: 1,
     lastActiveSpeed: 1,
