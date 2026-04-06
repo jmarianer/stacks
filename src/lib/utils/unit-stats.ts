@@ -24,9 +24,9 @@ function statSum(stats: UnitStats): number {
 }
 
 export function maxBandAids(stats: UnitStats): number {
-  return Math.floor(statSum(stats) / 10 + 1);
+  return Math.floor(statSum(stats) / 5 + 1);
 }
 
 export function maxUniKits(stats: UnitStats): number {
-  return Math.floor(statSum(stats) / 5 + 1);
+  return Math.floor(statSum(stats) / 10 + 1);
 }
