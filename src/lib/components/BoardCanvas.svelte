@@ -1,7 +1,13 @@
 <script lang="ts">
   import type { Board, Stack } from '$lib/types/game-state';
   import { CARD_CATALOG } from '$lib/data/card-defs';
-  import { CARD_W, CARD_H, FOUNDATION_X_GAP, FOUNDATION_Y_GAP, GLOW_DURATION_MS } from '$lib/data/constants';
+  import {
+    CARD_W,
+    CARD_H,
+    FOUNDATION_X_GAP,
+    FOUNDATION_Y_GAP,
+    GLOW_DURATION_MS,
+  } from '$lib/data/constants';
   import type { SvelteMap } from 'svelte/reactivity';
 
   export type AttackPair = {
