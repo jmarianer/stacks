@@ -19,23 +19,17 @@
 
 ## Bugs
 
-- Save+restore resets to the beginning of the current sol. Also fucks up running receipes somehow.
-- I think tombstones can attack enemies :o
+- Check if tombstones can attack enemies. They shouldn't be able to, of course.
 - No way to remove routes now
 
 ## Gameplay
 
 - Can't see new worlds until teleported at least once?
 - Deactivate physics for noncombatants. Combat takes place on a higher plane or something
-- Increase fists distance (fistance) a bit so that bacteria can attack vertically
 - Maybe training should be a later-game thing? Not sure.
 - Stat limits
-- The number of band-aids is too damn low. Probably got that and unikits backwards.
 - Use bandaids and unikits outside of combat
-- The currency mechanism isn't working anymore, since there's only one thing to buy and it's crust chunks. Maybe a new mechanism based on time to mine? This is only useful before you get drill/rover. idk... need to think about this.
-  - Idea: add a pickaxe. Astronaut+pickaxe = crust chunk but it takes a while. Very early game recipe for a better pickaxe (before the whole thing gets replaced by a drill and then a rover)
 - Unrelated idea: tech tree + research to replace milestones? (Obv doesn't replace the milestones that are enemy attacks)
-- What to do with a route that isn't matched?
 - Astronauts shouldn't go back to their posts immediately at the end of combat. It's too jarring. Either just stay put or go back slowly.
 - Attacks from rover and drill should be harder. Thought: rover = alien, drill = alien bug. See old game for stats.
 - Alien bug attack first time going to the eggs world. (should be a miniboss battle, harder than the alien from the drill)
