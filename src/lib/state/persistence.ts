@@ -2,6 +2,7 @@ import type { GameState } from '$lib/types/game-state';
 import { gameState, setGameState } from '$lib/state/game-state.svelte';
 import { setNextId, makeClock } from '$lib/utils/card-factories';
 import { initialBoards, initialKnownRecipeIds } from '$lib/data/initial-boards';
+import { setSpeed } from '$lib/behavior/clock';
 
 const SAVE_KEY = 'stacks-autosave';
 export const SAVE_INTERVAL_MS = 5000;
@@ -40,6 +41,7 @@ export function applySave(save: GameState): void {
 }
 
 export function saveState(): void {
+  setSpeed(gameState.clock, gameState.clock.speed);
   localStorage.setItem(SAVE_KEY, JSON.stringify(gameState));
 }
 
