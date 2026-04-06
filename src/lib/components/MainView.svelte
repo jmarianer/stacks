@@ -18,8 +18,12 @@
   import { CARD_CATALOG } from '$lib/data/card-defs';
   import { getUnitWeapon } from '$lib/utils/unit-stats';
   import { initialBoards, initialKnownRecipeIds } from '$lib/data/initial-boards';
-  import { makeClock, makeStackFromCards, makeTeleportCard } from '$lib/utils/card-factories';
-  import { addCardToMatchingStack } from '$lib/utils/card-placement';
+  import {
+    makeClock,
+    makeStack,
+    makeStackFromCards,
+    makeTeleportCard,
+  } from '$lib/utils/card-factories';
   import { tick as tickPhysics } from '$lib/behavior/physics';
   import { tick as tickProgress, checkMilestones } from '$lib/behavior/progress';
   import { runCombat, getCombatUnits, nearestCombatant } from '$lib/behavior/combat';
@@ -215,7 +219,7 @@
     if (currentBoard.currency < item.price) return;
     currentBoard.currency -= item.price;
     const pos = { x: currentBoard.width / 2, y: currentBoard.height / 2 };
-    addCardToMatchingStack(currentBoard.stacks, item.cardType, pos);
+    currentBoard.stacks.push(makeStack(pos, [item.cardType]));
   }
 
   $effect(() => {

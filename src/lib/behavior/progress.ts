@@ -9,10 +9,10 @@ import {
   makeCardOfType,
   makeIdeaCard,
   makeReviveCard,
+  makeStack,
   makeStackFromCards,
   makeTeleportCard,
 } from '$lib/utils/card-factories';
-import { addCardToMatchingStack } from '$lib/utils/card-placement';
 import type { Recipe } from '$lib/types/recipe-types';
 import { maxBandAids, maxUniKits } from '$lib/utils/unit-stats';
 import type { GameState } from '$lib/types/game-state';
@@ -103,7 +103,7 @@ function dropCard(type: string, stacks: Stack[], pos: Vec2, connections: Connect
       }
     }
   }
-  addCardToMatchingStack(stacks, type, pos);
+  stacks.push(makeStack(pos, [type]));
 }
 
 function applyCardOutputs(results: RecipeResult[], board: Board, stack: Stack): void {
@@ -259,10 +259,9 @@ export function checkMilestones(gameState: GameState, currentBoard: Board): void
       );
     }
     for (const card of milestone.createCards ?? []) {
-      addCardToMatchingStack(currentBoard.stacks, card, {
-        x: currentBoard.width / 2,
-        y: currentBoard.height / 2,
-      });
+      currentBoard.stacks.push(
+        makeStack({ x: currentBoard.width / 2, y: currentBoard.height / 2 }, [card]),
+      );
     }
   }
 }
