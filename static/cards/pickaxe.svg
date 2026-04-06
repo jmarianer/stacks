@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- Handle -->
+  <rect x="230" y="200" width="36" height="260" rx="10" fill="#8B5E3C" stroke="#5a3a1a" stroke-width="6"/>
+  <!-- Head -->
+  <path d="M 120,80 C 80,60 60,120 100,150 L 240,210 L 260,170 Z" fill="#78909C" stroke="#455A64" stroke-width="6" stroke-linejoin="round"/>
+  <!-- Pick tip -->
+  <path d="M 380,100 C 430,60 460,130 420,160 L 265,210 L 245,170 Z" fill="#90A4AE" stroke="#455A64" stroke-width="6" stroke-linejoin="round"/>
+</svg>

@@ -17,6 +17,16 @@ export const recipes: Recipe[] = [
     ],
   },
   {
+    id: 'mine-crust-chunk',
+    label: 'Mine Crust Chunk',
+    time: 15000,
+    ingredients: [
+      { match: 'pickaxe', consumed: false },
+      { match: 'people', consumed: false },
+    ],
+    results: [{ action: 'card', card: 'crust-chunk' }],
+  },
+  {
     id: 'punch-plasteel-deposit',
     label: 'Mine Plasteel Deposit',
     time: 3000,

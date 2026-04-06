@@ -27,6 +27,7 @@ export const CARD_CATALOG: Record<string, CardDef> = {
   },
   computronium: { title: 'Computronium', image: 'computronium.svg', color: '#3F51B5', value: 10 },
   'crust-chunk': { title: 'Crust Chunk', image: 'crust-chunk.svg', color: '#8B7355', value: 1 },
+  pickaxe: { title: 'Pickaxe', image: 'pickaxe.svg', color: '#78909C' },
   'dark-matter': { title: 'Dark Matter', image: 'dark-matter.svg', color: '#4A148C', value: 15 },
   'dark-matter-chunk': {
     title: 'Dark Matter Chunk',

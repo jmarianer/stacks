@@ -4,6 +4,7 @@ import { makeBoard, makeStack } from '$lib/utils/card-factories';
 /** Recipe IDs known at the start of a new game. */
 export const initialKnownRecipeIds: string[] = [
   'punch-crust-chunk',
+  'mine-crust-chunk',
   'punch-plasteel-deposit',
   'punch-fossil-regolith',
   'make-energy-cell',
@@ -16,13 +17,14 @@ export const initialBoards: Board[] = [
     'Base',
     [
       makeStack({ x: 20, y: 42 }, ['astronaut']),
+      makeStack({ x: 44, y: 42 }, ['pickaxe']),
       makeStack({ x: 68, y: 42 }, ['crust-chunk', 'crust-chunk', 'crust-chunk', 'crust-chunk']),
       makeStack({ x: 116, y: 42 }, ['energy-cell', 'energy-cell', 'energy-cell']),
     ],
     176,
     112,
     0,
-    [{ cardType: 'crust-chunk', price: 3, label: 'Crust Chunk', color: '#8B7355' }],
+    [],
     true, // discovered
   ),
   makeBoard(
