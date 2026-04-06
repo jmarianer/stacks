@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { Board, Stack } from '$lib/types/game-state';
   import { CARD_CATALOG } from '$lib/data/card-defs';
-  import { CARD_W, CARD_H, CARD_GAP, GLOW_DURATION_MS } from '$lib/data/constants';
+  import { CARD_W, CARD_H, FOUNDATION_X_GAP, FOUNDATION_Y_GAP, GLOW_DURATION_MS } from '$lib/data/constants';
   import type { SvelteMap } from 'svelte/reactivity';
 
   export type AttackPair = {
@@ -143,8 +143,8 @@
 </svg>
 
 {#if isDraggingFoundation}
-  {@const gx = CARD_W + CARD_GAP}
-  {@const gy = CARD_H + CARD_GAP}
+  {@const gx = CARD_W + FOUNDATION_X_GAP}
+  {@const gy = CARD_H + FOUNDATION_Y_GAP}
   <svg
     class="foundation-grid"
     viewBox="0 0 {board.width} {board.height}"
@@ -152,9 +152,9 @@
   >
     {#each Array.from({ length: Math.ceil(board.width / gx) - 1 }, (_, i) => (i + 1) * gx) as x (x)}
       <line
-        x1={x + CARD_GAP / 2}
+        x1={x + FOUNDATION_X_GAP / 2}
         y1="0"
-        x2={x + CARD_GAP / 2}
+        x2={x + FOUNDATION_X_GAP / 2}
         y2={board.height}
         stroke="white"
         stroke-width="0.3"
@@ -165,9 +165,9 @@
     {#each Array.from({ length: Math.ceil(board.height / gy) - 1 }, (_, i) => (i + 1) * gy) as y (y)}
       <line
         x1="0"
-        y1={y + CARD_GAP / 2}
+        y1={y + FOUNDATION_Y_GAP / 2}
         x2={board.width}
-        y2={y + CARD_GAP / 2}
+        y2={y + FOUNDATION_Y_GAP / 2}
         stroke="white"
         stroke-width="0.3"
         stroke-dasharray="1 1"

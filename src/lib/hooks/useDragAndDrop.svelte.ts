@@ -6,7 +6,8 @@ import {
   CARD_W,
   CARD_H,
   DROP_TARGET_INSET,
-  CARD_GAP,
+  FOUNDATION_X_GAP,
+  FOUNDATION_Y_GAP,
 } from '$lib/data/constants';
 import type { Stack } from '$lib/types/game-state';
 
@@ -49,9 +50,10 @@ export function useDragAndDrop(boardMouse: () => { x: number; y: number }) {
     // Grid-snap stacks based on a foundation card
     if (dragging.cards[0]?.type === 'foundation') {
       dragging.pos.x =
-        Math.round(dragging.pos.x / (CARD_W + CARD_GAP)) * (CARD_W + CARD_GAP) + CARD_GAP;
+        Math.round(dragging.pos.x / (CARD_W + FOUNDATION_X_GAP)) * (CARD_W + FOUNDATION_X_GAP) + FOUNDATION_X_GAP;
       dragging.pos.y =
-        Math.round(dragging.pos.y / (CARD_H + CARD_GAP)) * (CARD_H + CARD_GAP) + CARD_GAP;
+        Math.round(dragging.pos.y / (CARD_H + FOUNDATION_Y_GAP)) * (CARD_H + FOUNDATION_Y_GAP) +
+        FOUNDATION_Y_GAP;
     }
 
     const target = dropTargetId !== null ? stacks.find((s) => s.id === dropTargetId) : null;
