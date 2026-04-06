@@ -65,7 +65,7 @@ export function matchRecipe(stack: Stack, knownRecipeIds: string[]): Recipe | nu
   for (const result of best.recipe.results) {
     if (result.action === 'equip-weapon') {
       if (!unit) return null;
-      const slots = CARD_CATALOG[unit.type].weaponSlots ?? 0;
+      const slots = CARD_CATALOG[unit.type].playerUnit?.weaponSlots ?? 0;
       if ((unit.weaponInventory?.length ?? 0) >= slots) return null;
     }
     if (result.action === 'equip-band-aid') {

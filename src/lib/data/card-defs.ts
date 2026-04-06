@@ -82,12 +82,14 @@ export const CARD_CATALOG: Record<string, CardDef> = {
     title: 'Astronaut',
     image: 'astronaut.svg',
     color: '#5C85B4',
-    unitStats: { endurance: 1, strength: 1, perception: 1, intelligence: 1, agility: 1, luck: 1 },
     groups: ['people'],
-    weapon: { damage: 5, damageType: 'impact', attackInterval: 2.0, range: 35 },
     feed: { cost: 2, priority: 2 },
-    weaponSlots: 3,
-    speed: 20,
+    playerUnit: {
+      unitStats: { endurance: 1, strength: 1, perception: 1, intelligence: 1, agility: 1, luck: 1 },
+      weapon: { damage: 5, damageType: 'impact', attackInterval: 2.0, range: 35 },
+      weaponSlots: 3,
+      speed: 20,
+    },
   },
   'service-drone-1': {
     title: 'Service Drone',
@@ -113,16 +115,15 @@ export const CARD_CATALOG: Record<string, CardDef> = {
         health: 16,
       },
       weapon: { damage: 5, damageType: 'impact', attackInterval: 0.9, range: 35 },
+      speed: 12,
+      regen: 2,
       loot: [{ action: 'card', card: 'biomass' }],
     },
-    speed: 12,
-    regen: 2,
   },
   'space-mouse': {
     title: 'Space Mouse',
     image: 'space-mouse.svg',
     color: '#795548',
-    speed: 12,
     enemy: {
       unitStats: {
         endurance: 2,
@@ -134,6 +135,7 @@ export const CARD_CATALOG: Record<string, CardDef> = {
         health: 50,
       },
       weapon: { damage: 3, damageType: 'impact', attackInterval: 1.2, range: 35 },
+      speed: 12,
       loot: [{ action: 'weighted', cards: { biomass: 2, 'crust-chunk': 1 } }],
     },
   },
@@ -189,7 +191,7 @@ export const CARD_CATALOG: Record<string, CardDef> = {
     color: '#1565C0',
     value: 8,
     groups: ['weapon'],
-    weapon: { damage: 10, damageType: 'energy', attackInterval: 1.5, range: 80 },
+    weaponStats: { damage: 10, damageType: 'energy', attackInterval: 1.5, range: 80 },
   },
   bolter: {
     title: 'Bolter',
@@ -197,7 +199,7 @@ export const CARD_CATALOG: Record<string, CardDef> = {
     color: '#546E7A',
     value: 10,
     groups: ['weapon'],
-    weapon: { damage: 15, damageType: 'impact', attackInterval: 2.0, range: 100 },
+    weaponStats: { damage: 15, damageType: 'impact', attackInterval: 2.0, range: 100 },
   },
   'bolter-heavy': {
     title: 'Heavy Bolter',
@@ -205,7 +207,7 @@ export const CARD_CATALOG: Record<string, CardDef> = {
     color: '#37474F',
     value: 15,
     groups: ['weapon'],
-    weapon: { damage: 25, damageType: 'impact', attackInterval: 3.0, range: 100 },
+    weaponStats: { damage: 25, damageType: 'impact', attackInterval: 3.0, range: 100 },
   },
   minigun: {
     title: 'Minigun',
@@ -213,7 +215,7 @@ export const CARD_CATALOG: Record<string, CardDef> = {
     color: '#FF6F00',
     value: 20,
     groups: ['weapon'],
-    weapon: { damage: 8, damageType: 'impact', attackInterval: 0.5, range: 140 },
+    weaponStats: { damage: 8, damageType: 'impact', attackInterval: 0.5, range: 140 },
   },
   'laser-cannon': {
     title: 'Laser Cannon',
@@ -221,7 +223,7 @@ export const CARD_CATALOG: Record<string, CardDef> = {
     color: '#00BCD4',
     value: 25,
     groups: ['weapon'],
-    weapon: { damage: 40, damageType: 'energy', attackInterval: 4.0, range: 160 },
+    weaponStats: { damage: 40, damageType: 'energy', attackInterval: 4.0, range: 160 },
   },
 };
 

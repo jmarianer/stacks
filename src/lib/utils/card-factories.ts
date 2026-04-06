@@ -14,8 +14,8 @@ export function makeCardOfType(type: CardType): CardData {
   let unitStats: UnitStats | undefined;
   if (def.enemy) {
     unitStats = { ...def.enemy.unitStats };
-  } else if (def.unitStats) {
-    unitStats = { ...def.unitStats, health: hpMaxFromStats(def.unitStats) };
+  } else if (def.playerUnit) {
+    unitStats = { ...def.playerUnit.unitStats, health: hpMaxFromStats(def.playerUnit.unitStats) };
   }
   return {
     id: nextId++,

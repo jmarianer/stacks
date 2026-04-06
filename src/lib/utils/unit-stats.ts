@@ -7,9 +7,9 @@ export function getUnitWeapon(card: CardData): WeaponStats | undefined {
   if (card.weaponInventory && card.weaponInventory.length > 0) {
     const activeType = card.weaponInventory[card.weaponInventory.length - 1];
     const def = CARD_CATALOG[activeType];
-    if (def.weapon) return def.weapon;
+    if (def.weaponStats) return def.weaponStats;
   }
-  return CARD_CATALOG[card.type].weapon;
+  return CARD_CATALOG[card.type].playerUnit?.weapon;
 }
 
 function statSum(stats: UnitStats): number {

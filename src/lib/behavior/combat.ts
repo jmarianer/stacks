@@ -66,7 +66,7 @@ function moveUnit(
   now: number,
 ): void {
   const def = CARD_CATALOG[unit.card.type] as CardDef;
-  const speed = def.speed ?? 0;
+  const speed = def.playerUnit?.speed ?? def.enemy?.speed ?? 0;
   if (speed === 0) return;
 
   const state = gameState.combatState[unit.card.id];
@@ -141,13 +141,13 @@ export function runCombat(board: Board, gameState: GameState, now: number): void
   // Regen and movement
   for (const enemy of enemyUnits) {
     const def = CARD_CATALOG[enemy.card.type] as CardDef;
-    if (def.regen) {
+    if (def.enemy?.regen) {
       const state = gameState.combatState[enemy.card.id];
       const delta =
         state?.lastMoveAt !== undefined ? Math.min((now - state.lastMoveAt) / 1000, 0.1) : 0;
       const hpMax = hpMaxFromStats(enemy.card.unitStats!);
       enemy.card.unitStats!.health = Math.min(
-        enemy.card.unitStats!.health + def.regen * delta,
+        enemy.card.unitStats!.health + def.enemy.regen * delta,
         hpMax,
       );
     }
