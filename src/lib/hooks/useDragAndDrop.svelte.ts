@@ -110,6 +110,21 @@ export function useDragAndDrop(boardMouse: () => { x: number; y: number }) {
     get dropTargetId() {
       return dropTargetId;
     },
+    get foundationSnapPos(): { x: number; y: number } | null {
+      if (draggingId === null || dropTargetId !== null) return null;
+      const dragging = gameState.boards[gameState.currentBoardIndex].stacks.find(
+        (s) => s.id === draggingId,
+      );
+      if (!dragging || dragging.cards[0]?.type !== 'foundation') return null;
+      return {
+        x:
+          Math.round(dragging.pos.x / (CARD_W + FOUNDATION_X_GAP)) * (CARD_W + FOUNDATION_X_GAP) +
+          FOUNDATION_X_GAP,
+        y:
+          Math.round(dragging.pos.y / (CARD_H + FOUNDATION_Y_GAP)) * (CARD_H + FOUNDATION_Y_GAP) +
+          FOUNDATION_Y_GAP,
+      };
+    },
     handleDragStart,
     handleDragEnd,
     updateDropTargets,

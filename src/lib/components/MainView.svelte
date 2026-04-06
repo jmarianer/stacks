@@ -288,6 +288,7 @@
         {pendingFilterConn}
         {realNow}
         {isDraggingFoundation}
+        foundationSnapPos={dnd.foundationSnapPos}
       />
 
       {#each renderedCards as { cardData, stack, cardIndex } (cardData.id)}

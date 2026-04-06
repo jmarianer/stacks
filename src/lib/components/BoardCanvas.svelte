@@ -23,6 +23,7 @@
     pendingFilterConn,
     realNow,
     isDraggingFoundation,
+    foundationSnapPos,
   }: {
     board: Board;
     attackPairs: SvelteMap<number, AttackPair>;
@@ -32,6 +33,7 @@
     pendingFilterConn: { fromId: number; toId: number } | null;
     realNow: number;
     isDraggingFoundation: boolean;
+    foundationSnapPos: { x: number; y: number } | null;
   } = $props();
 
   const stackById = $derived(new Map(board.stacks.map((s) => [s.id, s])));
@@ -174,6 +176,17 @@
         opacity="0.25"
       />
     {/each}
+    {#if foundationSnapPos}
+      <rect
+        x={foundationSnapPos.x}
+        y={foundationSnapPos.y}
+        width={CARD_W}
+        height={CARD_H}
+        fill="black"
+        opacity="0.25"
+        rx="1"
+      />
+    {/if}
   </svg>
 {/if}
 
