@@ -20,8 +20,6 @@ export type UnitStats = {
   agility: number;
   luck: number;
   health: number;
-  /** Last combat attack timestamp (vTime), for cooldown tracking. */
-  lastAttackAt?: number;
   /** Damage resistances 0–100 (percentage reduction). */
   resist?: Partial<Record<DamageType, number>>;
 };
@@ -32,7 +30,7 @@ export function hpMaxFromStats(stats: Pick<UnitStats, 'endurance'>): number {
 
 export type PlayerUnitDef = {
   /** Base stats (health computed from endurance at card creation). */
-  unitStats: Omit<UnitStats, 'health' | 'lastAttackAt'>;
+  unitStats: Omit<UnitStats, 'health'>;
   /** Built-in weapon (fists, etc.), used when no equipped weapon is active. */
   weapon: WeaponStats;
   /** Movement speed in vmin/second during combat. */
@@ -45,7 +43,7 @@ export type PlayerUnitDef = {
 
 export type EnemyDef = {
   /** Base stats for this enemy type. */
-  unitStats: Omit<UnitStats, 'lastAttackAt'>;
+  unitStats: UnitStats;
   /** Enemies only have their built-in weapon. */
   weapon: WeaponStats;
   /** Movement speed in vmin/second during combat. */

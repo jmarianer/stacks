@@ -3,11 +3,13 @@
   import { CARD_W, CARD_H } from '$lib/data/constants';
   import { CARD_CATALOG } from '$lib/data/card-defs';
   import type { CardData } from '$lib/types/game-state';
+  import type { CombatCardState } from '$lib/behavior/combat';
   import { hpMaxFromStats } from '$lib/types/card-types';
   import { getUnitWeapon } from '$lib/utils/unit-stats';
 
   let {
     cardData,
+    combatState,
     top,
     left,
     isDropTarget = false,
@@ -19,6 +21,7 @@
     onContextMenu,
   }: {
     cardData: CardData;
+    combatState?: CombatCardState;
     top: number;
     left: number;
     isDropTarget?: boolean;
@@ -47,11 +50,11 @@
   const hpColor = $derived(hpPct > 0.6 ? '#4CAF50' : hpPct > 0.3 ? '#FFC107' : '#F44336');
 
   const cdPct = $derived.by(() => {
-    const stats = cardData.unitStats;
-    if (!stats || stats.lastAttackAt === undefined) return null;
+    if (!cardData.unitStats || combatState?.lastAttackAt === undefined) return null;
     const weapon = def.enemy ? def.enemy.weapon : getUnitWeapon(cardData);
     if (!weapon) return null;
-    return Math.min(1, (vTime - stats.lastAttackAt) / (weapon.attackInterval * 1000));
+    // TODO: Use "effective" attack interval that accounts for attack speed modifiers
+    return Math.min(1, (vTime - combatState.lastAttackAt) / (weapon.attackInterval * 1000));
   });
 </script>
 

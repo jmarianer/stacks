@@ -59,7 +59,6 @@ describe('runCombat — strength increases damage', () => {
       const playerStack = makeStack({ x: 50, y: 10 }, ['astronaut']);
       const enemyStack = makeStack({ x: 50, y: 20 }, ['bacteria']);
       playerStack.cards[0].unitStats!.strength = strength;
-      playerStack.cards[0].unitStats!.lastAttackAt = undefined;
       board.stacks.push(playerStack, enemyStack);
       const gs = makeTestGameState(board);
       const hpBefore = enemyStack.cards[0].unitStats!.health;
@@ -115,7 +114,6 @@ describe('runCombat — perception grants dodge', () => {
     const enemyStack = makeStack({ x: 50, y: 20 }, ['bacteria']);
     // bacteria attacks the player; give player high perception to dodge
     playerStack.cards[0].unitStats!.perception = 34;
-    playerStack.cards[0].unitStats!.lastAttackAt = undefined;
     board.stacks.push(playerStack, enemyStack);
     const gs = makeTestGameState(board);
     const playerHpBefore = playerStack.cards[0].unitStats!.health;

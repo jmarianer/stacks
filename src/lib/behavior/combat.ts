@@ -18,6 +18,7 @@ import type { GameState } from '$lib/types/game-state';
 export type CombatCardState = {
   homeStackId: number;
   lastMoveAt?: number;
+  lastAttackAt?: number;
   healAt?: number;
 };
 
@@ -187,10 +188,16 @@ export function runCombat(board: Board, gameState: GameState, now: number): void
     const target = nearestCombatant(attacker.stack.pos, live, weapon.range);
     if (!target) return;
 
+    const combatState = gameState.combatState[attacker.card.id];
+
     // Cooldown: agility above 1 = 10% faster per point
     const effectiveInterval =
       (weapon.attackInterval * 1000) / (1 + Math.max(0, stats.agility - 1) * 0.1);
-    if (stats.lastAttackAt !== undefined && now - stats.lastAttackAt < effectiveInterval) return;
+    if (
+      combatState?.lastAttackAt !== undefined &&
+      now - combatState.lastAttackAt < effectiveInterval
+    )
+      return;
 
     // Strength increases damage: each point above 1 = +10%
     let damage = weapon.damage * (1 + Math.max(0, stats.strength - 1) * 0.1);
@@ -199,7 +206,7 @@ export function runCombat(board: Board, gameState: GameState, now: number): void
     if (Math.random() * 100 < Math.max(0, stats.luck - 1) * 2) damage *= 2;
 
     const targetStats = target.card.unitStats!;
-    stats.lastAttackAt = now;
+    if (combatState) combatState.lastAttackAt = now;
 
     // Target perception → dodge: each point above 1 = +3% dodge chance
     if (Math.random() * 100 < Math.max(0, targetStats.perception - 1) * 3) return;

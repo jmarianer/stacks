@@ -64,12 +64,13 @@
 
     if (playerUnits.length > 0 && enemyUnits.length > 0) {
       for (const unit of playerUnits) {
-        if (!(unit.card.id in gameState.combatState)) continue;
+        const cs = gameState.combatState[unit.card.id];
+        if (!cs) continue;
         const weapon = getUnitWeapon(unit.card);
         if (!weapon) continue;
         const target = nearestCombatant(unit.stack.pos, enemyUnits, weapon.range);
         if (!target) continue;
-        const lastAttackAtVtime = unit.card.unitStats?.lastAttackAt ?? -Infinity;
+        const lastAttackAtVtime = cs.lastAttackAt ?? -Infinity;
         const existing = attackPairs.get(unit.stack.id);
         const lastAttackAtReal =
           lastAttackAtVtime !== existing?.lastAttackAtVtime
@@ -85,11 +86,12 @@
       }
 
       for (const unit of enemyUnits) {
+        const cs = gameState.combatState[unit.card.id];
         const weapon = (CARD_CATALOG[unit.card.type] as CardDef).enemy?.weapon;
         if (!weapon) continue;
         const target = nearestCombatant(unit.stack.pos, playerUnits, weapon.range);
         if (!target) continue;
-        const lastAttackAtVtime = unit.card.unitStats?.lastAttackAt ?? -Infinity;
+        const lastAttackAtVtime = cs?.lastAttackAt ?? -Infinity;
         const existing = attackPairs.get(unit.stack.id);
         const lastAttackAtReal =
           lastAttackAtVtime !== existing?.lastAttackAtVtime
@@ -297,6 +299,7 @@
       {#each renderedCards as { cardData, stack, cardIndex } (cardData.id)}
         <Card
           {cardData}
+          combatState={gameState.combatState[cardData.id]}
           top={stack.pos.y + cardIndex * STACK_CARD_OFFSET_Y}
           left={stack.pos.x + cardIndex * STACK_CARD_OFFSET_X}
           isDropTarget={dnd.dropTargetId === stack.id && cardIndex === stack.cards.length - 1}
