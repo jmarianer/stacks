@@ -2,8 +2,9 @@ import {
   CARD_W,
   CARD_H,
   HEAL_COOLDOWN_MS,
-  HEAL_HP_THRESHOLD,
-  REGEN_HP_THRESHOLD,
+  FLEE_HP_THRESHOLD,
+  UNIKIT_HP_THRESHOLD,
+  BANDAID_HP_THRESHOLD,
 } from '$lib/data/constants';
 import type { Stack, Board, CardData } from '$lib/types/game-state';
 import { hpMaxFromStats, type CardDef } from '$lib/types/card-types';
@@ -87,7 +88,7 @@ function moveUnit(
   const dist = Math.sqrt(dx * dx + dy * dy);
   if (dist < 0.01) return;
 
-  const shouldFlee = !def.enemy && hpPct < HEAL_HP_THRESHOLD;
+  const shouldFlee = !def.enemy && hpPct < FLEE_HP_THRESHOLD;
   const inRange = weapon !== undefined && dist <= weapon.range;
   if (!shouldFlee && inRange) return;
 
@@ -156,19 +157,19 @@ export function runCombat(board: Board, gameState: GameState, now: number): void
   }
 
   for (const unit of playerUnits) {
-    // Use band-aid (≤50% HP) or uni-kit (≤90% HP), with a 3s cooldown
+    // Use uni-kit (≤50% HP, full heal) or band-aid (≤90% HP, partial heal), with a 3s cooldown
     const stats = unit.card.unitStats!;
     const hpMax = hpMaxFromStats(stats);
     const hpPct = stats.health / hpMax;
     const state = gameState.combatState[unit.card.id];
     const healReady = state?.healAt === undefined || now - state.healAt >= HEAL_COOLDOWN_MS;
-    if (healReady && hpPct <= HEAL_HP_THRESHOLD && (unit.card.bandAids ?? 0) > 0) {
-      stats.health = Math.min(stats.health + 25, hpMax);
-      unit.card.bandAids!--;
-      if (state) state.healAt = now;
-    } else if (healReady && hpPct <= REGEN_HP_THRESHOLD && (unit.card.uniKits ?? 0) > 0) {
+    if (healReady && hpPct <= UNIKIT_HP_THRESHOLD && (unit.card.uniKits ?? 0) > 0) {
       stats.health = hpMax;
       unit.card.uniKits!--;
+      if (state) state.healAt = now;
+    } else if (healReady && hpPct <= BANDAID_HP_THRESHOLD && (unit.card.bandAids ?? 0) > 0) {
+      stats.health = Math.min(stats.health + 25, hpMax);
+      unit.card.bandAids!--;
       if (state) state.healAt = now;
     }
     moveUnit(unit, enemyUnits, board, gameState, now);
