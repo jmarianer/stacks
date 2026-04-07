@@ -19,7 +19,6 @@
 
 ## Bugs
 
-- Check if tombstones can attack enemies. They shouldn't be able to, of course.
 - No way to remove routes now
 
 ## Gameplay

@@ -123,24 +123,3 @@ describe('runCombat — perception grants dodge', () => {
     expect(playerCard?.unitStats?.health).toBe(playerHpBefore);
   });
 });
-
-// TODO: Eventually we should stop returning home
-describe('runCombat — units return home when enemies are gone', () => {
-  it('player units rejoin their home stacks after the last enemy dies', () => {
-    vi.spyOn(Math, 'random').mockReturnValue(0);
-
-    const board = makeBoard('test', [], 100, 100);
-    // Include a non-unit card so the home stack survives after the astronaut detaches
-    const homeStack = makeStack({ x: 50, y: 10 }, ['plasteel', 'astronaut']);
-    const enemyStack = makeStack({ x: 50, y: 20 }, ['bacteria']);
-    // Give astronaut enough strength to one-shot the bacterium
-    homeStack.cards[1].unitStats!.strength = 100;
-    board.stacks.push(homeStack, enemyStack);
-    const gs = makeTestGameState(board);
-
-    runCombat(board, gs, 0); // detach astronaut into its own combat stack + attack
-    runCombat(board, gs, 5000); // enemy dies → astronaut returns home
-
-    expect(homeStack.cards.find((c) => c.type === 'astronaut')).toBeDefined();
-  });
-});

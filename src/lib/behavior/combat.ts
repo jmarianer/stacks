@@ -17,7 +17,6 @@ import { applyResults } from '$lib/behavior/progress';
 import type { GameState } from '$lib/types/game-state';
 
 export type CombatCardState = {
-  homeStackId: number;
   lastMoveAt?: number;
   lastAttackAt?: number;
   healAt?: number;
@@ -53,6 +52,7 @@ export function getCombatUnits(board: Board): {
   for (const stack of board.stacks) {
     for (const card of stack.cards) {
       if (!card.unitStats) continue;
+      if (card.tombstoneOf) continue;
       if ((CARD_CATALOG[card.type] as CardDef).enemy) enemyUnits.push({ card, stack });
       else playerUnits.push({ card, stack });
     }
@@ -110,29 +110,12 @@ function moveUnit(
 
 export function runCombat(board: Board, gameState: GameState, now: number): void {
   const { playerUnits, enemyUnits } = getCombatUnits(board);
-
-  // Return player units to home stacks when combat ends
-  if (enemyUnits.length === 0) {
-    for (const unit of playerUnits) {
-      const state = gameState.combatState[unit.card.id];
-      if (state === undefined) continue;
-      const homeStack = board.stacks.find((s) => s.id === state.homeStackId);
-      if (homeStack) {
-        unit.stack.cards = unit.stack.cards.filter((c) => c.id !== unit.card.id);
-        homeStack.cards.push(unit.card);
-      }
-      delete gameState.combatState[unit.card.id];
-    }
-    board.stacks = board.stacks.filter((s) => s.cards.length > 0);
-    return;
-  }
-
-  if (playerUnits.length === 0) return;
+  if (enemyUnits.length === 0 || playerUnits.length === 0) return;
 
   // Detach player units entering combat for the first time
   const toDetach = playerUnits.filter((u) => !(u.card.id in gameState.combatState));
   for (const unit of toDetach) {
-    gameState.combatState[unit.card.id] = { homeStackId: unit.stack.id };
+    gameState.combatState[unit.card.id] = {};
     unit.stack.cards = unit.stack.cards.filter((c) => c.id !== unit.card.id);
     const combatStack = makeStackFromCards({ ...unit.stack.pos }, [unit.card]);
     board.stacks.push(combatStack);
