@@ -42,8 +42,8 @@ export type PlayerUnitDef = {
 };
 
 export type EnemyDef = {
-  /** Base stats for this enemy type. */
-  unitStats: UnitStats;
+  /** Base stats for this enemy type (health computed from endurance at card creation). */
+  unitStats: Omit<UnitStats, 'health'>;
   /** Enemies only have their built-in weapon. */
   weapon: WeaponStats;
   /** Movement speed in vmin/second during combat. */

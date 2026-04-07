@@ -12,11 +12,8 @@ export function setNextId(n: number) {
 export function makeCardOfType(type: CardType): CardData {
   const def: CardDef = CARD_CATALOG[type];
   let unitStats: UnitStats | undefined;
-  if (def.enemy) {
-    unitStats = { ...def.enemy.unitStats };
-  } else if (def.playerUnit) {
-    unitStats = { ...def.playerUnit.unitStats, health: hpMaxFromStats(def.playerUnit.unitStats) };
-  }
+  const unitBase = def.enemy?.unitStats ?? def.playerUnit?.unitStats;
+  if (unitBase) unitStats = { ...unitBase, health: hpMaxFromStats(unitBase) };
   return {
     id: nextId++,
     type,
