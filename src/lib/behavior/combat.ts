@@ -19,7 +19,6 @@ import type { GameState } from '$lib/types/game-state';
 export type CombatCardState = {
   lastMoveAt?: number;
   lastAttackAt?: number;
-  healAt?: number;
 };
 
 export type CombatUnit = { card: CardData; stack: Stack };
@@ -108,6 +107,27 @@ function moveUnit(
   );
 }
 
+export function runHealing(board: Board, now: number): void {
+  for (const stack of board.stacks) {
+    for (const card of stack.cards) {
+      if (!card.unitStats || card.tombstoneOf) continue;
+      const stats = card.unitStats;
+      const hpMax = hpMaxFromStats(stats);
+      const hpPct = stats.health / hpMax;
+      const healReady = card.healAt === undefined || now - card.healAt >= HEAL_COOLDOWN_MS;
+      if (healReady && hpPct <= UNIKIT_HP_THRESHOLD && (card.uniKits ?? 0) > 0) {
+        stats.health = hpMax;
+        card.uniKits!--;
+        card.healAt = now;
+      } else if (healReady && hpPct <= BANDAID_HP_THRESHOLD && (card.bandAids ?? 0) > 0) {
+        stats.health = Math.min(stats.health + 25, hpMax);
+        card.bandAids!--;
+        card.healAt = now;
+      }
+    }
+  }
+}
+
 export function runCombat(board: Board, gameState: GameState, now: number): void {
   const { playerUnits, enemyUnits } = getCombatUnits(board);
   if (enemyUnits.length === 0 || playerUnits.length === 0) return;
@@ -140,21 +160,6 @@ export function runCombat(board: Board, gameState: GameState, now: number): void
   }
 
   for (const unit of playerUnits) {
-    // Use uni-kit (≤50% HP, full heal) or band-aid (≤90% HP, partial heal), with a 3s cooldown
-    const stats = unit.card.unitStats!;
-    const hpMax = hpMaxFromStats(stats);
-    const hpPct = stats.health / hpMax;
-    const state = gameState.combatState[unit.card.id];
-    const healReady = state?.healAt === undefined || now - state.healAt >= HEAL_COOLDOWN_MS;
-    if (healReady && hpPct <= UNIKIT_HP_THRESHOLD && (unit.card.uniKits ?? 0) > 0) {
-      stats.health = hpMax;
-      unit.card.uniKits!--;
-      if (state) state.healAt = now;
-    } else if (healReady && hpPct <= BANDAID_HP_THRESHOLD && (unit.card.bandAids ?? 0) > 0) {
-      stats.health = Math.min(stats.health + 25, hpMax);
-      unit.card.bandAids!--;
-      if (state) state.healAt = now;
-    }
     moveUnit(unit, enemyUnits, board, gameState, now);
   }
 

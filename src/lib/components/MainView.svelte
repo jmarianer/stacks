@@ -26,7 +26,7 @@
   } from '$lib/utils/card-factories';
   import { tick as tickPhysics } from '$lib/behavior/physics';
   import { tick as tickProgress, checkMilestones } from '$lib/behavior/progress';
-  import { runCombat, getCombatUnits, nearestCombatant } from '$lib/behavior/combat';
+  import { runCombat, runHealing, getCombatUnits, nearestCombatant } from '$lib/behavior/combat';
   import { tickClock, getSolProgress, setSpeed, getVirtualNow } from '$lib/behavior/clock';
   import { recipes } from '$lib/data/recipes';
   import { gameState } from '$lib/state/game-state.svelte';
@@ -236,6 +236,7 @@
         checkMilestones(gameState, currentBoard);
         for (const board of gameState.boards) {
           tickPhysics(board, dnd.draggingId);
+          runHealing(board, now);
           runCombat(board, gameState, now);
           tickProgress(board, gameState, now);
         }

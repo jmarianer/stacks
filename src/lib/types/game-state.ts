@@ -15,6 +15,7 @@ export type CardData = {
   weaponInventory?: CardType[]; // equipped weapons; last entry = active weapon
   bandAids?: number; // stocked band-aids (heal)
   uniKits?: number; // stocked uni-kits (regen)
+  healAt?: number; // virtual time of last heal
 };
 
 export type Stack = {
