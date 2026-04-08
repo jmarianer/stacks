@@ -16,11 +16,6 @@ import { getUnitWeapon } from '$lib/utils/unit-stats';
 import { applyResults } from '$lib/behavior/progress';
 import type { GameState } from '$lib/types/game-state';
 
-export type CombatCardState = {
-  lastMoveAt?: number;
-  lastAttackAt?: number;
-};
-
 export type CombatUnit = { card: CardData; stack: Stack };
 
 export function nearestCombatant(
@@ -52,8 +47,11 @@ export function getCombatUnits(board: Board): {
     for (const card of stack.cards) {
       if (!card.unitStats) continue;
       if (card.tombstoneOf) continue;
-      if ((CARD_CATALOG[card.type] as CardDef).enemy) enemyUnits.push({ card, stack });
-      else playerUnits.push({ card, stack });
+      if ((CARD_CATALOG[card.type] as CardDef).enemy) {
+        enemyUnits.push({ card, stack });
+      } else {
+        playerUnits.push({ card, stack });
+      }
     }
   }
   return { playerUnits, enemyUnits };
@@ -132,16 +130,22 @@ export function runCombat(board: Board, gameState: GameState, now: number): void
   const { playerUnits, enemyUnits } = getCombatUnits(board);
   if (enemyUnits.length === 0 || playerUnits.length === 0) return;
 
-  // Detach player units entering combat for the first time
-  const toDetach = playerUnits.filter((u) => !(u.card.id in gameState.combatState));
-  for (const unit of toDetach) {
+  const allUnits = [...playerUnits, ...enemyUnits];
+  const newUnits = allUnits.filter((u) => !(u.card.id in gameState.combatState));
+  for (const unit of newUnits) {
     gameState.combatState[unit.card.id] = {};
-    unit.stack.cards = unit.stack.cards.filter((c) => c.id !== unit.card.id);
-    const combatStack = makeStackFromCards({ ...unit.stack.pos }, [unit.card]);
-    board.stacks.push(combatStack);
-    unit.stack = combatStack;
   }
-  board.stacks = board.stacks.filter((s) => s.cards.length > 0);
+
+  // Units are never part of a stack.
+  for (const unit of allUnits) {
+    const oldStack = unit.stack;
+    if (oldStack.cards.length > 1) {
+      oldStack.cards = oldStack.cards.filter((c) => c.id !== unit.card.id);
+      const newStack = makeStackFromCards({ ...oldStack.pos }, [unit.card]);
+      board.stacks.push(newStack);
+      unit.stack = newStack;
+    }
+  }
 
   // Regen and movement
   for (const enemy of enemyUnits) {

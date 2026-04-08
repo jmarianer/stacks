@@ -1,7 +1,6 @@
 import type { Vec2 } from '$lib/utils/vec2';
 import type { CardType } from '$lib/data/card-defs';
 import type { UnitStats } from '$lib/types/card-types';
-import type { CombatCardState } from '$lib/behavior/combat';
 
 export type CardData = {
   id: number;
@@ -75,4 +74,9 @@ export type GameState = {
   currentBoardIndex: number;
   knownRecipeIds: string[];
   combatState: Record<number, CombatCardState>;
+};
+
+export type CombatCardState = {
+    lastMoveAt?: number;
+    lastAttackAt?: number;
 };
