@@ -77,6 +77,6 @@ export type GameState = {
 };
 
 export type CombatCardState = {
-    lastMoveAt?: number;
-    lastAttackAt?: number;
+  lastMoveAt?: number;
+  lastAttackAt?: number;
 };
