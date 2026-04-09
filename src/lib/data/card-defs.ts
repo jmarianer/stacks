@@ -106,7 +106,7 @@ export const CARD_CATALOG: Record<string, CardDef> = {
     color: '#558B2F',
     enemy: {
       unitStats: {
-        endurance: 1,
+        endurance: -2,
         strength: 1,
         perception: 1,
         intelligence: 1,
