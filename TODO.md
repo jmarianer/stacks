@@ -16,6 +16,7 @@
 - Better UI (than right-clicking) for selecting a card
 - Select recipe for workbench, so that (eg) it doesn't create band-aids when it's meant for unikits
 - Tutorial / what's-next things. E.g., "OK now you've created a foundation, here's how to use it", "You just discovered your first teleporation card", "Congratulations on completing X. To get to X+1 you need to make 10 foozles"
+- Remove idea cards and instead add a UI for "new recipe discovered", such as a red dot by the tab for recipes once we have one.
 
 ## Bugs
 
