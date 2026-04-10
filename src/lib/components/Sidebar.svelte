@@ -1,10 +1,11 @@
 <script lang="ts">
-  import type { Board, CardData } from '$lib/types/game-state';
+  import type { CardData, GameState } from '$lib/types/game-state';
   import { CARD_CATALOG } from '$lib/data/card-defs';
   import { hpMaxFromStats, type UnitStats } from '$lib/types/card-types';
   import { maxBandAids, maxUniKits } from '$lib/utils/unit-stats';
   import TeleportPanel from './TeleportPanel.svelte';
   import RecipesPanel from './RecipesPanel.svelte';
+  import { MILESTONES } from '$lib/data/milestones';
 
   const ATTRS: { key: keyof UnitStats; label: string; effect: string }[] = [
     { key: 'endurance', label: 'Endurance', effect: '+10 HP / level' },
@@ -16,18 +17,14 @@
   ];
 
   let {
-    boards,
-    currentBoardIndex,
-    knownRecipeIds,
+    gameState,
     selectedCard,
     onTeleport,
     onExport,
     onImport,
     onReset,
   }: {
-    boards: Board[];
-    currentBoardIndex: number;
-    knownRecipeIds: string[];
+    gameState: GameState;
     selectedCard: CardData | null;
     onTeleport: (i: number) => void;
     onExport: () => void;
@@ -35,26 +32,32 @@
     onReset: () => void;
   } = $props();
 
+  const { boards, currentBoardIndex, knownRecipeIds } = $derived(gameState);
+  const firedMilestones = $derived(gameState.clock.firedMilestones);
   const hasOtherBoards = $derived(boards.some((b, i) => i !== currentBoardIndex && b.discovered));
 
-  type Tab = 'progression' | 'recipes' | 'boards';
-  let activeTab = $state<Tab>('recipes');
+  type Tab = 'quests' | 'recipes' | 'boards';
+  let activeTab = $state<Tab>('quests');
 
   $effect(() => {
-    if (activeTab === 'boards' && !hasOtherBoards) activeTab = 'progression';
+    if (activeTab === 'boards' && !hasOtherBoards) activeTab = 'quests';
   });
 </script>
 
 <div class="sidebar">
   <div class="top-panel">
     <div class="tabs">
-      <!-- <button class="tab" class:active={activeTab === 'progression'} onclick={() => (activeTab = 'progression')}>Progress</button> -->
+      <button
+        class="tab"
+        class:active={activeTab === 'quests'}
+        onclick={() => (activeTab = 'quests')}>Quests</button
+      >
+      <button
+        class="tab"
+        class:active={activeTab === 'recipes'}
+        onclick={() => (activeTab = 'recipes')}>Recipes</button
+      >
       {#if hasOtherBoards}
-        <button
-          class="tab"
-          class:active={activeTab === 'recipes'}
-          onclick={() => (activeTab = 'recipes')}>Recipes</button
-        >
         <button
           class="tab"
           class:active={activeTab === 'boards'}
@@ -63,8 +66,16 @@
       {/if}
     </div>
     <div class="tab-content">
-      {#if activeTab === 'progression'}
-        <div class="placeholder">Progression coming soon…</div>
+      {#if activeTab === 'quests'}
+        <ul class="quest-list">
+          {#each MILESTONES as m (m.id)}
+            {@const done = firedMilestones.includes(m.id)}
+            <li class="quest-item" class:done>
+              <span class="quest-check">{done ? '✓' : '○'}</span>
+              {m.title}
+            </li>
+          {/each}
+        </ul>
       {:else if activeTab === 'recipes'}
         <RecipesPanel {knownRecipeIds} />
       {:else if activeTab === 'boards'}
@@ -177,10 +188,31 @@
     padding: 0.75rem 1rem;
   }
 
-  .placeholder {
-    opacity: 0.4;
+  .quest-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .quest-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
     font-size: 1rem;
-    padding: 1rem 0;
+    color: rgba(255, 255, 255, 0.55);
+
+    &.done {
+      color: #4caf50;
+    }
+
+    .quest-check {
+      width: 1rem;
+      text-align: center;
+      flex-shrink: 0;
+    }
   }
 
   .save-bar {

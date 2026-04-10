@@ -343,9 +343,7 @@
     {/if}
   </div>
   <Sidebar
-    boards={gameState.boards}
-    currentBoardIndex={gameState.currentBoardIndex}
-    knownRecipeIds={gameState.knownRecipeIds}
+    {gameState}
     {selectedCard}
     onTeleport={createTeleportCard}
     onExport={exportSave}
