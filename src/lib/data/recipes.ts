@@ -22,7 +22,7 @@ export const recipes: Recipe[] = [
     time: 15000,
     ingredients: [
       { match: 'pickaxe', consumed: false },
-      { match: 'people', consumed: false },
+      { match: 'astronaut', consumed: false },
     ],
     results: [{ action: 'card', card: 'crust-chunk' }],
   },
@@ -165,15 +165,15 @@ export const recipes: Recipe[] = [
   },
   {
     id: 'use-drill',
-    label: 'Drill: Mine Resources',
-    time: 15000,
+    label: 'Drill Crust',
+    time: 3000,
     alwaysKnown: true,
     ingredients: [
       { match: 'drill', consumed: false },
       { match: 'people', consumed: false },
     ],
     results: [
-      { action: 'weighted', cards: { plasteel: 60, helium3: 40 } },
+      { action: 'card', card: 'crust-chunk' },
       { action: 'discover-board', boardName: 'Alien Eggs', chance: 10 },
     ],
   },

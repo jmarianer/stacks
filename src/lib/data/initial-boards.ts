@@ -6,10 +6,6 @@ export const initialKnownRecipeIds: string[] = [
   'punch-crust-chunk',
   'mine-crust-chunk',
   'punch-plasteel-deposit',
-  'punch-fossil-regolith',
-  'make-energy-cell',
-  'make-multi-cell',
-  'make-mega-cell',
 ];
 
 export const initialBoards: Board[] = [

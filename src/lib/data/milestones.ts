@@ -4,24 +4,56 @@ import type { Board } from '$lib/types/game-state';
 const hasCard = (boards: Board[], type: string) =>
   boards.some((b) => b.stacks.some((s) => s.cards.some((c) => c.type === type)));
 
+const countCards = (boards: Board[], type: string) =>
+  boards.flatMap((b) => b.stacks.flatMap((s) => s.cards)).filter((c) => c.type === type).length;
+
 export const MILESTONES: Milestone[] = [
   {
     id: 'solar-panel',
-    condition: ({ boards }) => hasCard(boards, 'plasteel'),
+    title: 'Punch a crust chunk',
+    condition: ({ boards }) => hasCard(boards, 'nanocarbon'),
     unlockRecipeIds: ['build-solar-panel'],
   },
   {
     id: 'foundation',
+    title: 'Use solar panel to generate power',
     condition: ({ boards }) => hasCard(boards, 'solar-panel'),
     unlockRecipeIds: ['build-foundation'],
   },
   {
     id: 'service-drone',
+    title: 'Mine crust chunk with pickaxe',
     condition: ({ boards }) => hasCard(boards, 'solar-panel') && hasCard(boards, 'nanocarbon'),
     unlockRecipeIds: ['make-service-drone'],
   },
   {
+    id: 'first-solar-panel',
+    title: 'Build solar panel',
+    condition: ({ boards }) => hasCard(boards, 'solar-panel'),
+    unlockRecipeIds: ['make-energy-cell'],
+  },
+  {
+    id: 'two-foundations',
+    title: 'Build two foundations',
+    condition: ({ boards }) => countCards(boards, 'foundation') >= 2,
+  },
+  {
+    id: 'foundation-route',
+    title: 'Route between foundations',
+    condition: ({ boards }) =>
+      boards.some((b) => {
+        const foundationStackIds = new Set(
+          b.stacks.filter((s) => s.cards.some((c) => c.type === 'foundation')).map((s) => s.id),
+        );
+        return b.connections.some(
+          (conn) => foundationStackIds.has(conn.fromId) && foundationStackIds.has(conn.toId),
+        );
+      }),
+    unlockRecipeIds: ['make-multi-cell', 'make-mega-cell'],
+  },
+  {
     id: 'bacteria-invasion',
+    title: 'Equip astronaut with weapon',
     condition: ({ boards, clock }) =>
       clock.sol >= 4 &&
       boards.some((b) =>
@@ -33,12 +65,14 @@ export const MILESTONES: Milestone[] = [
   },
   {
     id: 'post-invasion',
+    title: 'Kill bacteria',
     condition: ({ boards, clock }) =>
       clock.firedMilestones.includes('bacteria-invasion') &&
       !hasCard(boards, 'invasion-bacteria') &&
       !hasCard(boards, 'bacteria'),
-    unlockRecipeIds: ['make-uni-kit', 'build-drill'],
+    unlockRecipeIds: ['make-band-aid', 'build-drill'],
   },
+  /*
   {
     id: 'workbench',
     condition: ({ boards }) =>
@@ -108,6 +142,7 @@ export const MILESTONES: Milestone[] = [
     condition: ({ boards }) => hasCard(boards, 'reactor'),
     unlockRecipeIds: ['make-wishalloy'],
   },
+*/
 ];
 
 // TODO: add back build-train-{st,en,in,pe,lk} and also -ag.
