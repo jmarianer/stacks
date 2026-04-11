@@ -4,10 +4,10 @@ import { makeBoard, makeStack } from '$lib/utils/card-factories';
 import type { GameState } from '$lib/types/game-state';
 import type { Board } from '$lib/types/game-state';
 import { hpMaxFromStats } from '$lib/types/card-types';
-import { makeGameState } from '$lib/data/initial-boards';
+import { makeInitialGameState } from '$lib/data/initial-boards';
 
 function makeTestGameState(board: Board): GameState {
-  return { ...makeGameState(), boards: [board] };
+  return { ...makeInitialGameState(), boards: [board] };
 }
 
 beforeEach(() => {

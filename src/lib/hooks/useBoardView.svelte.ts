@@ -1,5 +1,5 @@
 import { untrack } from 'svelte';
-import { gameState } from '$lib/state/game-state.svelte';
+import { gameState } from '$lib/state/persistence.svelte';
 
 export function useBoardView(getBoardAreaEl: () => HTMLElement | null) {
   let scale = $state(1);

@@ -1,4 +1,4 @@
-import { gameState } from '$lib/state/game-state.svelte';
+import { gameState } from '$lib/state/persistence.svelte';
 import { makeStackFromCards } from '$lib/utils/card-factories';
 import {
   STACK_CARD_OFFSET_X,

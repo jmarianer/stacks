@@ -83,7 +83,7 @@ export const initialBoards: Board[] = [
   ),
 ];
 
-export function makeGameState(): GameState {
+export function makeInitialGameState(): GameState {
   return {
     boards: initialBoards,
     clock: makeClock(),

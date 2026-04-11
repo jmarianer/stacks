@@ -17,14 +17,14 @@
   import type { CardDef } from '$lib/types/card-types';
   import { CARD_CATALOG } from '$lib/data/card-defs';
   import { getUnitWeapon } from '$lib/utils/unit-stats';
-  import { makeGameState } from '$lib/data/initial-boards';
+  import { makeInitialGameState } from '$lib/data/initial-boards';
   import { makeStack, makeStackFromCards, makeTeleportCard } from '$lib/utils/card-factories';
   import { tick as tickPhysics } from '$lib/behavior/physics';
   import { tick as tickProgress, checkMilestones } from '$lib/behavior/progress';
   import { runCombat, runHealing, getCombatUnits, nearestCombatant } from '$lib/behavior/combat';
   import { tickClock, getSolProgress, setSpeed, getVirtualNow } from '$lib/behavior/clock';
   import { recipes } from '$lib/data/recipes';
-  import { gameState } from '$lib/state/game-state.svelte';
+  import { gameState } from '$lib/state/persistence.svelte';
   import {
     applySave,
     loadSave,
@@ -32,7 +32,7 @@
     exportSave,
     importSave,
     SAVE_INTERVAL_MS,
-  } from '$lib/state/persistence';
+  } from '$lib/state/persistence.svelte';
   import { useBoardView } from '$lib/hooks/useBoardView.svelte';
   import { useDragAndDrop } from '$lib/hooks/useDragAndDrop.svelte';
 
@@ -343,7 +343,7 @@
     onTeleport={createTeleportCard}
     onExport={exportSave}
     onImport={importSave}
-    onReset={() => applySave(makeGameState())}
+    onReset={() => applySave(makeInitialGameState())}
   />
 </div>
 

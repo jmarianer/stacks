@@ -1,7 +1,6 @@
 import type { GameState } from '$lib/types/game-state';
-import { gameState, setGameState } from '$lib/state/game-state.svelte';
 import { setNextId } from '$lib/utils/card-factories';
-import { makeGameState } from '$lib/data/initial-boards';
+import { makeInitialGameState } from '$lib/data/initial-boards';
 import { setSpeed } from '$lib/behavior/clock';
 
 const SAVE_KEY = 'stacks-autosave';
@@ -16,13 +15,13 @@ export function loadSave(): GameState {
   } catch {
     // fall through to defaults
   }
-  return makeGameState();
+  return makeInitialGameState();
 }
 
 export function applySave(save: GameState): void {
   // Re-anchor virtual clock to real time instead of nulling it (fixes save+restore reset bug)
   save.clock.vTimeAt = performance.now();
-  const merged = { ...makeGameState(), ...save };
+  const merged = { ...makeInitialGameState(), ...save };
   setGameState(merged);
   const maxId = Math.max(
     0,
@@ -62,4 +61,8 @@ export function importSave(e: Event): void {
     }
   };
   reader.readAsText(file);
+}
+export const gameState = $state<GameState>(makeInitialGameState());
+export function setGameState(s: GameState): void {
+  Object.assign(gameState, s);
 }

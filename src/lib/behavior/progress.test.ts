@@ -3,7 +3,7 @@ import { matchRecipe, tick } from '$lib/behavior/progress';
 import { makeBoard, makeStack } from '$lib/utils/card-factories';
 import { type CardType } from '$lib/data/card-defs';
 import type { GameState } from '$lib/types/game-state';
-import { makeGameState } from '$lib/data/initial-boards';
+import { makeInitialGameState } from '$lib/data/initial-boards';
 
 // Recipes available from game start (alwaysKnown or in initialKnownRecipeIds)
 const KNOWN = ['punch-crust-chunk', 'punch-plasteel-deposit', 'make-energy-cell'];
@@ -66,7 +66,7 @@ describe('executeRecipe (via tick)', () => {
     stack.progressStartTime = 0;
     const board = makeBoard('test', [stack], 100, 100);
     const gameState: GameState = {
-      ...makeGameState(),
+      ...makeInitialGameState(),
       boards: [board],
       knownRecipeIds: [recipeId],
     };
