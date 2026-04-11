@@ -11,19 +11,19 @@ export const MILESTONES: Milestone[] = [
   {
     id: 'solar-panel',
     title: 'Punch a crust chunk',
-    condition: ({ boards }) => hasCard(boards, 'nanocarbon'),
+    condition: ({ usedRecipeIds }) => usedRecipeIds.includes('punch-crust-chunk'),
     unlockRecipeIds: ['build-solar-panel'],
   },
   {
     id: 'foundation',
     title: 'Use solar panel to generate power',
-    condition: ({ boards }) => hasCard(boards, 'solar-panel'),
+    condition: ({ usedRecipeIds }) => usedRecipeIds.includes('solar-panel-generate'),
     unlockRecipeIds: ['build-foundation'],
   },
   {
     id: 'service-drone',
     title: 'Mine crust chunk with pickaxe',
-    condition: ({ boards }) => hasCard(boards, 'solar-panel') && hasCard(boards, 'nanocarbon'),
+    condition: ({ usedRecipeIds }) => usedRecipeIds.includes('mine-crust-chunk'),
     unlockRecipeIds: ['make-service-drone'],
   },
   {

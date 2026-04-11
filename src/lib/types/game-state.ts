@@ -73,6 +73,7 @@ export type GameState = {
   clock: Clock;
   currentBoardIndex: number;
   knownRecipeIds: string[];
+  usedRecipeIds: string[];
   combatState: Record<number, CombatCardState>;
 };
 

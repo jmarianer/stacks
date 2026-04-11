@@ -238,6 +238,9 @@ function executeRecipe(board: Board, gameState: GameState, stack: Stack, recipe:
   stack.progressStartTime = null;
   stack.activeRecipeId = null;
 
+  if (!gameState.usedRecipeIds.includes(recipe.id)) {
+    gameState.usedRecipeIds.push(recipe.id);
+  }
   applyResults(recipe.results, board, gameState, stack, consumedCards);
 
   if (stack.cards.length === 0) {

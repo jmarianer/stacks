@@ -89,6 +89,7 @@ export function makeGameState(): GameState {
     clock: makeClock(),
     currentBoardIndex: 0,
     knownRecipeIds: initialKnownRecipeIds,
+    usedRecipeIds: [],
     combatState: {},
   };
 }
