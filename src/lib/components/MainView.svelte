@@ -17,13 +17,8 @@
   import type { CardDef } from '$lib/types/card-types';
   import { CARD_CATALOG } from '$lib/data/card-defs';
   import { getUnitWeapon } from '$lib/utils/unit-stats';
-  import { initialBoards, initialKnownRecipeIds } from '$lib/data/initial-boards';
-  import {
-    makeClock,
-    makeStack,
-    makeStackFromCards,
-    makeTeleportCard,
-  } from '$lib/utils/card-factories';
+  import { makeGameState } from '$lib/data/initial-boards';
+  import { makeStack, makeStackFromCards, makeTeleportCard } from '$lib/utils/card-factories';
   import { tick as tickPhysics } from '$lib/behavior/physics';
   import { tick as tickProgress, checkMilestones } from '$lib/behavior/progress';
   import { runCombat, runHealing, getCombatUnits, nearestCombatant } from '$lib/behavior/combat';
@@ -348,15 +343,7 @@
     onTeleport={createTeleportCard}
     onExport={exportSave}
     onImport={importSave}
-    onReset={() => {
-      applySave({
-        boards: initialBoards,
-        clock: makeClock(),
-        currentBoardIndex: 0,
-        knownRecipeIds: initialKnownRecipeIds,
-        combatState: {},
-      });
-    }}
+    onReset={() => applySave(makeGameState())}
   />
 </div>
 

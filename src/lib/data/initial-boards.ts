@@ -1,5 +1,5 @@
-import type { Board } from '$lib/types/game-state';
-import { makeBoard, makeStack } from '$lib/utils/card-factories';
+import type { Board, GameState } from '$lib/types/game-state';
+import { makeBoard, makeStack, makeClock } from '$lib/utils/card-factories';
 
 /** Recipe IDs known at the start of a new game. */
 export const initialKnownRecipeIds: string[] = [
@@ -82,3 +82,13 @@ export const initialBoards: Board[] = [
     112,
   ),
 ];
+
+export function makeGameState(): GameState {
+  return {
+    boards: initialBoards,
+    clock: makeClock(),
+    currentBoardIndex: 0,
+    knownRecipeIds: initialKnownRecipeIds,
+    combatState: {},
+  };
+}

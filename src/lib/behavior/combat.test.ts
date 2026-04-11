@@ -1,18 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { runCombat, getCombatUnits } from '$lib/behavior/combat';
-import { makeBoard, makeClock, makeStack } from '$lib/utils/card-factories';
+import { makeBoard, makeStack } from '$lib/utils/card-factories';
 import type { GameState } from '$lib/types/game-state';
 import type { Board } from '$lib/types/game-state';
 import { hpMaxFromStats } from '$lib/types/card-types';
+import { makeGameState } from '$lib/data/initial-boards';
 
 function makeTestGameState(board: Board): GameState {
-  return {
-    boards: [board],
-    clock: makeClock(),
-    currentBoardIndex: 0,
-    knownRecipeIds: [],
-    combatState: {},
-  };
+  return { ...makeGameState(), boards: [board] };
 }
 
 beforeEach(() => {

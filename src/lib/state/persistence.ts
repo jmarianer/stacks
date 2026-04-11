@@ -1,7 +1,7 @@
 import type { GameState } from '$lib/types/game-state';
 import { gameState, setGameState } from '$lib/state/game-state.svelte';
-import { setNextId, makeClock } from '$lib/utils/card-factories';
-import { initialBoards, initialKnownRecipeIds } from '$lib/data/initial-boards';
+import { setNextId } from '$lib/utils/card-factories';
+import { makeGameState } from '$lib/data/initial-boards';
 import { setSpeed } from '$lib/behavior/clock';
 
 const SAVE_KEY = 'stacks-autosave';
@@ -16,23 +16,17 @@ export function loadSave(): GameState {
   } catch {
     // fall through to defaults
   }
-  return {
-    boards: initialBoards,
-    clock: makeClock(),
-    currentBoardIndex: 0,
-    knownRecipeIds: initialKnownRecipeIds,
-    combatState: {},
-  };
+  return makeGameState();
 }
 
 export function applySave(save: GameState): void {
   // Re-anchor virtual clock to real time instead of nulling it (fixes save+restore reset bug)
   save.clock.vTimeAt = performance.now();
-  save.combatState ??= {};
-  setGameState(save);
+  const merged = { ...makeGameState(), ...save };
+  setGameState(merged);
   const maxId = Math.max(
     0,
-    ...save.boards.flatMap((b) => [
+    ...merged.boards.flatMap((b) => [
       b.id,
       ...b.stacks.flatMap((s) => [s.id, ...s.cards.map((c) => c.id)]),
     ]),

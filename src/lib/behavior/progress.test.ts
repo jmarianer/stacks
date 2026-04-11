@@ -1,8 +1,9 @@
 import { describe, it, expect } from 'vitest';
 import { matchRecipe, tick } from '$lib/behavior/progress';
-import { makeBoard, makeClock, makeStack } from '$lib/utils/card-factories';
+import { makeBoard, makeStack } from '$lib/utils/card-factories';
 import { type CardType } from '$lib/data/card-defs';
 import type { GameState } from '$lib/types/game-state';
+import { makeGameState } from '$lib/data/initial-boards';
 
 // Recipes available from game start (alwaysKnown or in initialKnownRecipeIds)
 const KNOWN = ['punch-crust-chunk', 'punch-plasteel-deposit', 'make-energy-cell'];
@@ -65,11 +66,9 @@ describe('executeRecipe (via tick)', () => {
     stack.progressStartTime = 0;
     const board = makeBoard('test', [stack], 100, 100);
     const gameState: GameState = {
+      ...makeGameState(),
       boards: [board],
-      clock: makeClock(),
-      currentBoardIndex: 0,
       knownRecipeIds: [recipeId],
-      combatState: {},
     };
     return { gameState, board, stack };
   }
