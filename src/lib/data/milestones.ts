@@ -15,6 +15,12 @@ export const MILESTONES: Milestone[] = [
     unlockRecipeIds: ['build-solar-panel'],
   },
   {
+    id: 'first-solar-panel',
+    title: 'Build solar panel',
+    condition: ({ boards }) => hasCard(boards, 'solar-panel'),
+    unlockRecipeIds: ['make-energy-cell'],
+  },
+  {
     id: 'foundation',
     title: 'Use solar panel to generate power',
     condition: ({ usedRecipeIds }) => usedRecipeIds.includes('solar-panel-generate'),
@@ -25,12 +31,6 @@ export const MILESTONES: Milestone[] = [
     title: 'Mine crust chunk with pickaxe',
     condition: ({ usedRecipeIds }) => usedRecipeIds.includes('mine-crust-chunk'),
     unlockRecipeIds: ['make-service-drone'],
-  },
-  {
-    id: 'first-solar-panel',
-    title: 'Build solar panel',
-    condition: ({ boards }) => hasCard(boards, 'solar-panel'),
-    unlockRecipeIds: ['make-energy-cell'],
   },
   {
     id: 'two-foundations',
@@ -50,6 +50,24 @@ export const MILESTONES: Milestone[] = [
         );
       }),
     unlockRecipeIds: ['make-multi-cell', 'make-mega-cell'],
+  },
+  {
+    id: 'workbench',
+    title: 'Build a service drone',
+    condition: ({ boards }) => hasCard(boards, 'service-drone-1'),
+    unlockRecipeIds: ['build-workbench'],
+  },
+  {
+    id: 'first-workbench',
+    title: 'Build a workbench',
+    condition: ({ boards }) => hasCard(boards, 'workbench'),
+    unlockRecipeIds: ['make-electronics', 'build-storage-crate'],
+  },
+  {
+    id: 'first-electronics',
+    title: 'Construct electronics',
+    condition: ({ boards }) => hasCard(boards, 'electronics'),
+    unlockRecipeIds: ['make-blaster', 'build-adv-workbench'],
   },
   {
     id: 'bacteria-invasion',
@@ -74,27 +92,9 @@ export const MILESTONES: Milestone[] = [
   },
   /*
   {
-    id: 'workbench',
-    condition: ({ boards }) =>
-      hasCard(boards, 'service-drone-1') &&
-      boards.flatMap((b) => b.stacks.flatMap((s) => s.cards)).filter((c) => c.type === 'plasteel')
-        .length >= 3,
-    unlockRecipeIds: ['build-workbench'],
-  },
-  {
-    id: 'first-workbench',
-    condition: ({ boards }) => hasCard(boards, 'workbench'),
-    unlockRecipeIds: ['make-electronics', 'build-storage-crate'],
-  },
-  {
-    id: 'first-electronics',
-    condition: ({ boards }) => hasCard(boards, 'electronics'),
-    unlockRecipeIds: ['make-blaster'],
-  },
-  {
     id: 'first-drill',
     condition: ({ boards }) => hasCard(boards, 'drill'),
-    unlockRecipeIds: ['build-adv-workbench', 'build-rover', 'make-bolter'],
+    unlockRecipeIds: [' 'build-rover', 'make-bolter'],
   },
   {
     id: 'first-adv-workbench',
