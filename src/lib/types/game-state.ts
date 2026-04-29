@@ -74,6 +74,7 @@ export type GameState = {
   currentBoardIndex: number;
   knownRecipeIds: string[];
   usedRecipeIds: string[];
+  seenRecipeIds: string[];
   combatState: Record<number, CombatCardState>;
 };
 

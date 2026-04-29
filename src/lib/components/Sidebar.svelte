@@ -32,8 +32,13 @@
     onReset: () => void;
   } = $props();
 
-  const { boards, currentBoardIndex, knownRecipeIds } = $derived(gameState);
+  const { boards, currentBoardIndex, knownRecipeIds, seenRecipeIds } = $derived(gameState);
+  const hasNewRecipes = $derived(knownRecipeIds.some((id) => !seenRecipeIds.includes(id)));
   const firedMilestones = $derived(gameState.clock.firedMilestones);
+
+  function markRecipeSeen(id: string) {
+    if (!gameState.seenRecipeIds.includes(id)) gameState.seenRecipeIds.push(id);
+  }
   const hasOtherBoards = $derived(boards.some((b, i) => i !== currentBoardIndex && b.discovered));
 
   type Tab = 'quests' | 'recipes' | 'boards';
@@ -55,7 +60,8 @@
       <button
         class="tab"
         class:active={activeTab === 'recipes'}
-        onclick={() => (activeTab = 'recipes')}>Recipes</button
+        onclick={() => (activeTab = 'recipes')}
+        >Recipes{#if hasNewRecipes}<span class="tab-dot"></span>{/if}</button
       >
       {#if hasOtherBoards}
         <button
@@ -77,7 +83,7 @@
           {/each}
         </ul>
       {:else if activeTab === 'recipes'}
-        <RecipesPanel {knownRecipeIds} />
+        <RecipesPanel {knownRecipeIds} {seenRecipeIds} onSeen={markRecipeSeen} />
       {:else if activeTab === 'boards'}
         <TeleportPanel {boards} {currentBoardIndex} {onTeleport} />
       {/if}
@@ -171,6 +177,7 @@
     font-size: 1rem;
     padding: 0.5rem;
     cursor: pointer;
+    position: relative;
 
     &:hover {
       color: white;
@@ -180,6 +187,18 @@
       color: #f4c430;
       border-bottom-color: #f4c430;
     }
+  }
+
+  .tab-dot {
+    display: inline-block;
+    width: 0.4rem;
+    height: 0.4rem;
+    border-radius: 50%;
+    background: #f4c430;
+    margin-left: 0.3rem;
+    vertical-align: middle;
+    position: relative;
+    top: -0.1rem;
   }
 
   .tab-content {

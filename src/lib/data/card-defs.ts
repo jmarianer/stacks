@@ -59,8 +59,6 @@ export const CARD_CATALOG: Record<string, CardDef> = {
   snowballs: { title: 'Snowballs', image: 'snowballs.svg', color: '#4FC3F7', value: 1 },
   unobtainium: { title: 'Unobtainium', image: 'unobtainium.svg', color: '#E91E63', value: 10 },
   wishalloy: { title: 'Wishalloy', image: 'wishalloy.svg', color: '#B8860B', value: 15 },
-  // Idea — cosmetic notification card dropped when a milestone fires; label set dynamically
-  idea: { title: 'Idea', image: 'idea.svg', color: '#827717', value: 1 },
   // Medical
   'band-aid': { title: 'Band-Aid', image: 'band-aid.svg', color: '#E57373', value: 5 },
   'uni-kit': { title: 'Uni-Kit', image: 'uni-kit.svg', color: '#81C784', value: 5 },

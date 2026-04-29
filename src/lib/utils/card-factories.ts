@@ -23,10 +23,6 @@ export function makeCardOfType(type: CardType): CardData {
   };
 }
 
-export function makeIdeaCard(label: string): CardData {
-  return { id: nextId++, type: 'idea', label };
-}
-
 export function makeTeleportCard(targetBoardIndex: number, targetBoardName: string): CardData {
   return { id: nextId++, type: 'teleport', label: `→ ${targetBoardName}`, targetBoardIndex };
 }

@@ -90,6 +90,7 @@ export function makeInitialGameState(): GameState {
     currentBoardIndex: 0,
     knownRecipeIds: initialKnownRecipeIds,
     usedRecipeIds: [],
+    seenRecipeIds: [...initialKnownRecipeIds],
     combatState: {},
   };
 }

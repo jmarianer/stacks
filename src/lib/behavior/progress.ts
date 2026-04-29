@@ -7,7 +7,6 @@ import type { Vec2 } from '$lib/utils/vec2';
 import { CARD_CATALOG, type CardType } from '$lib/data/card-defs';
 import {
   makeCardOfType,
-  makeIdeaCard,
   makeReviveCard,
   makeStack,
   makeStackFromCards,
@@ -255,11 +254,6 @@ export function checkMilestones(gameState: GameState, currentBoard: Board): void
     gameState.clock.firedMilestones.push(milestone.id);
     for (const id of milestone.unlockRecipeIds ?? []) {
       if (!gameState.knownRecipeIds.includes(id)) gameState.knownRecipeIds.push(id);
-      currentBoard.stacks.push(
-        makeStackFromCards({ x: currentBoard.width / 2, y: currentBoard.height / 2 }, [
-          makeIdeaCard(`Idea: ${recipes.find((r) => r.id === id)?.label}`),
-        ]),
-      );
     }
     for (const card of milestone.createCards ?? []) {
       currentBoard.stacks.push(

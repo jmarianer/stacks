@@ -3,7 +3,15 @@
   import { recipes } from '$lib/data/recipes';
   import type { RecipeResult } from '$lib/types/recipe-types';
 
-  let { knownRecipeIds }: { knownRecipeIds: string[] } = $props();
+  let {
+    knownRecipeIds,
+    seenRecipeIds,
+    onSeen,
+  }: {
+    knownRecipeIds: string[];
+    seenRecipeIds: string[];
+    onSeen: (id: string) => void;
+  } = $props();
 
   let recipeSearch = $state('');
 
@@ -40,10 +48,13 @@
   <input class="recipe-search" type="search" placeholder="Search…" bind:value={recipeSearch} />
   {#each knownRecipeIds as id (id)}
     {@const recipe = recipes.find((r) => r.id === id)}
+    {@const isNew = !seenRecipeIds.includes(id)}
     {#if recipe && recipe.label.toLowerCase().includes(recipeSearch.toLowerCase())}
-      <div class="recipe-entry">
+      <div class="recipe-entry" role="listitem" onmouseenter={() => isNew && onSeen(id)}>
         <div class="recipe-name">
-          {recipe.label}
+          <span class="recipe-name-text">
+            {#if isNew}<span class="new-dot" aria-label="new"></span>{/if}{recipe.label}
+          </span>
           <span class="recipe-time">{recipe.time / 1000}s</span>
         </div>
         <div class="recipe-ingredients">
@@ -119,6 +130,21 @@
         display: flex;
         justify-content: space-between;
         gap: 0.5rem;
+      }
+
+      .recipe-name-text {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+      }
+
+      .new-dot {
+        display: inline-block;
+        width: 0.45rem;
+        height: 0.45rem;
+        border-radius: 50%;
+        background: #f4c430;
+        flex-shrink: 0;
       }
 
       .recipe-time {
