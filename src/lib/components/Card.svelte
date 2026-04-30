@@ -97,9 +97,6 @@
       </div>
     {/if}
     <div class="footer">
-      {#if 'value' in def}
-        <div class="value">{def.value}</div>
-      {/if}
       {#if cardData.energyRemaining !== undefined}
         <div class="energy">{cardData.energyRemaining ?? ''}</div>
       {/if}
@@ -177,7 +174,6 @@
     padding: 0 0.75vmin;
   }
 
-  .value,
   .energy {
     width: 3vmin;
     height: 3vmin;
@@ -187,13 +183,6 @@
     justify-content: center;
     font-family: 'BigNoodleTitling';
     color: white;
-  }
-
-  .value {
-    border-radius: 50%;
-  }
-
-  .energy {
     border-radius: 0.4vmin;
   }
 

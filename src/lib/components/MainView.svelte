@@ -10,7 +10,7 @@
   import { STACK_CARD_OFFSET_Y, STACK_CARD_OFFSET_X, CARD_W, CARD_H } from '$lib/data/constants';
   import Draggable from './Draggable.svelte';
   import { addScaled } from '$lib/utils/vec2';
-  import type { Stack, Board, ShopItem, CardData } from '$lib/types/game-state';
+  import type { Stack, Board, CardData } from '$lib/types/game-state';
   import Hud from './Hud.svelte';
   import Sidebar from './Sidebar.svelte';
   import LocationNav from './LocationNav.svelte';
@@ -18,7 +18,7 @@
   import { CARD_CATALOG } from '$lib/data/card-defs';
   import { getUnitWeapon } from '$lib/utils/unit-stats';
   import { makeInitialGameState } from '$lib/data/initial-boards';
-  import { makeStack, makeStackFromCards, makeTeleportCard } from '$lib/utils/card-factories';
+  import { makeStackFromCards, makeTeleportCard } from '$lib/utils/card-factories';
   import { tick as tickPhysics } from '$lib/behavior/physics';
   import { tick as tickProgress, checkMilestones } from '$lib/behavior/progress';
   import { runCombat, runHealing, getCombatUnits, nearestCombatant } from '$lib/behavior/combat';
@@ -113,17 +113,6 @@
     return { x1: f.x, y1: f.y, x2: t.x, y2: t.y };
   }
 
-  function stackAtMouse(): Stack | undefined {
-    const { x, y } = boardView.boardMouse();
-    return currentBoard.stacks.findLast((stack) =>
-      stack.cards.some((_, i) => {
-        const cx = stack.pos.x + i * STACK_CARD_OFFSET_X + CARD_W / 2;
-        const cy = stack.pos.y + i * STACK_CARD_OFFSET_Y + CARD_H / 2;
-        return Math.abs(x - cx) <= CARD_W / 2 && Math.abs(y - cy) <= CARD_H / 2;
-      }),
-    );
-  }
-
   function onKeyDown(e: KeyboardEvent) {
     const speed = 20;
     if (e.key === 'w') boardView.translate.y += speed;
@@ -144,20 +133,6 @@
     if (e.key === '3') setSpeed(gameState.clock, 3);
     if (e.key === '4' && !gameState.clock.endOfSol) setSpeed(gameState.clock, 0);
     if (e.key === 'r' || e.key === 'R') routingMode = !routingMode;
-    if (e.key === 'Backspace') {
-      const stack = stackAtMouse();
-      if (!stack) return;
-      const sellable = stack.cards.filter((c) => 'value' in CARD_CATALOG[c.type]);
-      if (sellable.length === 0) return;
-      currentBoard.currency += sellable.reduce(
-        (sum, c) => sum + (CARD_CATALOG[c.type] as { value: number }).value,
-        0,
-      );
-      stack.cards = stack.cards.filter((c) => !('value' in CARD_CATALOG[c.type]));
-      if (stack.cards.length === 0) {
-        currentBoard.stacks = currentBoard.stacks.filter((s) => s.id !== stack.id);
-      }
-    }
   }
 
   function continueSol() {
@@ -211,13 +186,6 @@
     onBoard.stacks = [...onBoard.stacks, stack];
   }
 
-  function buyCard(item: ShopItem) {
-    if (currentBoard.currency < item.price) return;
-    currentBoard.currency -= item.price;
-    const pos = { x: currentBoard.width / 2, y: currentBoard.height / 2 };
-    currentBoard.stacks.push(makeStack(pos, [item.cardType]));
-  }
-
   $effect(() => {
     let rafId: number;
     let lastSaveAt = 0;
@@ -257,12 +225,9 @@
   <Hud
     clock={gameState.clock}
     {solProgress}
-    currency={currentBoard.currency}
     {energyAvailable}
     {energyNeeded}
-    shop={currentBoard.shop}
     bind:routingMode
-    onBuyCard={buyCard}
     onSetSpeed={setSpeed}
   />
   <div class="board-area" bind:this={boardAreaEl}>

@@ -58,7 +58,6 @@ type CardDefBase = {
   title: string;
   image: string; // path to SVG under /cards/
   color: string;
-  value?: number; // coin value; undefined = not sellable
   usesInitial?: number; // starting usesRemaining; undefined = single-use
   /** Recipe ingredient groups this card belongs to (e.g. 'people', 'weapon'). */
   groups?: string[];

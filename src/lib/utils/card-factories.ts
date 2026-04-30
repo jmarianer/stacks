@@ -1,5 +1,5 @@
 import { type UnitStats, hpMaxFromStats, type CardDef } from '$lib/types/card-types';
-import type { CardData, Stack, Board, ShopItem, Clock } from '$lib/types/game-state';
+import type { CardData, Stack, Board, Clock } from '$lib/types/game-state';
 import { CARD_CATALOG, type CardType } from '$lib/data/card-defs';
 import type { Vec2 } from '$lib/utils/vec2';
 
@@ -95,8 +95,6 @@ export function makeBoard(
   stacks: Stack[],
   width: number,
   height: number,
-  currency: number = 0,
-  shop: Omit<ShopItem, 'id'>[] = [],
   discovered: boolean = false,
 ): Board {
   return {
@@ -105,8 +103,6 @@ export function makeBoard(
     stacks,
     width,
     height,
-    currency,
-    shop: shop.map((item) => ({ ...item, id: nextId++ })),
     discovered,
     connections: [],
   };

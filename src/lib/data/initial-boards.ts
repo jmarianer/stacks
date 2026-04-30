@@ -19,8 +19,6 @@ export const initialBoards: Board[] = [
     ],
     176,
     112,
-    0,
-    [],
     true, // discovered
   ),
   makeBoard(

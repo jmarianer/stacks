@@ -26,14 +26,6 @@ export type Stack = {
   activeRecipeId: string | null; // null = no active recipe
 };
 
-export type ShopItem = {
-  id: number;
-  cardType: CardType;
-  price: number;
-  label: string;
-  color: string;
-};
-
 export type SolFeedResult = {
   needed: number;
   provided: number;
@@ -62,8 +54,6 @@ export type Board = {
   stacks: Stack[];
   width: number; // vmin
   height: number; // vmin
-  currency: number;
-  shop: ShopItem[];
   discovered: boolean;
   connections: Connection[];
 };

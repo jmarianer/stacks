@@ -1,26 +1,19 @@
 <script lang="ts">
-  import type { Clock, ShopItem } from '$lib/types/game-state';
-  import { CARD_CATALOG } from '$lib/data/card-defs';
+  import type { Clock } from '$lib/types/game-state';
 
   let {
     clock,
     solProgress,
-    currency,
     energyAvailable,
     energyNeeded,
-    shop,
     routingMode = $bindable(),
-    onBuyCard,
     onSetSpeed,
   }: {
     clock: Clock;
     solProgress: number;
-    currency: number;
     energyAvailable: number;
     energyNeeded: number;
-    shop: ShopItem[];
     routingMode: boolean;
-    onBuyCard: (item: ShopItem) => void;
     onSetSpeed: (clock: Clock, speed: number) => void;
   } = $props();
 </script>
@@ -44,7 +37,6 @@
   </div>
   <span class="sol-hud">Sol {clock.sol}</span>
   <div class="sol-bar"><div class="sol-bar-fill" style="width: {solProgress * 100}%"></div></div>
-  <span class="currency">${currency}</span>
   <span class="energy-hud" class:short={energyAvailable < energyNeeded}>
     ⚡ {energyAvailable} / {energyNeeded}
   </span>
@@ -54,14 +46,6 @@
     onclick={() => (routingMode = !routingMode)}
     title="Routing mode (R)">⛓</button
   >
-  <div class="shop">
-    {#each shop as item (item.id)}
-      <button class="shop-item" disabled={currency < item.price} onclick={() => onBuyCard(item)}>
-        <img class="shop-image" src="/cards/{CARD_CATALOG[item.cardType].image}" alt={item.label} />
-        <span class="shop-price">${item.price}</span>
-      </button>
-    {/each}
-  </div>
 </div>
 
 <style>
@@ -129,10 +113,6 @@
       }
     }
 
-    .currency {
-      min-width: 4rem;
-    }
-
     .energy-hud {
       opacity: 0.85;
       &.short {
@@ -162,39 +142,5 @@
       }
     }
 
-    .shop {
-      display: flex;
-      gap: 0.5rem;
-      pointer-events: all;
-    }
-
-    .shop-item {
-      display: flex;
-      align-items: center;
-      gap: 0.4rem;
-      padding: 0.2rem 0.75rem;
-      background: rgba(255, 255, 255, 0.15);
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      border-radius: 0.4rem;
-      color: white;
-      font-family: 'BigNoodleTitling', sans-serif;
-      font-size: 1.25rem;
-      cursor: pointer;
-
-      &:hover:not(:disabled) {
-        background: rgba(255, 255, 255, 0.25);
-      }
-
-      &:disabled {
-        opacity: 0.4;
-        cursor: default;
-      }
-
-      .shop-image {
-        width: 1.5rem;
-        height: 1.5rem;
-        object-fit: contain;
-      }
-    }
   }
 </style>
