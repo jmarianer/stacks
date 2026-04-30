@@ -52,9 +52,9 @@
       }
 
       &.active {
-        background: rgba(244, 196, 48, 0.2);
-        border-color: #f4c430;
-        color: #f4c430;
+        background: color-mix(in srgb, var(--accent) 20%, transparent);
+        border-color: var(--accent);
+        color: var(--accent);
         opacity: 1;
       }
     }

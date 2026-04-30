@@ -331,15 +331,15 @@
   .board-area {
     position: relative;
     overflow: hidden;
-    background-color: #3d2b1f;
+    background-color: var(--board-outer-bg);
   }
 
   :global .board {
     position: relative;
-    background-color: #c9a96e;
+    background-color: var(--board-bg);
     transform-origin: 0 0;
-    border: 1vmin solid #8b6914;
-    border-radius: 5vmin;
+    border: 1vmin solid var(--board-border);
+    border-radius: var(--board-radius);
     overflow: hidden;
 
     .progress-bar {

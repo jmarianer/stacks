@@ -34,8 +34,8 @@
   }
 
   .sol-dialog {
-    background: #1a1a2e;
-    border: 2px solid #f4c430;
+    background: var(--chrome-bg);
+    border: 2px solid var(--accent);
     border-radius: 1rem;
     padding: 2rem 3rem;
     display: flex;
@@ -47,7 +47,7 @@
 
     .sol-title {
       font-size: 2.5rem;
-      color: #f4c430;
+      color: var(--accent);
       letter-spacing: 0.05em;
     }
 
@@ -71,16 +71,16 @@
     .sol-continue {
       margin-top: 0.5rem;
       padding: 0.5rem 2rem;
-      background: #f4c430;
+      background: var(--btn-active-bg);
       border: none;
       border-radius: 0.5rem;
       font-family: 'BigNoodleTitling', sans-serif;
       font-size: 1.5rem;
-      color: #1a1a2e;
+      color: var(--btn-active-text);
       cursor: pointer;
 
       &:hover {
-        background: #ffe066;
+        background: var(--accent-hover);
       }
     }
   }

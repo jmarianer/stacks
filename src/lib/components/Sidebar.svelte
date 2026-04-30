@@ -145,10 +145,10 @@
   .sidebar {
     grid-row: 1 / 3;
     grid-column: 2;
-    background: rgba(10, 10, 20, 0.92);
+    background: var(--chrome-bg);
     border-left: 1px solid rgba(255, 255, 255, 0.1);
     font-family: 'BigNoodleTitling', sans-serif;
-    color: white;
+    color: var(--text);
     display: flex;
     flex-direction: column;
     z-index: 5;
@@ -172,7 +172,7 @@
     background: none;
     border: none;
     border-bottom: 2px solid transparent;
-    color: rgba(255, 255, 255, 0.5);
+    color: var(--text-dim);
     font-family: 'BigNoodleTitling', sans-serif;
     font-size: 1rem;
     padding: 0.5rem;
@@ -180,12 +180,12 @@
     position: relative;
 
     &:hover {
-      color: white;
+      color: var(--text);
     }
 
     &.active {
-      color: #f4c430;
-      border-bottom-color: #f4c430;
+      color: var(--accent);
+      border-bottom-color: var(--accent);
     }
   }
 
@@ -194,7 +194,7 @@
     width: 0.4rem;
     height: 0.4rem;
     border-radius: 50%;
-    background: #f4c430;
+    background: var(--accent);
     margin-left: 0.3rem;
     vertical-align: middle;
     position: relative;
@@ -221,10 +221,10 @@
     align-items: center;
     gap: 0.5rem;
     font-size: 1rem;
-    color: rgba(255, 255, 255, 0.55);
+    color: var(--text-dim);
 
     &.done {
-      color: #4caf50;
+      color: var(--color-health);
     }
 
     .quest-check {
@@ -270,7 +270,7 @@
 
   .stat-header {
     font-size: 1.2rem;
-    color: #f4c430;
+    color: var(--accent);
     margin-bottom: 0.2rem;
   }
 
@@ -294,7 +294,7 @@
 
       .stat-hp-fill {
         height: 100%;
-        background: #4caf50;
+        background: var(--color-health);
         border-radius: 0.25rem;
       }
     }
@@ -313,7 +313,7 @@
     font-size: 0.9rem;
 
     .stat-abbr {
-      color: #80cbc4;
+      color: var(--color-teal);
       font-size: 0.85rem;
     }
     .stat-full {
@@ -321,7 +321,7 @@
     }
     .stat-val {
       text-align: right;
-      color: #f4c430;
+      color: var(--accent);
     }
     .stat-effect {
       opacity: 0.45;
@@ -341,7 +341,7 @@
       flex-shrink: 0;
     }
     .inv-item {
-      color: #f4c430;
+      color: var(--accent);
       opacity: 0.7;
     }
     .inv-active {

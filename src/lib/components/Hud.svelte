@@ -54,9 +54,9 @@
     align-items: center;
     gap: 1rem;
     padding: 0.5rem 1rem;
-    background: rgba(10, 10, 20);
+    background: var(--chrome-bg);
     font-family: 'BigNoodleTitling', sans-serif;
-    color: white;
+    color: var(--text);
     font-size: 1.5rem;
     pointer-events: none;
 
@@ -67,10 +67,10 @@
     }
 
     .speed-btn {
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid rgba(255, 255, 255, 0.25);
+      background: var(--btn-bg);
+      border: 1px solid var(--btn-border);
       border-radius: 0.3rem;
-      color: white;
+      color: var(--text);
       font-family: 'BigNoodleTitling', sans-serif;
       font-size: 1.1rem;
       padding: 0.1rem 0.4rem;
@@ -83,9 +83,9 @@
       }
 
       &.active {
-        background: rgba(244, 196, 48, 0.25);
-        border-color: #f4c430;
-        color: #f4c430;
+        background: color-mix(in srgb, var(--accent) 25%, transparent);
+        border-color: var(--accent);
+        color: var(--accent);
         opacity: 1;
       }
 
@@ -108,7 +108,7 @@
 
       .sol-bar-fill {
         height: 100%;
-        background: #f4c430;
+        background: var(--accent);
         transition: width 0.1s linear;
       }
     }
@@ -122,10 +122,10 @@
     }
 
     .recipes-toggle {
-      background: rgba(255, 255, 255, 0.15);
-      border: 1px solid rgba(255, 255, 255, 0.3);
+      background: var(--btn-bg);
+      border: 1px solid var(--btn-border);
       border-radius: 0.4rem;
-      color: white;
+      color: var(--text);
       font-size: 1.25rem;
       padding: 0.2rem 0.5rem;
       cursor: pointer;
@@ -136,9 +136,9 @@
       }
 
       &.active {
-        background: rgba(244, 196, 48, 0.25);
-        border-color: #f4c430;
-        color: #f4c430;
+        background: color-mix(in srgb, var(--accent) 25%, transparent);
+        border-color: var(--accent);
+        color: var(--accent);
       }
     }
 

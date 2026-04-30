@@ -106,9 +106,9 @@
 
 <style>
   :global .card {
-    border-radius: 1vmin;
+    border-radius: var(--card-radius);
     position: absolute;
-    border: 0.5vmin solid white;
+    border: 0.5vmin solid var(--card-border);
     box-shadow: -0.3vmin -0.5vmin 1vmin rgba(0, 0, 0, 0.5);
     &.drop-target {
       filter: brightness(0.75);
@@ -160,7 +160,7 @@
     justify-content: center;
     font-family: 'BigNoodleTitling';
     color: white;
-    border-bottom: 0.5vmin solid #000;
+    border-bottom: 0.5vmin solid var(--card-border);
     padding: 0 1vmin;
     white-space: nowrap;
     overflow: hidden;
