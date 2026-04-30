@@ -61,16 +61,6 @@ export const recipes: Recipe[] = [
     results: [{ action: 'weighted', cards: { helium3: 100, biomass: 100 } }],
   },
   {
-    id: 'make-energy-cell',
-    label: 'Craft Energy Cell',
-    time: 2000,
-    ingredients: [
-      { match: 'plasteel', consumed: true },
-      { match: 'helium3', consumed: true },
-    ],
-    results: [{ action: 'card', card: 'energy-cell' }],
-  },
-  {
     id: 'make-multi-cell',
     label: 'Combine: Multi-Cell',
     time: 2000,

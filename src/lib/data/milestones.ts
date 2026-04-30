@@ -18,11 +18,10 @@ export const MILESTONES: Milestone[] = [
     id: 'first-solar-panel',
     title: 'Build solar panel',
     condition: ({ boards }) => hasCard(boards, 'solar-panel'),
-    unlockRecipeIds: ['make-energy-cell'],
   },
   {
     id: 'foundation',
-    title: 'Use solar panel to generate power',
+    title: 'Use solar panel to generate energy',
     condition: ({ usedRecipeIds }) => usedRecipeIds.includes('solar-panel-generate'),
     unlockRecipeIds: ['build-foundation'],
   },
