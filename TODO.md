@@ -2,13 +2,11 @@
 
 ## UI
 
-- Ideas should show what the recipe is on mouseover / right-click.
 - Music/SFX
 - Hints about interactions. See Excalidraw for how they did it, it's really great.
-- Show upcoming milestones/quests. We'll give them titles or something.
+- Don't show all the milestones at the beginning
 - Rename bandaids to something that makes it clear what they do. Figure out what they do first.
 - Figure out a nicer color scheme
-- Backspace sells everything but buildings (workbench, foundation)
 - Better UI for routing (not sure what that is)
 - Show icon (vs. name) on sort/route arrow
 - Mouse pointer shouldn't be "select text" on card titles (or really anywhere)
@@ -16,7 +14,6 @@
 - Better UI (than right-clicking) for selecting a card
 - Select recipe for workbench, so that (eg) it doesn't create band-aids when it's meant for unikits
 - Tutorial / what's-next things. E.g., "OK now you've created a foundation, here's how to use it", "You just discovered your first teleporation card", "Congratulations on completing X. To get to X+1 you need to make 10 foozles"
-- Remove idea cards and instead add a UI for "new recipe discovered", such as a red dot by the tab for recipes once we have one.
 
 ## Bugs
 
