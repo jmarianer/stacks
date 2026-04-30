@@ -17,7 +17,7 @@
   --board-outer-bg:   #3d2b1f;
   --board-bg:         #c9a96e;
   --board-border:     #8b6914;
-  --board-radius:     5vmin;
+  --board-radius:     2.5vmin;
 
   /* Text */
   --text:             #ffffff;
@@ -52,14 +52,14 @@
 }
 
 /* ── Station (light) ─────────────────────────────────────────────────────── */
-@media (prefers-color-scheme: light) { :root {
+/* Applied when system preference is light (and user hasn't forced dark)      */
+@media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) {
   --chrome-bg:        #edf6fa;
   --chrome-border:    rgba(0, 131, 143, 0.18);
 
   --board-outer-bg:   #a8c8de;
   --board-bg:         #cde4f0;
   --board-border:     #7ab4ce;
-  --board-radius:     2.5vmin;
 
   --text:             #0a1a28;
   --text-dim:         rgba(10, 26, 40, 0.50);
@@ -80,9 +80,38 @@
   --btn-active-text:  #ffffff;
   --btn-active-border:#00838f;
 
-  --card-border:      rgba(0, 100, 120, 0.55);
-  --card-radius:      0.4vmin;
-
   --sol-fill:         #2e7d32;
   --recipe-fill:      rgba(46, 125, 50, 0.55);
 }}
+
+/* Explicit light override — always applied regardless of system preference    */
+:root[data-theme="light"] {
+  --chrome-bg:        #edf6fa;
+  --chrome-border:    rgba(0, 131, 143, 0.18);
+
+  --board-outer-bg:   #a8c8de;
+  --board-bg:         #cde4f0;
+  --board-border:     #7ab4ce;
+
+  --text:             #0a1a28;
+  --text-dim:         rgba(10, 26, 40, 0.50);
+
+  --accent:           #00838f;
+  --accent-hover:     #00acc1;
+  --accent-on:        #ffffff;
+
+  --color-health:     #2e7d32;
+  --color-danger:     #c62828;
+  --color-energy:     #00838f;
+  --color-teal:       #00695c;
+  --color-green:      #388e3c;
+
+  --btn-bg:           rgba(0, 131, 143, 0.07);
+  --btn-border:       rgba(0, 131, 143, 0.22);
+  --btn-active-bg:    #00838f;
+  --btn-active-text:  #ffffff;
+  --btn-active-border:#00838f;
+
+  --sol-fill:         #2e7d32;
+  --recipe-fill:      rgba(46, 125, 50, 0.55);
+}

@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { Clock } from '$lib/types/game-state';
+  import { themeState, type ThemeMode } from '$lib/state/theme.svelte';
 
   let {
     clock,
@@ -16,6 +17,13 @@
     routingMode: boolean;
     onSetSpeed: (clock: Clock, speed: number) => void;
   } = $props();
+
+  const themeIcon: Record<ThemeMode, string> = { system: '⊙', dark: '☽', light: '☀' };
+  const themeTitle: Record<ThemeMode, string> = {
+    system: 'Theme: system',
+    dark: 'Theme: dark',
+    light: 'Theme: light',
+  };
 </script>
 
 <div class="hud">
@@ -45,6 +53,11 @@
     class:active={routingMode}
     onclick={() => (routingMode = !routingMode)}
     title="Routing mode (R)">⛓</button
+  >
+  <button
+    class="theme-toggle"
+    onclick={() => themeState.cycle()}
+    title={themeTitle[themeState.mode]}>{themeIcon[themeState.mode]}</button
   >
 </div>
 
@@ -102,13 +115,13 @@
     .sol-bar {
       width: 6rem;
       height: 0.5rem;
-      background: rgba(255, 255, 255, 0.2);
+      background: color-mix(in srgb, var(--text) 25%, transparent);
       border-radius: 0.25rem;
       overflow: hidden;
 
       .sol-bar-fill {
         height: 100%;
-        background: var(--accent);
+        background: var(--sol-fill);
         transition: width 0.1s linear;
       }
     }
@@ -139,6 +152,23 @@
         background: color-mix(in srgb, var(--accent) 25%, transparent);
         border-color: var(--accent);
         color: var(--accent);
+      }
+    }
+
+    .theme-toggle {
+      background: var(--btn-bg);
+      border: 1px solid var(--btn-border);
+      border-radius: 0.4rem;
+      color: var(--text);
+      font-size: 1.1rem;
+      padding: 0.2rem 0.5rem;
+      cursor: pointer;
+      pointer-events: all;
+      opacity: 0.7;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.25);
+        opacity: 1;
       }
     }
 
