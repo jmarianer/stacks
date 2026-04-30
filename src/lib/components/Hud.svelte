@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { Clock } from '$lib/types/game-state';
+  import type { Board, Clock } from '$lib/types/game-state';
   import { themeState, type ThemeMode } from '$lib/state/theme.svelte';
 
   let {
@@ -9,6 +9,8 @@
     energyNeeded,
     routingMode = $bindable(),
     onSetSpeed,
+    boards,
+    currentBoardIndex = $bindable(),
   }: {
     clock: Clock;
     solProgress: number;
@@ -16,6 +18,8 @@
     energyNeeded: number;
     routingMode: boolean;
     onSetSpeed: (clock: Clock, speed: number) => void;
+    boards: Board[];
+    currentBoardIndex: number;
   } = $props();
 
   const themeIcon: Record<ThemeMode, string> = { system: '⊙', dark: '☽', light: '☀' };
@@ -27,7 +31,7 @@
 </script>
 
 <div class="hud">
-  <div class="speed-controls">
+  <nav class="speed-controls">
     <button
       class="hud-btn"
       class:active={clock.speed === 0 && !clock.endOfSol}
@@ -42,7 +46,7 @@
         disabled={clock.endOfSol}>{s}×</button
       >
     {/each}
-  </div>
+  </nav>
   <span class="sol-hud">Sol {clock.sol}</span>
   <div class="sol-bar"><div class="sol-bar-fill" style="width: {solProgress * 100}%"></div></div>
   <span class="energy-hud" class:short={energyAvailable < energyNeeded}>
@@ -57,6 +61,20 @@
   <button class="hud-btn" onclick={() => themeState.cycle()} title={themeTitle[themeState.mode]}
     >{themeIcon[themeState.mode]}</button
   >
+
+  {#if boards.filter((b) => b.discovered).length > 1}
+    <nav class="location-nav">
+      {#each boards as board, i (board.name)}
+        {#if board.discovered}
+          <button
+            class="hud-btn"
+            class:active={i === currentBoardIndex}
+            onclick={() => (currentBoardIndex = i)}>{board.name}</button
+          >
+        {/if}
+      {/each}
+    </nav>
+  {/if}
 </div>
 
 <style>
@@ -70,12 +88,6 @@
     color: var(--text);
     font-size: 1.5rem;
     pointer-events: none;
-
-    .speed-controls {
-      display: flex;
-      gap: 0.2rem;
-      pointer-events: all;
-    }
 
     .hud-btn {
       background: var(--btn-bg);
@@ -127,6 +139,12 @@
         color: #ff6b6b;
         opacity: 1;
       }
+    }
+
+    nav {
+      display: flex;
+      padding: 0;
+      gap: 0.2rem;
     }
   }
 </style>

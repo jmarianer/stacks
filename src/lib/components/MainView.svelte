@@ -229,6 +229,8 @@
     {energyNeeded}
     bind:routingMode
     onSetSpeed={setSpeed}
+    boards={gameState.boards}
+    bind:currentBoardIndex={gameState.currentBoardIndex} 
   />
   <div class="board-area" bind:this={boardAreaEl}>
     <Draggable
@@ -298,9 +300,6 @@
       {/if}
     </Draggable>
     <SolEndModal clock={gameState.clock} oncontinue={continueSol} />
-    {#if gameState.boards.filter((b) => b.discovered).length > 1}
-      <LocationNav boards={gameState.boards} bind:currentBoardIndex={gameState.currentBoardIndex} />
-    {/if}
   </div>
   <Sidebar
     {gameState}
