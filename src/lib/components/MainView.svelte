@@ -13,7 +13,6 @@
   import type { Stack, Board, CardData } from '$lib/types/game-state';
   import Hud from './Hud.svelte';
   import Sidebar from './Sidebar.svelte';
-  import LocationNav from './LocationNav.svelte';
   import type { CardDef } from '$lib/types/card-types';
   import { CARD_CATALOG } from '$lib/data/card-defs';
   import { getUnitWeapon } from '$lib/utils/unit-stats';
