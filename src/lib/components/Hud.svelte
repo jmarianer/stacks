@@ -54,10 +54,8 @@
     onclick={() => (routingMode = !routingMode)}
     title="Routing mode (R)">⛓</button
   >
-  <button
-    class="hud-btn"
-    onclick={() => themeState.cycle()}
-    title={themeTitle[themeState.mode]}>{themeIcon[themeState.mode]}</button
+  <button class="hud-btn" onclick={() => themeState.cycle()} title={themeTitle[themeState.mode]}
+    >{themeIcon[themeState.mode]}</button
   >
 </div>
 
