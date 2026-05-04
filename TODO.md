@@ -22,18 +22,10 @@
 ## Gameplay
 
 - Can't see new worlds until teleported at least once?
-- Deactivate physics for noncombatants. Combat takes place on a higher plane or something
 - Maybe training should be a later-game thing? Not sure.
 - Stat limits
 - Use bandaids and unikits outside of combat
-- Unrelated idea: tech tree + research to replace milestones? (Obv doesn't replace the milestones that are enemy attacks)
-- Astronauts shouldn't go back to their posts immediately at the end of combat. It's too jarring. Either just stay put or go back slowly.
 - Attacks from rover and drill should be harder. Thought: rover = alien, drill = alien bug. See old game for stats.
 - Alien bug attack first time going to the eggs world. (should be a miniboss battle, harder than the alien from the drill)
-- Immovable buildings: drill-tres2b, the different notStargate parts (later)
-- Discover Tres-2b, desert and snow
-- Add miniboss first notStargate par to desert
-- Four more planets, each with a miniboss and a notStargate part. See old game for ideas about the planets and their method of discovery
-- After all notStargate parts are discovered, we have a (heavy) recipe for the controller. Think all the elements in the game starting with energy cells and all the way up to wishalloy and dark matter, plus five astronauts (and disallowing service drones) and a heckuva lot of time (and they can't leave their station to fight attackers or the time resets)
-- An astronaut operating each of the five stargate parts, plus mucho energy megacells on the controller. Is that the winning condition or does it just open up phase n+1 of the game?
-- Battlebots (see old game for complicated recipes). Figure out how to make it so they're required for some of the later minibosses, or maybe there's a megaboss after the notStargate that requires a bunch of them. Hmmm, maybe a final boss that is gated on making _n_ battlebots and equipping them all with laser cannons. _n_ should be large enough that the player needs to set up a production chain.
+- Immovable buildings: drill-tres2b, the different dial parts (later)
+- Four more planets, each with a miniboss and a dial part. See old game for ideas about the planets and their method of discovery
