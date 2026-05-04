@@ -22,10 +22,16 @@
 ## Gameplay
 
 - Can't see new worlds until teleported at least once?
-- Maybe training should be a later-game thing? Not sure.
 - Stat limits
 - Use bandaids and unikits outside of combat
-- Attacks from rover and drill should be harder. Thought: rover = alien, drill = alien bug. See old game for stats.
-- Alien bug attack first time going to the eggs world. (should be a miniboss battle, harder than the alien from the drill)
+- Drill should have some chance of causing an alien bug attack. See old game for stats.
+- Alien bug attack first time going to the eggs world. (should be a miniboss battle, harder than the alien from the drill. Maybe the same bug from the drill but several instead of just one?)
 - Immovable buildings: drill-tres2b, the different dial parts (later)
-- Four more planets, each with a miniboss and a dial part. See old game for ideas about the planets and their method of discovery
+- Remove unused planets: desert, snow, flowers
+
+## Sequel (out of scope for now)
+
+- Builing multiple drills for multiple planets
+- Battle-bots assembly (faster but more steps, easier to parallelize)
+- Mark II battle-bot (=mark I plus some exotic material or something)
+- A harder boss to use that with.
