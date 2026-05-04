@@ -6,7 +6,7 @@ import type { GameState } from '$lib/types/game-state';
 import { makeInitialGameState } from '$lib/data/initial-boards';
 
 // Recipes available from game start (alwaysKnown or in initialKnownRecipeIds)
-const KNOWN = ['punch-crust-chunk', 'punch-plasteel-deposit', 'make-energy-cell'];
+const KNOWN = ['punch-crust-chunk', 'punch-plasteel-deposit', 'make-multi-cell'];
 
 function makeTestStack(types: CardType[]) {
   return makeStack({ x: 0, y: 0 }, types);
@@ -24,7 +24,7 @@ describe('matchRecipe', () => {
   });
 
   it('matches a basic recipe when ingredients are present', () => {
-    testRecipe(['helium3', 'plasteel'], KNOWN, 'make-energy-cell');
+    testRecipe(['energy-cell', 'energy-cell', 'energy-cell', 'energy-cell'], KNOWN, 'make-multi-cell');
   });
 
   it('returns null when required ingredients are missing', () => {
@@ -116,17 +116,20 @@ describe('executeRecipe (via tick)', () => {
 
   it('removes the stack from the board when all cards are consumed', () => {
     const { gameState, board, stack } = makeTestGameState(
-      ['plasteel', 'helium3'],
-      'make-energy-cell',
+      ['energy-cell', 'energy-cell', 'energy-cell', 'energy-cell'],
+      'make-multi-cell',
     );
     tick(board, gameState, 2000);
     expect(board.stacks).not.toContain(stack);
   });
 
   it('adds the output card to the board', () => {
-    const { gameState, board } = makeTestGameState(['plasteel', 'helium3'], 'make-energy-cell');
+    const { gameState, board } = makeTestGameState(
+      ['energy-cell', 'energy-cell', 'energy-cell', 'energy-cell'],
+      'make-multi-cell',
+    );
     tick(board, gameState, 2000);
-    expect(board.stacks.flatMap((s) => s.cards).some((c) => c.type === 'energy-cell')).toBe(true);
+    expect(board.stacks.flatMap((s) => s.cards).some((c) => c.type === 'multi-cell')).toBe(true);
   });
 
   it('resets progress state after execution', () => {
