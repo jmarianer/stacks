@@ -47,10 +47,6 @@ export const CARD_CATALOG: Record<string, CardDef> = {
     color: '#455A64',
     usesInitial: 3,
   },
-  'snow-block': { title: 'Snow Block', image: 'snow-block.svg', color: '#B3E5FC' },
-  'snow-pile': { title: 'Snow Pile', image: 'snow-pile.svg', color: '#90CAF9' },
-  'snow-sphere': { title: 'Snow Sphere', image: 'snow-sphere.svg', color: '#64B5F6' },
-  snowballs: { title: 'Snowballs', image: 'snowballs.svg', color: '#4FC3F7' },
   unobtainium: { title: 'Unobtainium', image: 'unobtainium.svg', color: '#E91E63' },
   wishalloy: { title: 'Wishalloy', image: 'wishalloy.svg', color: '#B8860B' },
   // Medical
@@ -130,7 +126,6 @@ export const CARD_CATALOG: Record<string, CardDef> = {
     },
   },
   // Critters / wildlife
-  cactus: { title: 'Cactus', image: 'cactus.svg', color: '#4CAF50' },
   'alien-eggs': { title: 'Alien Eggs', image: 'alien-eggs.svg', color: '#CDDC39' },
   // Buildings
   workbench: { title: 'Workbench', image: 'workbench.svg', color: '#795548' },
@@ -151,12 +146,6 @@ export const CARD_CATALOG: Record<string, CardDef> = {
     image: 'cloning-chamber.svg',
     color: '#4A148C',
   },
-  'snow-converter': {
-    title: 'Snow Converter',
-    image: 'snow-converter.svg',
-    color: '#90CAF9',
-  },
-  'power-flower': { title: 'Power Flower', image: 'power-flower.svg', color: '#FF4081' },
   'drill-tres2b': { title: 'Tres-2b Drill', image: 'drill.svg', color: '#9C27B0' },
   rover: { title: 'Rover', image: 'rover.svg', color: '#FF8F00' },
   foundation: { title: 'Foundation', image: 'foundation.svg', color: '#E91E63' },

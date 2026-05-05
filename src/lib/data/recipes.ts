@@ -74,27 +74,6 @@ export const recipes: Recipe[] = [
     ingredients: [{ match: 'multi-cell', count: 4, consumed: true }],
     results: [{ action: 'card', card: 'mega-cell' }],
   },
-  {
-    id: 'make-snow-sphere',
-    label: 'Pack Snow Sphere',
-    time: 3000,
-    ingredients: [
-      { match: 'snow-pile', count: 3, consumed: true },
-      { match: 'people', consumed: false },
-    ],
-    results: [{ action: 'card', card: 'snow-sphere' }],
-  },
-  {
-    id: 'make-snowballs',
-    label: 'Pack Snowballs',
-    time: 3000,
-    ingredients: [
-      { match: 'snow-pile', count: 2, consumed: true },
-      { match: 'people', consumed: false },
-    ],
-    results: [{ action: 'card', card: 'snowballs' }],
-  },
-
   // --- Recipes unlocked via milestones ---
   {
     id: 'build-workbench',
@@ -274,32 +253,6 @@ export const recipes: Recipe[] = [
     results: [{ action: 'card', card: 'biomass' }],
   },
 
-  // --- Cactus ---
-  {
-    id: 'punch-cactus',
-    label: 'Punch Cactus',
-    time: 3000,
-    alwaysKnown: true,
-    ingredients: [
-      { match: 'cactus', consumed: true },
-      { match: 'people', consumed: false },
-    ],
-    results: [{ action: 'card', card: 'biomass' }],
-  },
-
-  // --- Snow converter ---
-  {
-    id: 'make-snow-block',
-    label: 'Pack Snow Block',
-    time: 3000,
-    alwaysKnown: true,
-    ingredients: [
-      { match: 'snow-converter', consumed: false },
-      { match: 'snow-pile', count: 3, consumed: true },
-    ],
-    results: [{ action: 'card', card: 'snow-block' }],
-  },
-
   // --- Foundation ---
   {
     id: 'build-foundation',
@@ -335,11 +288,7 @@ export const recipes: Recipe[] = [
       { match: 'rover', consumed: false },
       { match: 'people', consumed: false },
     ],
-    results: [
-      { action: 'weighted', cards: { 'crust-chunk': 100, bacteria: 20 } },
-      { action: 'discover-board', boardName: 'Flowers', chance: 10 },
-      { action: 'discover-board', boardName: 'Desert', chance: 10, prerequisite: 'Flowers' },
-    ],
+    results: [{ action: 'weighted', cards: { 'crust-chunk': 100, bacteria: 20 } }],
   },
 
   // --- Tres-2b drill ---
@@ -353,19 +302,6 @@ export const recipes: Recipe[] = [
       { match: 'people', consumed: false },
     ],
     results: [{ action: 'card', card: 'dark-matter-chunk' }],
-  },
-
-  // --- Power flower ---
-  {
-    id: 'use-power-flower',
-    label: 'Power Flower: Generate Energy',
-    time: 15000,
-    alwaysKnown: true,
-    ingredients: [
-      { match: 'power-flower', consumed: false },
-      { match: 'computronium', consumed: false },
-    ],
-    results: [{ action: 'card', card: 'energy-cell' }],
   },
 
   // --- Storage crate: expand board space ---
