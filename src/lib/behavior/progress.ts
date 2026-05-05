@@ -247,7 +247,8 @@ function executeRecipe(board: Board, gameState: GameState, stack: Stack, recipe:
   }
 }
 
-export function checkMilestones(gameState: GameState, currentBoard: Board): void {
+export function checkMilestones(gameState: GameState, currentBoard: Board): string[] {
+  const notifications: string[] = [];
   for (const milestone of MILESTONES) {
     if (gameState.clock.firedMilestones.includes(milestone.id)) continue;
     if (!milestone.condition(gameState)) continue;
@@ -260,7 +261,9 @@ export function checkMilestones(gameState: GameState, currentBoard: Board): void
         makeStack({ x: currentBoard.width / 2, y: currentBoard.height / 2 }, [card]),
       );
     }
+    if (milestone.notification) notifications.push(milestone.notification);
   }
+  return notifications;
 }
 
 /** Advance recipe progress on a single board. */

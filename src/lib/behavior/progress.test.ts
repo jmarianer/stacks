@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { matchRecipe, tick } from '$lib/behavior/progress';
+import { matchRecipe, tick, checkMilestones } from '$lib/behavior/progress';
 import { makeBoard, makeStack } from '$lib/utils/card-factories';
 import { type CardType } from '$lib/data/card-defs';
 import type { GameState } from '$lib/types/game-state';
@@ -24,7 +24,11 @@ describe('matchRecipe', () => {
   });
 
   it('matches a basic recipe when ingredients are present', () => {
-    testRecipe(['energy-cell', 'energy-cell', 'energy-cell', 'energy-cell'], KNOWN, 'make-multi-cell');
+    testRecipe(
+      ['energy-cell', 'energy-cell', 'energy-cell', 'energy-cell'],
+      KNOWN,
+      'make-multi-cell',
+    );
   });
 
   it('returns null when required ingredients are missing', () => {
@@ -161,5 +165,61 @@ describe('executeRecipe (via tick)', () => {
     tick(board, gameState, 2000);
     expect(board.stacks).toContain(stack);
     expect(stack.cards.filter((c) => c.type === 'energy-cell').length).toBe(1);
+  });
+});
+
+describe('checkMilestones (milestone chain)', () => {
+  // Build a game state with specific cards already present, with all early milestones
+  // pre-fired so they don't interfere with what we're testing.
+  function makeStateWith(cardTypes: CardType[]): {
+    gs: GameState;
+    board: ReturnType<typeof makeBoard>;
+  } {
+    const stack = makeStack({ x: 0, y: 0 }, cardTypes);
+    const board = makeBoard('Base', [stack], 100, 100, true);
+    const gs: GameState = {
+      ...makeInitialGameState(),
+      boards: [board],
+      clock: {
+        sol: 1,
+        solStartTime: null,
+        endOfSol: false,
+        lastSolFeeds: [],
+        speed: 1,
+        lastActiveSpeed: 1,
+        vTime: 0,
+        vTimeAt: null,
+        firedMilestones: [
+          'solar-panel',
+          'first-solar-panel',
+          'foundation',
+          'service-drone',
+          'two-foundations',
+          'foundation-route',
+          'workbench',
+          'first-workbench',
+          'first-electronics',
+          'bacteria-invasion',
+          'post-invasion',
+        ],
+      },
+      knownRecipeIds: [],
+    };
+    return { gs, board };
+  }
+
+  it('first-drill: unlocks adv-workbench, rover, and cloning-chamber when drill is built', () => {
+    const { gs, board } = makeStateWith(['drill']);
+    checkMilestones(gs, board);
+    expect(gs.knownRecipeIds).toContain('build-adv-workbench');
+    expect(gs.knownRecipeIds).toContain('build-rover');
+    expect(gs.knownRecipeIds).toContain('build-cloning-chamber');
+  });
+
+  it('build-rover: returns a notification when rover is built', () => {
+    const { gs, board } = makeStateWith(['rover']);
+    gs.clock.firedMilestones.push('first-drill');
+    const notifications = checkMilestones(gs, board);
+    expect(notifications).toContain('Rover ready for expedition!');
   });
 });

@@ -66,7 +66,7 @@ export const MILESTONES: Milestone[] = [
     id: 'first-electronics',
     title: 'Construct electronics',
     condition: ({ boards }) => hasCard(boards, 'electronics'),
-    unlockRecipeIds: ['make-blaster', 'build-adv-workbench'],
+    unlockRecipeIds: ['make-blaster'],
   },
   {
     id: 'bacteria-invasion',
@@ -89,59 +89,72 @@ export const MILESTONES: Milestone[] = [
       !hasCard(boards, 'bacteria'),
     unlockRecipeIds: ['make-band-aid', 'build-drill'],
   },
-  /*
   {
     id: 'first-drill',
+    title: 'Build a drill',
     condition: ({ boards }) => hasCard(boards, 'drill'),
-    unlockRecipeIds: [' 'build-rover', 'make-bolter'],
-  },
-  {
-    id: 'first-adv-workbench',
-    condition: ({ boards }) => hasCard(boards, 'adv-workbench'),
-    unlockRecipeIds: [
-      'build-power-station',
-      'make-computronium',
-      'build-refinery',
-      'make-bolter-heavy',
-      'make-minigun',
-    ],
-  },
-  {
-    id: 'first-power-station',
-    condition: ({ boards }) => hasCard(boards, 'power-station'),
-    unlockRecipeIds: ['build-cloning-chamber'],
-  },
-  {
-    id: 'first-uni-kit',
-    condition: ({ boards }) => hasCard(boards, 'uni-kit'),
-    unlockRecipeIds: ['revive-entity'],
+    unlockRecipeIds: ['build-adv-workbench', 'build-rover', 'build-cloning-chamber', 'make-bolter'],
   },
   {
     id: 'first-cloning-chamber',
+    title: 'Build a cloning chamber',
     condition: ({ boards }) => hasCard(boards, 'cloning-chamber'),
     unlockRecipeIds: ['clone-astronaut'],
   },
   {
-    id: 'first-computronium',
-    condition: ({ boards }) => hasCard(boards, 'computronium'),
-    unlockRecipeIds: ['make-laser-cannon'],
+    id: 'first-adv-workbench',
+    title: 'Build advanced workbench',
+    condition: ({ boards }) => hasCard(boards, 'adv-workbench'),
+    unlockRecipeIds: [
+      'make-computronium',
+      'make-bolter-heavy',
+      'make-minigun',
+      'build-train-st',
+      'build-train-ag',
+      'build-train-en',
+    ],
   },
   {
-    id: 'first-unobtanium',
-    condition: ({ boards }) => hasCard(boards, 'unobtanium'),
-    unlockRecipeIds: ['build-reactor'],
+    id: 'build-rover',
+    title: 'Build a rover',
+    condition: ({ boards }) => hasCard(boards, 'rover'),
+    notification: 'Rover ready for expedition!',
+  },
+  {
+    id: 'first-computronium',
+    title: 'Make computronium',
+    condition: ({ boards }) => hasCard(boards, 'computronium'),
+    unlockRecipeIds: [
+      'build-refinery',
+      'build-reactor',
+      'build-power-station',
+      'make-laser-cannon',
+      'build-train-in',
+    ],
   },
   {
     id: 'first-refinery',
+    title: 'Build a refinery',
     condition: ({ boards }) => hasCard(boards, 'refinery'),
     unlockRecipeIds: ['make-unobtainium'],
   },
   {
-    id: 'first-reactor',
-    condition: ({ boards }) => hasCard(boards, 'reactor'),
-    unlockRecipeIds: ['make-wishalloy'],
+    id: 'first-unobtainium',
+    title: 'Make unobtainium',
+    condition: ({ boards }) => hasCard(boards, 'unobtainium'),
+    unlockRecipeIds: ['make-wishalloy', 'build-train-pe'],
   },
-*/
+  {
+    id: 'first-wishalloy',
+    title: 'Make wishalloy',
+    condition: ({ boards }) => hasCard(boards, 'wishalloy'),
+    notification: 'Wishalloy forged!',
+    unlockRecipeIds: ['build-train-lk'],
+  },
+  {
+    id: 'first-uni-kit',
+    title: 'Make a uni-kit',
+    condition: ({ boards }) => hasCard(boards, 'uni-kit'),
+    unlockRecipeIds: ['revive-entity'],
+  },
 ];
-
-// TODO: add back build-train-{st,en,in,pe,lk} and also -ag.

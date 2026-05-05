@@ -7,4 +7,5 @@ export type Milestone = {
   condition: (gameState: GameState) => boolean;
   unlockRecipeIds?: string[];
   createCards?: CardType[];
+  notification?: string;
 };

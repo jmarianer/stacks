@@ -150,7 +150,7 @@ export const recipes: Recipe[] = [
       { match: 'plasteel', count: 3, consumed: true },
       { match: 'nanocarbon', consumed: true },
       { match: 'people', consumed: false },
-      { match: 'pickaxe', consumed: true }
+      { match: 'pickaxe', consumed: true },
     ],
     results: [{ action: 'card', card: 'drill' }],
   },

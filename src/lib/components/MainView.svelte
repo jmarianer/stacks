@@ -229,7 +229,7 @@
     bind:routingMode
     onSetSpeed={setSpeed}
     boards={gameState.boards}
-    bind:currentBoardIndex={gameState.currentBoardIndex} 
+    bind:currentBoardIndex={gameState.currentBoardIndex}
   />
   <div class="board-area" bind:this={boardAreaEl}>
     <Draggable
