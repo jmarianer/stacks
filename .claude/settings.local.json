@@ -1,5 +1,6 @@
 {
-  "enabledMcpjsonServers": [
-    "svelte"
-  ]
+  "enabledMcpjsonServers": ["svelte"],
+  "permissions": {
+    "allow": ["Bash(npm run *)"]
+  }
 }
