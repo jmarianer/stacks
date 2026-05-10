@@ -8,12 +8,12 @@ Re-enable and complete the full mid-game milestone chain. Many milestones are co
 
 Two milestones — build-rover and make-wishalloy — show a visible player notification. All others unlock silently. Training stations are wired into the chain at the correct tiers.
 
-| Station | Unlocks at |
-|---|---|
+| Station                      | Unlocks at    |
+| ---------------------------- | ------------- |
 | train-st, train-ag, train-en | adv-workbench |
-| train-in | computronium |
-| train-pe | unobtainium |
-| train-lk | wishalloy |
+| train-in                     | computronium  |
+| train-pe                     | unobtainium   |
+| train-lk                     | wishalloy     |
 
 ## Acceptance criteria
 

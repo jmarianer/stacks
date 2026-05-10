@@ -70,6 +70,7 @@ A new player unit type. Battlebots are built at the advanced workbench (manual r
 ### The Five Dial-Part Planets
 
 Five new boards, each with:
+
 - A miniboss with a unique mechanic (per the table in GAME-DESIGN.md)
 - An immobile dial part building placed permanently on that board after the miniboss is defeated
 - A drill recipe that produces the planet's unique core sample
@@ -95,12 +96,12 @@ The controller building recipe: 3 computronium + 3 unobtainium + 1 of each of th
 
 All six training stations are already implemented. They need to be wired into the milestone chain per GAME-DESIGN.md:
 
-| Station | Unlocks at |
-|---|---|
+| Station                      | Unlocks at    |
+| ---------------------------- | ------------- |
 | train-st, train-ag, train-en | adv-workbench |
-| train-in | computronium |
-| train-pe | unobtainium |
-| train-lk | wishalloy |
+| train-in                     | computronium  |
+| train-pe                     | unobtainium   |
+| train-lk                     | wishalloy     |
 
 ### Out-of-Scope Worlds
 
@@ -113,6 +114,7 @@ A good test covers external behavior (what goes in, what comes out) rather than 
 ### Modules to Test
 
 **Win condition monitor**: The most critical new module. Test that:
+
 - The countdown does not start until all six buildings are simultaneously staffed
 - Removing any astronaut resets the countdown
 - The countdown completes and fires the win event after 1 sol with all six staffed continuously
